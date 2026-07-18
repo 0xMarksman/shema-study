@@ -1,0 +1,2557 @@
+[
+  {
+    "day": 1,
+    "tanakh": "Genesis 1-2",
+    "psalm": "Psalm 1",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "Matthew 1"
+  },
+  {
+    "day": 2,
+    "tanakh": "Genesis 3-4",
+    "psalm": "Psalm 2",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "Matthew 2"
+  },
+  {
+    "day": 3,
+    "tanakh": "Genesis 5-6",
+    "psalm": "Psalm 3",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "Matthew 3"
+  },
+  {
+    "day": 4,
+    "tanakh": "Genesis 7-8",
+    "psalm": "Psalm 4",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "Matthew 4"
+  },
+  {
+    "day": 5,
+    "tanakh": "Genesis 9-10",
+    "psalm": "Psalm 5",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "Matthew 5"
+  },
+  {
+    "day": 6,
+    "tanakh": "Genesis 11-12",
+    "psalm": "Psalm 6",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "Matthew 6"
+  },
+  {
+    "day": 7,
+    "tanakh": "Genesis 13-14",
+    "psalm": "Psalm 7",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "Matthew 7"
+  },
+  {
+    "day": 8,
+    "tanakh": "Genesis 15-16",
+    "psalm": "Psalm 8",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "Matthew 8"
+  },
+  {
+    "day": 9,
+    "tanakh": "Genesis 17-18",
+    "psalm": "Psalm 9",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Matthew 9"
+  },
+  {
+    "day": 10,
+    "tanakh": "Genesis 19-20",
+    "psalm": "Psalm 10",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "Matthew 10"
+  },
+  {
+    "day": 11,
+    "tanakh": "Genesis 21-22",
+    "psalm": "Psalm 11",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "Matthew 11"
+  },
+  {
+    "day": 12,
+    "tanakh": "Genesis 23-24",
+    "psalm": "Psalm 12",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "Matthew 12"
+  },
+  {
+    "day": 13,
+    "tanakh": "Genesis 25-26",
+    "psalm": "Psalm 13",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "Matthew 13"
+  },
+  {
+    "day": 14,
+    "tanakh": "Genesis 27-28",
+    "psalm": "Psalm 14",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "Matthew 14"
+  },
+  {
+    "day": 15,
+    "tanakh": "Genesis 29-30",
+    "psalm": "Psalm 15",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Matthew 15"
+  },
+  {
+    "day": 16,
+    "tanakh": "Genesis 31-32",
+    "psalm": "Psalm 16",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Matthew 16"
+  },
+  {
+    "day": 17,
+    "tanakh": "Genesis 33-34",
+    "psalm": "Psalm 17",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Matthew 17"
+  },
+  {
+    "day": 18,
+    "tanakh": "Genesis 35-36",
+    "psalm": "Psalm 18",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Matthew 18"
+  },
+  {
+    "day": 19,
+    "tanakh": "Genesis 37-38",
+    "psalm": "Psalm 19",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "Matthew 19"
+  },
+  {
+    "day": 20,
+    "tanakh": "Genesis 39-40",
+    "psalm": "Psalm 20",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "Matthew 20"
+  },
+  {
+    "day": 21,
+    "tanakh": "Genesis 41-43",
+    "psalm": "Psalm 21",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Matthew 21"
+  },
+  {
+    "day": 22,
+    "tanakh": "Genesis 44-45",
+    "psalm": "Psalm 22",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Matthew 22"
+  },
+  {
+    "day": 23,
+    "tanakh": "Genesis 46-47",
+    "psalm": "Psalm 23",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Matthew 23"
+  },
+  {
+    "day": 24,
+    "tanakh": "Genesis 48-49",
+    "psalm": "Psalm 24",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Matthew 24"
+  },
+  {
+    "day": 25,
+    "tanakh": "Genesis 50; Exodus 1",
+    "psalm": "Psalm 25",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "Matthew 25"
+  },
+  {
+    "day": 26,
+    "tanakh": "Exodus 2-3",
+    "psalm": "Psalm 26",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "Matthew 26"
+  },
+  {
+    "day": 27,
+    "tanakh": "Exodus 4-5",
+    "psalm": "Psalm 27",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "Matthew 27"
+  },
+  {
+    "day": 28,
+    "tanakh": "Exodus 6-7",
+    "psalm": "Psalm 28",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "Matthew 28"
+  },
+  {
+    "day": 29,
+    "tanakh": "Exodus 8-9",
+    "psalm": "Psalm 29",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "Mark 1"
+  },
+  {
+    "day": 30,
+    "tanakh": "Exodus 10-11",
+    "psalm": "Psalm 30",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "Mark 2"
+  },
+  {
+    "day": 31,
+    "tanakh": "Exodus 12-13",
+    "psalm": "Psalm 31",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "Mark 3"
+  },
+  {
+    "day": 32,
+    "tanakh": "Exodus 14-15",
+    "psalm": "Psalm 32",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "Mark 4"
+  },
+  {
+    "day": 33,
+    "tanakh": "Exodus 16-17",
+    "psalm": "Psalm 33",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "Mark 5"
+  },
+  {
+    "day": 34,
+    "tanakh": "Exodus 18-19",
+    "psalm": "Psalm 34",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "Mark 6"
+  },
+  {
+    "day": 35,
+    "tanakh": "Exodus 20-21",
+    "psalm": "Psalm 35",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "Mark 7"
+  },
+  {
+    "day": 36,
+    "tanakh": "Exodus 22-23",
+    "psalm": "Psalm 36",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "Mark 8"
+  },
+  {
+    "day": 37,
+    "tanakh": "Exodus 24-25",
+    "psalm": "Psalm 37",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "Mark 9"
+  },
+  {
+    "day": 38,
+    "tanakh": "Exodus 26-27",
+    "psalm": "Psalm 38",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "Mark 10"
+  },
+  {
+    "day": 39,
+    "tanakh": "Exodus 28-29",
+    "psalm": "Psalm 39",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "Mark 11"
+  },
+  {
+    "day": 40,
+    "tanakh": "Exodus 30-31",
+    "psalm": "Psalm 40",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Mark 12"
+  },
+  {
+    "day": 41,
+    "tanakh": "Exodus 32-34",
+    "psalm": "Psalm 41",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "Mark 13"
+  },
+  {
+    "day": 42,
+    "tanakh": "Exodus 35-36",
+    "psalm": "Psalm 42",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "Mark 14"
+  },
+  {
+    "day": 43,
+    "tanakh": "Exodus 37-38",
+    "psalm": "Psalm 43",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "Mark 15"
+  },
+  {
+    "day": 44,
+    "tanakh": "Exodus 39-40",
+    "psalm": "Psalm 44",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "Mark 16"
+  },
+  {
+    "day": 45,
+    "tanakh": "Leviticus 1-2",
+    "psalm": "Psalm 45",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "Luke 1"
+  },
+  {
+    "day": 46,
+    "tanakh": "Leviticus 3-4",
+    "psalm": "Psalm 46",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Luke 2"
+  },
+  {
+    "day": 47,
+    "tanakh": "Leviticus 5-6",
+    "psalm": "Psalm 47",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Luke 3"
+  },
+  {
+    "day": 48,
+    "tanakh": "Leviticus 7-8",
+    "psalm": "Psalm 48",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Luke 4"
+  },
+  {
+    "day": 49,
+    "tanakh": "Leviticus 9-10",
+    "psalm": "Psalm 49",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Luke 5"
+  },
+  {
+    "day": 50,
+    "tanakh": "Leviticus 11-12",
+    "psalm": "Psalm 50",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "Luke 6"
+  },
+  {
+    "day": 51,
+    "tanakh": "Leviticus 13-14",
+    "psalm": "Psalm 51",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "Luke 7"
+  },
+  {
+    "day": 52,
+    "tanakh": "Leviticus 15-16",
+    "psalm": "Psalm 52",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Luke 8"
+  },
+  {
+    "day": 53,
+    "tanakh": "Leviticus 17-18",
+    "psalm": "Psalm 53",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Luke 9"
+  },
+  {
+    "day": 54,
+    "tanakh": "Leviticus 19-20",
+    "psalm": "Psalm 54",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Luke 10"
+  },
+  {
+    "day": 55,
+    "tanakh": "Leviticus 21-22",
+    "psalm": "Psalm 55",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Luke 11"
+  },
+  {
+    "day": 56,
+    "tanakh": "Leviticus 23-24",
+    "psalm": "Psalm 56",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "Luke 12"
+  },
+  {
+    "day": 57,
+    "tanakh": "Leviticus 25-26",
+    "psalm": "Psalm 57",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "Luke 13"
+  },
+  {
+    "day": 58,
+    "tanakh": "Leviticus 27; Numbers 1",
+    "psalm": "Psalm 58",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "Luke 14"
+  },
+  {
+    "day": 59,
+    "tanakh": "Numbers 2-3",
+    "psalm": "Psalm 59",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "Luke 15"
+  },
+  {
+    "day": 60,
+    "tanakh": "Numbers 4-5",
+    "psalm": "Psalm 60",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "Luke 16"
+  },
+  {
+    "day": 61,
+    "tanakh": "Numbers 6-8",
+    "psalm": "Psalm 61",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "Luke 17"
+  },
+  {
+    "day": 62,
+    "tanakh": "Numbers 9-10",
+    "psalm": "Psalm 62",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "Luke 18"
+  },
+  {
+    "day": 63,
+    "tanakh": "Numbers 11-12",
+    "psalm": "Psalm 63",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "Luke 19"
+  },
+  {
+    "day": 64,
+    "tanakh": "Numbers 13-14",
+    "psalm": "Psalm 64",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "Luke 20"
+  },
+  {
+    "day": 65,
+    "tanakh": "Numbers 15-16",
+    "psalm": "Psalm 65",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "Luke 21"
+  },
+  {
+    "day": 66,
+    "tanakh": "Numbers 17-18",
+    "psalm": "Psalm 66",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "Luke 22"
+  },
+  {
+    "day": 67,
+    "tanakh": "Numbers 19-20",
+    "psalm": "Psalm 67",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "Luke 23"
+  },
+  {
+    "day": 68,
+    "tanakh": "Numbers 21-22",
+    "psalm": "Psalm 68",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "Luke 24"
+  },
+  {
+    "day": 69,
+    "tanakh": "Numbers 23-24",
+    "psalm": "Psalm 69",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "John 1"
+  },
+  {
+    "day": 70,
+    "tanakh": "Numbers 25-26",
+    "psalm": "Psalm 70",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "John 2"
+  },
+  {
+    "day": 71,
+    "tanakh": "Numbers 27-28",
+    "psalm": "Psalm 71",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "John 3"
+  },
+  {
+    "day": 72,
+    "tanakh": "Numbers 29-30",
+    "psalm": "Psalm 72",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "John 4"
+  },
+  {
+    "day": 73,
+    "tanakh": "Numbers 31-32",
+    "psalm": "Psalm 73",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "John 5"
+  },
+  {
+    "day": 74,
+    "tanakh": "Numbers 33-34",
+    "psalm": "Psalm 74",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "John 6"
+  },
+  {
+    "day": 75,
+    "tanakh": "Numbers 35-36",
+    "psalm": "Psalm 75",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "John 7"
+  },
+  {
+    "day": 76,
+    "tanakh": "Deuteronomy 1-2",
+    "psalm": "Psalm 76",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "John 8"
+  },
+  {
+    "day": 77,
+    "tanakh": "Deuteronomy 3-4",
+    "psalm": "Psalm 77",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "John 9"
+  },
+  {
+    "day": 78,
+    "tanakh": "Deuteronomy 5-6",
+    "psalm": "Psalm 78",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "John 10"
+  },
+  {
+    "day": 79,
+    "tanakh": "Deuteronomy 7-8",
+    "psalm": "Psalm 79",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "John 11"
+  },
+  {
+    "day": 80,
+    "tanakh": "Deuteronomy 9-10",
+    "psalm": "Psalm 80",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "John 12"
+  },
+  {
+    "day": 81,
+    "tanakh": "Deuteronomy 11-12",
+    "psalm": "Psalm 81",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "John 13"
+  },
+  {
+    "day": 82,
+    "tanakh": "Deuteronomy 13-15",
+    "psalm": "Psalm 82",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "John 14"
+  },
+  {
+    "day": 83,
+    "tanakh": "Deuteronomy 16-17",
+    "psalm": "Psalm 83",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "John 15"
+  },
+  {
+    "day": 84,
+    "tanakh": "Deuteronomy 18-19",
+    "psalm": "Psalm 84",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "John 16"
+  },
+  {
+    "day": 85,
+    "tanakh": "Deuteronomy 20-21",
+    "psalm": "Psalm 85",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "John 17"
+  },
+  {
+    "day": 86,
+    "tanakh": "Deuteronomy 22-23",
+    "psalm": "Psalm 86",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "John 18"
+  },
+  {
+    "day": 87,
+    "tanakh": "Deuteronomy 24-25",
+    "psalm": "Psalm 87",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "John 19"
+  },
+  {
+    "day": 88,
+    "tanakh": "Deuteronomy 26-27",
+    "psalm": "Psalm 88",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "John 20"
+  },
+  {
+    "day": 89,
+    "tanakh": "Deuteronomy 28-29",
+    "psalm": "Psalm 89",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "John 21"
+  },
+  {
+    "day": 90,
+    "tanakh": "Deuteronomy 30-31",
+    "psalm": "Psalm 90",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "Acts 1"
+  },
+  {
+    "day": 91,
+    "tanakh": "Deuteronomy 32-33",
+    "psalm": "Psalm 91",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "Acts 2"
+  },
+  {
+    "day": 92,
+    "tanakh": "Deuteronomy 34; Joshua 1",
+    "psalm": "Psalm 92",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "Acts 3"
+  },
+  {
+    "day": 93,
+    "tanakh": "Joshua 2-3",
+    "psalm": "Psalm 93",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "Acts 4"
+  },
+  {
+    "day": 94,
+    "tanakh": "Joshua 4-5",
+    "psalm": "Psalm 94",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "Acts 5"
+  },
+  {
+    "day": 95,
+    "tanakh": "Joshua 6-7",
+    "psalm": "Psalm 95",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "Acts 6"
+  },
+  {
+    "day": 96,
+    "tanakh": "Joshua 8-9",
+    "psalm": "Psalm 96",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "Acts 7"
+  },
+  {
+    "day": 97,
+    "tanakh": "Joshua 10-11",
+    "psalm": "Psalm 97",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "Acts 8"
+  },
+  {
+    "day": 98,
+    "tanakh": "Joshua 12-13",
+    "psalm": "Psalm 98",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "Acts 9"
+  },
+  {
+    "day": 99,
+    "tanakh": "Joshua 14-15",
+    "psalm": "Psalm 99",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "Acts 10"
+  },
+  {
+    "day": 100,
+    "tanakh": "Joshua 16-17",
+    "psalm": "Psalm 100",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "Acts 11"
+  },
+  {
+    "day": 101,
+    "tanakh": "Joshua 18-19",
+    "psalm": "Psalm 101",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "Acts 12"
+  },
+  {
+    "day": 102,
+    "tanakh": "Joshua 20-22",
+    "psalm": "Psalm 102",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Acts 13"
+  },
+  {
+    "day": 103,
+    "tanakh": "Joshua 23-24",
+    "psalm": "Psalm 103",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "Acts 14"
+  },
+  {
+    "day": 104,
+    "tanakh": "Judges 1-2",
+    "psalm": "Psalm 104",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "Acts 15"
+  },
+  {
+    "day": 105,
+    "tanakh": "Judges 3-4",
+    "psalm": "Psalm 105",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "Acts 16"
+  },
+  {
+    "day": 106,
+    "tanakh": "Judges 5-6",
+    "psalm": "Psalm 106",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "Acts 17"
+  },
+  {
+    "day": 107,
+    "tanakh": "Judges 7-8",
+    "psalm": "Psalm 107",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "Acts 18"
+  },
+  {
+    "day": 108,
+    "tanakh": "Judges 9-10",
+    "psalm": "Psalm 108",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Acts 19"
+  },
+  {
+    "day": 109,
+    "tanakh": "Judges 11-12",
+    "psalm": "Psalm 109",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Acts 20"
+  },
+  {
+    "day": 110,
+    "tanakh": "Judges 13-14",
+    "psalm": "Psalm 110",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Acts 21"
+  },
+  {
+    "day": 111,
+    "tanakh": "Judges 15-16",
+    "psalm": "Psalm 111",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Acts 22"
+  },
+  {
+    "day": 112,
+    "tanakh": "Judges 17-18",
+    "psalm": "Psalm 112",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "Acts 23"
+  },
+  {
+    "day": 113,
+    "tanakh": "Judges 19-20",
+    "psalm": "Psalm 113",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "Acts 24"
+  },
+  {
+    "day": 114,
+    "tanakh": "Judges 21; 1 Samuel 1",
+    "psalm": "Psalm 114",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Acts 25"
+  },
+  {
+    "day": 115,
+    "tanakh": "1 Samuel 2-3",
+    "psalm": "Psalm 115",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Acts 26"
+  },
+  {
+    "day": 116,
+    "tanakh": "1 Samuel 4-5",
+    "psalm": "Psalm 116",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Acts 27"
+  },
+  {
+    "day": 117,
+    "tanakh": "1 Samuel 6-7",
+    "psalm": "Psalm 117",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Acts 28"
+  },
+  {
+    "day": 118,
+    "tanakh": "1 Samuel 8-9",
+    "psalm": "Psalm 118",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "Romans 1"
+  },
+  {
+    "day": 119,
+    "tanakh": "1 Samuel 10-11",
+    "psalm": "Psalm 119",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "Romans 2"
+  },
+  {
+    "day": 120,
+    "tanakh": "1 Samuel 12-13",
+    "psalm": "Psalm 120",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "Romans 3"
+  },
+  {
+    "day": 121,
+    "tanakh": "1 Samuel 14-15",
+    "psalm": "Psalm 121",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "Romans 4"
+  },
+  {
+    "day": 122,
+    "tanakh": "1 Samuel 16-18",
+    "psalm": "Psalm 122",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "Romans 5"
+  },
+  {
+    "day": 123,
+    "tanakh": "1 Samuel 19-20",
+    "psalm": "Psalm 123",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "Romans 6"
+  },
+  {
+    "day": 124,
+    "tanakh": "1 Samuel 21-22",
+    "psalm": "Psalm 124",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "Romans 7"
+  },
+  {
+    "day": 125,
+    "tanakh": "1 Samuel 23-24",
+    "psalm": "Psalm 125",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "Romans 8"
+  },
+  {
+    "day": 126,
+    "tanakh": "1 Samuel 25-26",
+    "psalm": "Psalm 126",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "Romans 9"
+  },
+  {
+    "day": 127,
+    "tanakh": "1 Samuel 27-28",
+    "psalm": "Psalm 127",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "Romans 10"
+  },
+  {
+    "day": 128,
+    "tanakh": "1 Samuel 29-30",
+    "psalm": "Psalm 128",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "Romans 11"
+  },
+  {
+    "day": 129,
+    "tanakh": "1 Samuel 31; 2 Samuel 1",
+    "psalm": "Psalm 129",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "Romans 12"
+  },
+  {
+    "day": 130,
+    "tanakh": "2 Samuel 2-3",
+    "psalm": "Psalm 130",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "Romans 13"
+  },
+  {
+    "day": 131,
+    "tanakh": "2 Samuel 4-5",
+    "psalm": "Psalm 131",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "Romans 14"
+  },
+  {
+    "day": 132,
+    "tanakh": "2 Samuel 6-7",
+    "psalm": "Psalm 132",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "Romans 15"
+  },
+  {
+    "day": 133,
+    "tanakh": "2 Samuel 8-9",
+    "psalm": "Psalm 133",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Romans 16"
+  },
+  {
+    "day": 134,
+    "tanakh": "2 Samuel 10-11",
+    "psalm": "Psalm 134",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "1 Corinthians 1"
+  },
+  {
+    "day": 135,
+    "tanakh": "2 Samuel 12-13",
+    "psalm": "Psalm 135",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "1 Corinthians 2"
+  },
+  {
+    "day": 136,
+    "tanakh": "2 Samuel 14-15",
+    "psalm": "Psalm 136",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "1 Corinthians 3"
+  },
+  {
+    "day": 137,
+    "tanakh": "2 Samuel 16-17",
+    "psalm": "Psalm 137",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "1 Corinthians 4"
+  },
+  {
+    "day": 138,
+    "tanakh": "2 Samuel 18-19",
+    "psalm": "Psalm 138",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "1 Corinthians 5"
+  },
+  {
+    "day": 139,
+    "tanakh": "2 Samuel 20-21",
+    "psalm": "Psalm 139",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "1 Corinthians 6"
+  },
+  {
+    "day": 140,
+    "tanakh": "2 Samuel 22-23",
+    "psalm": "Psalm 140",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "1 Corinthians 7"
+  },
+  {
+    "day": 141,
+    "tanakh": "2 Samuel 24; 1 Kings 1",
+    "psalm": "Psalm 141",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "1 Corinthians 8"
+  },
+  {
+    "day": 142,
+    "tanakh": "1 Kings 2-4",
+    "psalm": "Psalm 142",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "1 Corinthians 9"
+  },
+  {
+    "day": 143,
+    "tanakh": "1 Kings 5-6",
+    "psalm": "Psalm 143",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "1 Corinthians 10"
+  },
+  {
+    "day": 144,
+    "tanakh": "1 Kings 7-8",
+    "psalm": "Psalm 144",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "1 Corinthians 11"
+  },
+  {
+    "day": 145,
+    "tanakh": "1 Kings 9-10",
+    "psalm": "Psalm 145",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "1 Corinthians 12"
+  },
+  {
+    "day": 146,
+    "tanakh": "1 Kings 11-12",
+    "psalm": "Psalm 146",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "1 Corinthians 13"
+  },
+  {
+    "day": 147,
+    "tanakh": "1 Kings 13-14",
+    "psalm": "Psalm 147",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "1 Corinthians 14"
+  },
+  {
+    "day": 148,
+    "tanakh": "1 Kings 15-16",
+    "psalm": "Psalm 148",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "1 Corinthians 15"
+  },
+  {
+    "day": 149,
+    "tanakh": "1 Kings 17-18",
+    "psalm": "Psalm 149",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "1 Corinthians 16"
+  },
+  {
+    "day": 150,
+    "tanakh": "1 Kings 19-20",
+    "psalm": "Psalm 150",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "2 Corinthians 1"
+  },
+  {
+    "day": 151,
+    "tanakh": "1 Kings 21-22",
+    "psalm": "Psalm 1",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "2 Corinthians 2"
+  },
+  {
+    "day": 152,
+    "tanakh": "2 Kings 1-2",
+    "psalm": "Psalm 2",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "2 Corinthians 3"
+  },
+  {
+    "day": 153,
+    "tanakh": "2 Kings 3-4",
+    "psalm": "Psalm 3",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "2 Corinthians 4"
+  },
+  {
+    "day": 154,
+    "tanakh": "2 Kings 5-6",
+    "psalm": "Psalm 4",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "2 Corinthians 5"
+  },
+  {
+    "day": 155,
+    "tanakh": "2 Kings 7-8",
+    "psalm": "Psalm 5",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "2 Corinthians 6"
+  },
+  {
+    "day": 156,
+    "tanakh": "2 Kings 9-10",
+    "psalm": "Psalm 6",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "2 Corinthians 7"
+  },
+  {
+    "day": 157,
+    "tanakh": "2 Kings 11-12",
+    "psalm": "Psalm 7",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "2 Corinthians 8"
+  },
+  {
+    "day": 158,
+    "tanakh": "2 Kings 13-14",
+    "psalm": "Psalm 8",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "2 Corinthians 9"
+  },
+  {
+    "day": 159,
+    "tanakh": "2 Kings 15-16",
+    "psalm": "Psalm 9",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "2 Corinthians 10"
+  },
+  {
+    "day": 160,
+    "tanakh": "2 Kings 17-18",
+    "psalm": "Psalm 10",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "2 Corinthians 11"
+  },
+  {
+    "day": 161,
+    "tanakh": "2 Kings 19-20",
+    "psalm": "Psalm 11",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "2 Corinthians 12"
+  },
+  {
+    "day": 162,
+    "tanakh": "2 Kings 21-22",
+    "psalm": "Psalm 12",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "2 Corinthians 13"
+  },
+  {
+    "day": 163,
+    "tanakh": "2 Kings 23-25",
+    "psalm": "Psalm 13",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "Galatians 1"
+  },
+  {
+    "day": 164,
+    "tanakh": "Isaiah 1-2",
+    "psalm": "Psalm 14",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Galatians 2"
+  },
+  {
+    "day": 165,
+    "tanakh": "Isaiah 3-4",
+    "psalm": "Psalm 15",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "Galatians 3"
+  },
+  {
+    "day": 166,
+    "tanakh": "Isaiah 5-6",
+    "psalm": "Psalm 16",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "Galatians 4"
+  },
+  {
+    "day": 167,
+    "tanakh": "Isaiah 7-8",
+    "psalm": "Psalm 17",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "Galatians 5"
+  },
+  {
+    "day": 168,
+    "tanakh": "Isaiah 9-10",
+    "psalm": "Psalm 18",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "Galatians 6"
+  },
+  {
+    "day": 169,
+    "tanakh": "Isaiah 11-12",
+    "psalm": "Psalm 19",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "Ephesians 1"
+  },
+  {
+    "day": 170,
+    "tanakh": "Isaiah 13-14",
+    "psalm": "Psalm 20",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Ephesians 2"
+  },
+  {
+    "day": 171,
+    "tanakh": "Isaiah 15-16",
+    "psalm": "Psalm 21",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Ephesians 3"
+  },
+  {
+    "day": 172,
+    "tanakh": "Isaiah 17-18",
+    "psalm": "Psalm 22",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Ephesians 4"
+  },
+  {
+    "day": 173,
+    "tanakh": "Isaiah 19-20",
+    "psalm": "Psalm 23",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Ephesians 5"
+  },
+  {
+    "day": 174,
+    "tanakh": "Isaiah 21-22",
+    "psalm": "Psalm 24",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "Ephesians 6"
+  },
+  {
+    "day": 175,
+    "tanakh": "Isaiah 23-24",
+    "psalm": "Psalm 25",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "Philippians 1"
+  },
+  {
+    "day": 176,
+    "tanakh": "Isaiah 25-26",
+    "psalm": "Psalm 26",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Philippians 2"
+  },
+  {
+    "day": 177,
+    "tanakh": "Isaiah 27-28",
+    "psalm": "Psalm 27",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Philippians 3"
+  },
+  {
+    "day": 178,
+    "tanakh": "Isaiah 29-30",
+    "psalm": "Psalm 28",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Philippians 4"
+  },
+  {
+    "day": 179,
+    "tanakh": "Isaiah 31-32",
+    "psalm": "Psalm 29",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Colossians 1"
+  },
+  {
+    "day": 180,
+    "tanakh": "Isaiah 33-34",
+    "psalm": "Psalm 30",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "Colossians 2"
+  },
+  {
+    "day": 181,
+    "tanakh": "Isaiah 35-36",
+    "psalm": "Psalm 31",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "Colossians 3"
+  },
+  {
+    "day": 182,
+    "tanakh": "Isaiah 37-38",
+    "psalm": "Psalm 32",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "Colossians 4"
+  },
+  {
+    "day": 183,
+    "tanakh": "Isaiah 39-41",
+    "psalm": "Psalm 33",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "1 Thessalonians 1"
+  },
+  {
+    "day": 184,
+    "tanakh": "Isaiah 42-43",
+    "psalm": "Psalm 34",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "1 Thessalonians 2"
+  },
+  {
+    "day": 185,
+    "tanakh": "Isaiah 44-45",
+    "psalm": "Psalm 35",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "1 Thessalonians 3"
+  },
+  {
+    "day": 186,
+    "tanakh": "Isaiah 46-47",
+    "psalm": "Psalm 36",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "1 Thessalonians 4"
+  },
+  {
+    "day": 187,
+    "tanakh": "Isaiah 48-49",
+    "psalm": "Psalm 37",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "1 Thessalonians 5"
+  },
+  {
+    "day": 188,
+    "tanakh": "Isaiah 50-51",
+    "psalm": "Psalm 38",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "2 Thessalonians 1"
+  },
+  {
+    "day": 189,
+    "tanakh": "Isaiah 52-53",
+    "psalm": "Psalm 39",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "2 Thessalonians 2"
+  },
+  {
+    "day": 190,
+    "tanakh": "Isaiah 54-55",
+    "psalm": "Psalm 40",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "2 Thessalonians 3"
+  },
+  {
+    "day": 191,
+    "tanakh": "Isaiah 56-57",
+    "psalm": "Psalm 41",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "1 Timothy 1"
+  },
+  {
+    "day": 192,
+    "tanakh": "Isaiah 58-59",
+    "psalm": "Psalm 42",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "1 Timothy 2"
+  },
+  {
+    "day": 193,
+    "tanakh": "Isaiah 60-61",
+    "psalm": "Psalm 43",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "1 Timothy 3"
+  },
+  {
+    "day": 194,
+    "tanakh": "Isaiah 62-63",
+    "psalm": "Psalm 44",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "1 Timothy 4"
+  },
+  {
+    "day": 195,
+    "tanakh": "Isaiah 64-65",
+    "psalm": "Psalm 45",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "1 Timothy 5"
+  },
+  {
+    "day": 196,
+    "tanakh": "Isaiah 66; Jeremiah 1",
+    "psalm": "Psalm 46",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "1 Timothy 6"
+  },
+  {
+    "day": 197,
+    "tanakh": "Jeremiah 2-3",
+    "psalm": "Psalm 47",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "2 Timothy 1"
+  },
+  {
+    "day": 198,
+    "tanakh": "Jeremiah 4-5",
+    "psalm": "Psalm 48",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "2 Timothy 2"
+  },
+  {
+    "day": 199,
+    "tanakh": "Jeremiah 6-7",
+    "psalm": "Psalm 49",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "2 Timothy 3"
+  },
+  {
+    "day": 200,
+    "tanakh": "Jeremiah 8-9",
+    "psalm": "Psalm 50",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "2 Timothy 4"
+  },
+  {
+    "day": 201,
+    "tanakh": "Jeremiah 10-11",
+    "psalm": "Psalm 51",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Titus 1"
+  },
+  {
+    "day": 202,
+    "tanakh": "Jeremiah 12-13",
+    "psalm": "Psalm 52",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Titus 2"
+  },
+  {
+    "day": 203,
+    "tanakh": "Jeremiah 14-16",
+    "psalm": "Psalm 53",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Titus 3"
+  },
+  {
+    "day": 204,
+    "tanakh": "Jeremiah 17-18",
+    "psalm": "Psalm 54",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Philemon 1"
+  },
+  {
+    "day": 205,
+    "tanakh": "Jeremiah 19-20",
+    "psalm": "Psalm 55",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "Messianic Jews (Hebrews) 1"
+  },
+  {
+    "day": 206,
+    "tanakh": "Jeremiah 21-22",
+    "psalm": "Psalm 56",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "Messianic Jews (Hebrews) 2"
+  },
+  {
+    "day": 207,
+    "tanakh": "Jeremiah 23-24",
+    "psalm": "Psalm 57",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Messianic Jews (Hebrews) 3"
+  },
+  {
+    "day": 208,
+    "tanakh": "Jeremiah 25-26",
+    "psalm": "Psalm 58",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Messianic Jews (Hebrews) 4"
+  },
+  {
+    "day": 209,
+    "tanakh": "Jeremiah 27-28",
+    "psalm": "Psalm 59",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Messianic Jews (Hebrews) 5"
+  },
+  {
+    "day": 210,
+    "tanakh": "Jeremiah 29-30",
+    "psalm": "Psalm 60",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Messianic Jews (Hebrews) 6"
+  },
+  {
+    "day": 211,
+    "tanakh": "Jeremiah 31-32",
+    "psalm": "Psalm 61",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "Messianic Jews (Hebrews) 7"
+  },
+  {
+    "day": 212,
+    "tanakh": "Jeremiah 33-34",
+    "psalm": "Psalm 62",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "Messianic Jews (Hebrews) 8"
+  },
+  {
+    "day": 213,
+    "tanakh": "Jeremiah 35-36",
+    "psalm": "Psalm 63",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "Messianic Jews (Hebrews) 9"
+  },
+  {
+    "day": 214,
+    "tanakh": "Jeremiah 37-38",
+    "psalm": "Psalm 64",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "Messianic Jews (Hebrews) 10"
+  },
+  {
+    "day": 215,
+    "tanakh": "Jeremiah 39-40",
+    "psalm": "Psalm 65",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "Messianic Jews (Hebrews) 11"
+  },
+  {
+    "day": 216,
+    "tanakh": "Jeremiah 41-42",
+    "psalm": "Psalm 66",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "Messianic Jews (Hebrews) 12"
+  },
+  {
+    "day": 217,
+    "tanakh": "Jeremiah 43-44",
+    "psalm": "Psalm 67",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "Messianic Jews (Hebrews) 13"
+  },
+  {
+    "day": 218,
+    "tanakh": "Jeremiah 45-46",
+    "psalm": "Psalm 68",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "James (Ya’akov) 1"
+  },
+  {
+    "day": 219,
+    "tanakh": "Jeremiah 47-48",
+    "psalm": "Psalm 69",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "James (Ya’akov) 2"
+  },
+  {
+    "day": 220,
+    "tanakh": "Jeremiah 49-50",
+    "psalm": "Psalm 70",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "James (Ya’akov) 3"
+  },
+  {
+    "day": 221,
+    "tanakh": "Jeremiah 51-52",
+    "psalm": "Psalm 71",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "James (Ya’akov) 4"
+  },
+  {
+    "day": 222,
+    "tanakh": "Ezekiel 1-2",
+    "psalm": "Psalm 72",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "James (Ya’akov) 5"
+  },
+  {
+    "day": 223,
+    "tanakh": "Ezekiel 3-4",
+    "psalm": "Psalm 73",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "1 Peter (Kefa) 1"
+  },
+  {
+    "day": 224,
+    "tanakh": "Ezekiel 5-7",
+    "psalm": "Psalm 74",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "1 Peter (Kefa) 2"
+  },
+  {
+    "day": 225,
+    "tanakh": "Ezekiel 8-9",
+    "psalm": "Psalm 75",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "1 Peter (Kefa) 3"
+  },
+  {
+    "day": 226,
+    "tanakh": "Ezekiel 10-11",
+    "psalm": "Psalm 76",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "1 Peter (Kefa) 4"
+  },
+  {
+    "day": 227,
+    "tanakh": "Ezekiel 12-13",
+    "psalm": "Psalm 77",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "1 Peter (Kefa) 5"
+  },
+  {
+    "day": 228,
+    "tanakh": "Ezekiel 14-15",
+    "psalm": "Psalm 78",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "2 Peter (Kefa) 1"
+  },
+  {
+    "day": 229,
+    "tanakh": "Ezekiel 16-17",
+    "psalm": "Psalm 79",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "2 Peter (Kefa) 2"
+  },
+  {
+    "day": 230,
+    "tanakh": "Ezekiel 18-19",
+    "psalm": "Psalm 80",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "2 Peter (Kefa) 3"
+  },
+  {
+    "day": 231,
+    "tanakh": "Ezekiel 20-21",
+    "psalm": "Psalm 81",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "1 John (Yochanan) 1"
+  },
+  {
+    "day": 232,
+    "tanakh": "Ezekiel 22-23",
+    "psalm": "Psalm 82",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "1 John (Yochanan) 2"
+  },
+  {
+    "day": 233,
+    "tanakh": "Ezekiel 24-25",
+    "psalm": "Psalm 83",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "1 John (Yochanan) 3"
+  },
+  {
+    "day": 234,
+    "tanakh": "Ezekiel 26-27",
+    "psalm": "Psalm 84",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "1 John (Yochanan) 4"
+  },
+  {
+    "day": 235,
+    "tanakh": "Ezekiel 28-29",
+    "psalm": "Psalm 85",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "1 John (Yochanan) 5"
+  },
+  {
+    "day": 236,
+    "tanakh": "Ezekiel 30-31",
+    "psalm": "Psalm 86",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "2 John (Yochanan) 1"
+  },
+  {
+    "day": 237,
+    "tanakh": "Ezekiel 32-33",
+    "psalm": "Psalm 87",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "3 John (Yochanan) 1"
+  },
+  {
+    "day": 238,
+    "tanakh": "Ezekiel 34-35",
+    "psalm": "Psalm 88",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Jude (Yehudah) 1"
+  },
+  {
+    "day": 239,
+    "tanakh": "Ezekiel 36-37",
+    "psalm": "Psalm 89",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Revelation 1"
+  },
+  {
+    "day": 240,
+    "tanakh": "Ezekiel 38-39",
+    "psalm": "Psalm 90",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Revelation 2"
+  },
+  {
+    "day": 241,
+    "tanakh": "Ezekiel 40-41",
+    "psalm": "Psalm 91",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Revelation 3"
+  },
+  {
+    "day": 242,
+    "tanakh": "Ezekiel 42-43",
+    "psalm": "Psalm 92",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "Revelation 4"
+  },
+  {
+    "day": 243,
+    "tanakh": "Ezekiel 44-45",
+    "psalm": "Psalm 93",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "Revelation 5"
+  },
+  {
+    "day": 244,
+    "tanakh": "Ezekiel 46-48",
+    "psalm": "Psalm 94",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "Revelation 6"
+  },
+  {
+    "day": 245,
+    "tanakh": "Hosea 1-2",
+    "psalm": "Psalm 95",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "Revelation 7"
+  },
+  {
+    "day": 246,
+    "tanakh": "Hosea 3-4",
+    "psalm": "Psalm 96",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "Revelation 8"
+  },
+  {
+    "day": 247,
+    "tanakh": "Hosea 5-6",
+    "psalm": "Psalm 97",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "Revelation 9"
+  },
+  {
+    "day": 248,
+    "tanakh": "Hosea 7-8",
+    "psalm": "Psalm 98",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "Revelation 10"
+  },
+  {
+    "day": 249,
+    "tanakh": "Hosea 9-10",
+    "psalm": "Psalm 99",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "Revelation 11"
+  },
+  {
+    "day": 250,
+    "tanakh": "Hosea 11-12",
+    "psalm": "Psalm 100",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "Revelation 12"
+  },
+  {
+    "day": 251,
+    "tanakh": "Hosea 13-14",
+    "psalm": "Psalm 101",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "Revelation 13"
+  },
+  {
+    "day": 252,
+    "tanakh": "Joel 1-2",
+    "psalm": "Psalm 102",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "Revelation 14"
+  },
+  {
+    "day": 253,
+    "tanakh": "Joel 3-4",
+    "psalm": "Psalm 103",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "Revelation 15"
+  },
+  {
+    "day": 254,
+    "tanakh": "Amos 1-2",
+    "psalm": "Psalm 104",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "Revelation 16"
+  },
+  {
+    "day": 255,
+    "tanakh": "Amos 3-4",
+    "psalm": "Psalm 105",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "Revelation 17"
+  },
+  {
+    "day": 256,
+    "tanakh": "Amos 5-6",
+    "psalm": "Psalm 106",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "Revelation 18"
+  },
+  {
+    "day": 257,
+    "tanakh": "Amos 7-8",
+    "psalm": "Psalm 107",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Revelation 19"
+  },
+  {
+    "day": 258,
+    "tanakh": "Amos 9; Obadiah 1",
+    "psalm": "Psalm 108",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "Revelation 20"
+  },
+  {
+    "day": 259,
+    "tanakh": "Jonah 1-2",
+    "psalm": "Psalm 109",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "Revelation 21"
+  },
+  {
+    "day": 260,
+    "tanakh": "Jonah 3-4",
+    "psalm": "Psalm 110",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "Revelation 22"
+  },
+  {
+    "day": 261,
+    "tanakh": "Micah 1-2",
+    "psalm": "Psalm 111",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "Matthew 1"
+  },
+  {
+    "day": 262,
+    "tanakh": "Micah 3-4",
+    "psalm": "Psalm 112",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "Matthew 2"
+  },
+  {
+    "day": 263,
+    "tanakh": "Micah 5-6",
+    "psalm": "Psalm 113",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Matthew 3"
+  },
+  {
+    "day": 264,
+    "tanakh": "Micah 7; Nahum 1-2",
+    "psalm": "Psalm 114",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Matthew 4"
+  },
+  {
+    "day": 265,
+    "tanakh": "Nahum 3; Habakkuk 1",
+    "psalm": "Psalm 115",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Matthew 5"
+  },
+  {
+    "day": 266,
+    "tanakh": "Habakkuk 2-3",
+    "psalm": "Psalm 116",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Matthew 6"
+  },
+  {
+    "day": 267,
+    "tanakh": "Zephaniah 1-2",
+    "psalm": "Psalm 117",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "Matthew 7"
+  },
+  {
+    "day": 268,
+    "tanakh": "Zephaniah 3; Haggai 1",
+    "psalm": "Psalm 118",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "Matthew 8"
+  },
+  {
+    "day": 269,
+    "tanakh": "Haggai 2; Zechariah 1",
+    "psalm": "Psalm 119",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Matthew 9"
+  },
+  {
+    "day": 270,
+    "tanakh": "Zechariah 2-3",
+    "psalm": "Psalm 120",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Matthew 10"
+  },
+  {
+    "day": 271,
+    "tanakh": "Zechariah 4-5",
+    "psalm": "Psalm 121",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Matthew 11"
+  },
+  {
+    "day": 272,
+    "tanakh": "Zechariah 6-7",
+    "psalm": "Psalm 122",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Matthew 12"
+  },
+  {
+    "day": 273,
+    "tanakh": "Zechariah 8-9",
+    "psalm": "Psalm 123",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "Matthew 13"
+  },
+  {
+    "day": 274,
+    "tanakh": "Zechariah 10-11",
+    "psalm": "Psalm 124",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "Matthew 14"
+  },
+  {
+    "day": 275,
+    "tanakh": "Zechariah 12-13",
+    "psalm": "Psalm 125",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "Matthew 15"
+  },
+  {
+    "day": 276,
+    "tanakh": "Zechariah 14; Malachi 1",
+    "psalm": "Psalm 126",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "Matthew 16"
+  },
+  {
+    "day": 277,
+    "tanakh": "Malachi 2-3",
+    "psalm": "Psalm 127",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "Matthew 17"
+  },
+  {
+    "day": 278,
+    "tanakh": "Job 1-2",
+    "psalm": "Psalm 128",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "Matthew 18"
+  },
+  {
+    "day": 279,
+    "tanakh": "Job 3-4",
+    "psalm": "Psalm 129",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "Matthew 19"
+  },
+  {
+    "day": 280,
+    "tanakh": "Job 5-6",
+    "psalm": "Psalm 130",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "Matthew 20"
+  },
+  {
+    "day": 281,
+    "tanakh": "Job 7-8",
+    "psalm": "Psalm 131",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "Matthew 21"
+  },
+  {
+    "day": 282,
+    "tanakh": "Job 9-10",
+    "psalm": "Psalm 132",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "Matthew 22"
+  },
+  {
+    "day": 283,
+    "tanakh": "Job 11-12",
+    "psalm": "Psalm 133",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "Matthew 23"
+  },
+  {
+    "day": 284,
+    "tanakh": "Job 13-15",
+    "psalm": "Psalm 134",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "Matthew 24"
+  },
+  {
+    "day": 285,
+    "tanakh": "Job 16-17",
+    "psalm": "Psalm 135",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "Matthew 25"
+  },
+  {
+    "day": 286,
+    "tanakh": "Job 18-19",
+    "psalm": "Psalm 136",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "Matthew 26"
+  },
+  {
+    "day": 287,
+    "tanakh": "Job 20-21",
+    "psalm": "Psalm 137",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "Matthew 27"
+  },
+  {
+    "day": 288,
+    "tanakh": "Job 22-23",
+    "psalm": "Psalm 138",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Matthew 28"
+  },
+  {
+    "day": 289,
+    "tanakh": "Job 24-25",
+    "psalm": "Psalm 139",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "Mark 1"
+  },
+  {
+    "day": 290,
+    "tanakh": "Job 26-27",
+    "psalm": "Psalm 140",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "Mark 2"
+  },
+  {
+    "day": 291,
+    "tanakh": "Job 28-29",
+    "psalm": "Psalm 141",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "Mark 3"
+  },
+  {
+    "day": 292,
+    "tanakh": "Job 30-31",
+    "psalm": "Psalm 142",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "Mark 4"
+  },
+  {
+    "day": 293,
+    "tanakh": "Job 32-33",
+    "psalm": "Psalm 143",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "Mark 5"
+  },
+  {
+    "day": 294,
+    "tanakh": "Job 34-35",
+    "psalm": "Psalm 144",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Mark 6"
+  },
+  {
+    "day": 295,
+    "tanakh": "Job 36-37",
+    "psalm": "Psalm 145",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Mark 7"
+  },
+  {
+    "day": 296,
+    "tanakh": "Job 38-39",
+    "psalm": "Psalm 146",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Mark 8"
+  },
+  {
+    "day": 297,
+    "tanakh": "Job 40-41",
+    "psalm": "Psalm 147",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Mark 9"
+  },
+  {
+    "day": 298,
+    "tanakh": "Job 42; Song of Songs 1",
+    "psalm": "Psalm 148",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "Mark 10"
+  },
+  {
+    "day": 299,
+    "tanakh": "Song of Songs 2-3",
+    "psalm": "Psalm 149",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "Mark 11"
+  },
+  {
+    "day": 300,
+    "tanakh": "Song of Songs 4-5",
+    "psalm": "Psalm 150",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Mark 12"
+  },
+  {
+    "day": 301,
+    "tanakh": "Song of Songs 6-7",
+    "psalm": "Psalm 1",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Mark 13"
+  },
+  {
+    "day": 302,
+    "tanakh": "Song of Songs 8; Ruth 1",
+    "psalm": "Psalm 2",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Mark 14"
+  },
+  {
+    "day": 303,
+    "tanakh": "Ruth 2-3",
+    "psalm": "Psalm 3",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Mark 15"
+  },
+  {
+    "day": 304,
+    "tanakh": "Ruth 4; Lamentations 1",
+    "psalm": "Psalm 4",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "Mark 16"
+  },
+  {
+    "day": 305,
+    "tanakh": "Lamentations 2-4",
+    "psalm": "Psalm 5",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "Luke 1"
+  },
+  {
+    "day": 306,
+    "tanakh": "Lamentations 5; Ecclesiastes 1",
+    "psalm": "Psalm 6",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "Luke 2"
+  },
+  {
+    "day": 307,
+    "tanakh": "Ecclesiastes 2-3",
+    "psalm": "Psalm 7",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "Luke 3"
+  },
+  {
+    "day": 308,
+    "tanakh": "Ecclesiastes 4-5",
+    "psalm": "Psalm 8",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "Luke 4"
+  },
+  {
+    "day": 309,
+    "tanakh": "Ecclesiastes 6-7",
+    "psalm": "Psalm 9",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "Luke 5"
+  },
+  {
+    "day": 310,
+    "tanakh": "Ecclesiastes 8-9",
+    "psalm": "Psalm 10",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "Luke 6"
+  },
+  {
+    "day": 311,
+    "tanakh": "Ecclesiastes 10-11",
+    "psalm": "Psalm 11",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "Luke 7"
+  },
+  {
+    "day": 312,
+    "tanakh": "Ecclesiastes 12; Esther 1",
+    "psalm": "Psalm 12",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "Luke 8"
+  },
+  {
+    "day": 313,
+    "tanakh": "Esther 2-3",
+    "psalm": "Psalm 13",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "Luke 9"
+  },
+  {
+    "day": 314,
+    "tanakh": "Esther 4-5",
+    "psalm": "Psalm 14",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "Luke 10"
+  },
+  {
+    "day": 315,
+    "tanakh": "Esther 6-7",
+    "psalm": "Psalm 15",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "Luke 11"
+  },
+  {
+    "day": 316,
+    "tanakh": "Esther 8-9",
+    "psalm": "Psalm 16",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "Luke 12"
+  },
+  {
+    "day": 317,
+    "tanakh": "Esther 10; Daniel 1",
+    "psalm": "Psalm 17",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "Luke 13"
+  },
+  {
+    "day": 318,
+    "tanakh": "Daniel 2-3",
+    "psalm": "Psalm 18",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "Luke 14"
+  },
+  {
+    "day": 319,
+    "tanakh": "Daniel 4-5",
+    "psalm": "Psalm 19",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Luke 15"
+  },
+  {
+    "day": 320,
+    "tanakh": "Daniel 6-7",
+    "psalm": "Psalm 20",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "Luke 16"
+  },
+  {
+    "day": 321,
+    "tanakh": "Daniel 8-9",
+    "psalm": "Psalm 21",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "Luke 17"
+  },
+  {
+    "day": 322,
+    "tanakh": "Daniel 10-11",
+    "psalm": "Psalm 22",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "Luke 18"
+  },
+  {
+    "day": 323,
+    "tanakh": "Daniel 12; Ezra 1",
+    "psalm": "Psalm 23",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "Luke 19"
+  },
+  {
+    "day": 324,
+    "tanakh": "Ezra 2-3",
+    "psalm": "Psalm 24",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "Luke 20"
+  },
+  {
+    "day": 325,
+    "tanakh": "Ezra 4-6",
+    "psalm": "Psalm 25",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Luke 21"
+  },
+  {
+    "day": 326,
+    "tanakh": "Ezra 7-8",
+    "psalm": "Psalm 26",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Luke 22"
+  },
+  {
+    "day": 327,
+    "tanakh": "Ezra 9-10",
+    "psalm": "Psalm 27",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Luke 23"
+  },
+  {
+    "day": 328,
+    "tanakh": "Nehemiah 1-2",
+    "psalm": "Psalm 28",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Luke 24"
+  },
+  {
+    "day": 329,
+    "tanakh": "Nehemiah 3-4",
+    "psalm": "Psalm 29",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "John 1"
+  },
+  {
+    "day": 330,
+    "tanakh": "Nehemiah 5-6",
+    "psalm": "Psalm 30",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "John 2"
+  },
+  {
+    "day": 331,
+    "tanakh": "Nehemiah 7-8",
+    "psalm": "Psalm 31",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "John 3"
+  },
+  {
+    "day": 332,
+    "tanakh": "Nehemiah 9-10",
+    "psalm": "Psalm 32",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "John 4"
+  },
+  {
+    "day": 333,
+    "tanakh": "Nehemiah 11-12",
+    "psalm": "Psalm 33",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "John 5"
+  },
+  {
+    "day": 334,
+    "tanakh": "Nehemiah 13; 1 Chronicles 1",
+    "psalm": "Psalm 34",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "John 6"
+  },
+  {
+    "day": 335,
+    "tanakh": "1 Chronicles 2-3",
+    "psalm": "Psalm 35",
+    "proverbs": "Proverbs 25",
+    "brit_chadashah": "John 7"
+  },
+  {
+    "day": 336,
+    "tanakh": "1 Chronicles 4-5",
+    "psalm": "Psalm 36",
+    "proverbs": "Proverbs 26",
+    "brit_chadashah": "John 8"
+  },
+  {
+    "day": 337,
+    "tanakh": "1 Chronicles 6-7",
+    "psalm": "Psalm 37",
+    "proverbs": "Proverbs 27",
+    "brit_chadashah": "John 9"
+  },
+  {
+    "day": 338,
+    "tanakh": "1 Chronicles 8-9",
+    "psalm": "Psalm 38",
+    "proverbs": "Proverbs 28",
+    "brit_chadashah": "John 10"
+  },
+  {
+    "day": 339,
+    "tanakh": "1 Chronicles 10-11",
+    "psalm": "Psalm 39",
+    "proverbs": "Proverbs 29",
+    "brit_chadashah": "John 11"
+  },
+  {
+    "day": 340,
+    "tanakh": "1 Chronicles 12-13",
+    "psalm": "Psalm 40",
+    "proverbs": "Proverbs 30",
+    "brit_chadashah": "John 12"
+  },
+  {
+    "day": 341,
+    "tanakh": "1 Chronicles 14-15",
+    "psalm": "Psalm 41",
+    "proverbs": "Proverbs 31",
+    "brit_chadashah": "John 13"
+  },
+  {
+    "day": 342,
+    "tanakh": "1 Chronicles 16-17",
+    "psalm": "Psalm 42",
+    "proverbs": "Proverbs 1",
+    "brit_chadashah": "John 14"
+  },
+  {
+    "day": 343,
+    "tanakh": "1 Chronicles 18-19",
+    "psalm": "Psalm 43",
+    "proverbs": "Proverbs 2",
+    "brit_chadashah": "John 15"
+  },
+  {
+    "day": 344,
+    "tanakh": "1 Chronicles 20-21",
+    "psalm": "Psalm 44",
+    "proverbs": "Proverbs 3",
+    "brit_chadashah": "John 16"
+  },
+  {
+    "day": 345,
+    "tanakh": "1 Chronicles 22-24",
+    "psalm": "Psalm 45",
+    "proverbs": "Proverbs 4",
+    "brit_chadashah": "John 17"
+  },
+  {
+    "day": 346,
+    "tanakh": "1 Chronicles 25-26",
+    "psalm": "Psalm 46",
+    "proverbs": "Proverbs 5",
+    "brit_chadashah": "John 18"
+  },
+  {
+    "day": 347,
+    "tanakh": "1 Chronicles 27-28",
+    "psalm": "Psalm 47",
+    "proverbs": "Proverbs 6",
+    "brit_chadashah": "John 19"
+  },
+  {
+    "day": 348,
+    "tanakh": "1 Chronicles 29; 2 Chronicles 1",
+    "psalm": "Psalm 48",
+    "proverbs": "Proverbs 7",
+    "brit_chadashah": "John 20"
+  },
+  {
+    "day": 349,
+    "tanakh": "2 Chronicles 2-3",
+    "psalm": "Psalm 49",
+    "proverbs": "Proverbs 8",
+    "brit_chadashah": "John 21"
+  },
+  {
+    "day": 350,
+    "tanakh": "2 Chronicles 4-5",
+    "psalm": "Psalm 50",
+    "proverbs": "Proverbs 9",
+    "brit_chadashah": "Acts 1"
+  },
+  {
+    "day": 351,
+    "tanakh": "2 Chronicles 6-7",
+    "psalm": "Psalm 51",
+    "proverbs": "Proverbs 10",
+    "brit_chadashah": "Acts 2"
+  },
+  {
+    "day": 352,
+    "tanakh": "2 Chronicles 8-9",
+    "psalm": "Psalm 52",
+    "proverbs": "Proverbs 11",
+    "brit_chadashah": "Acts 3"
+  },
+  {
+    "day": 353,
+    "tanakh": "2 Chronicles 10-11",
+    "psalm": "Psalm 53",
+    "proverbs": "Proverbs 12",
+    "brit_chadashah": "Acts 4"
+  },
+  {
+    "day": 354,
+    "tanakh": "2 Chronicles 12-13",
+    "psalm": "Psalm 54",
+    "proverbs": "Proverbs 13",
+    "brit_chadashah": "Acts 5"
+  },
+  {
+    "day": 355,
+    "tanakh": "2 Chronicles 14-15",
+    "psalm": "Psalm 55",
+    "proverbs": "Proverbs 14",
+    "brit_chadashah": "Acts 6"
+  },
+  {
+    "day": 356,
+    "tanakh": "2 Chronicles 16-17",
+    "psalm": "Psalm 56",
+    "proverbs": "Proverbs 15",
+    "brit_chadashah": "Acts 7"
+  },
+  {
+    "day": 357,
+    "tanakh": "2 Chronicles 18-19",
+    "psalm": "Psalm 57",
+    "proverbs": "Proverbs 16",
+    "brit_chadashah": "Acts 8"
+  },
+  {
+    "day": 358,
+    "tanakh": "2 Chronicles 20-21",
+    "psalm": "Psalm 58",
+    "proverbs": "Proverbs 17",
+    "brit_chadashah": "Acts 9"
+  },
+  {
+    "day": 359,
+    "tanakh": "2 Chronicles 22-23",
+    "psalm": "Psalm 59",
+    "proverbs": "Proverbs 18",
+    "brit_chadashah": "Acts 10"
+  },
+  {
+    "day": 360,
+    "tanakh": "2 Chronicles 24-25",
+    "psalm": "Psalm 60",
+    "proverbs": "Proverbs 19",
+    "brit_chadashah": "Acts 11"
+  },
+  {
+    "day": 361,
+    "tanakh": "2 Chronicles 26-27",
+    "psalm": "Psalm 61",
+    "proverbs": "Proverbs 20",
+    "brit_chadashah": "Acts 12"
+  },
+  {
+    "day": 362,
+    "tanakh": "2 Chronicles 28-29",
+    "psalm": "Psalm 62",
+    "proverbs": "Proverbs 21",
+    "brit_chadashah": "Acts 13"
+  },
+  {
+    "day": 363,
+    "tanakh": "2 Chronicles 30-31",
+    "psalm": "Psalm 63",
+    "proverbs": "Proverbs 22",
+    "brit_chadashah": "Acts 14"
+  },
+  {
+    "day": 364,
+    "tanakh": "2 Chronicles 32-33",
+    "psalm": "Psalm 64",
+    "proverbs": "Proverbs 23",
+    "brit_chadashah": "Acts 15"
+  },
+  {
+    "day": 365,
+    "tanakh": "2 Chronicles 34-36",
+    "psalm": "Psalm 65",
+    "proverbs": "Proverbs 24",
+    "brit_chadashah": "Acts 16"
+  }
+]
