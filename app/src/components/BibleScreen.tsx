@@ -95,7 +95,9 @@ export function BibleScreen() {
         </span>
       </h3>
 
-      <ChapterView bookId={book.id} chapter={chapter} translation={settings.translation} />
+      <div className="reader-body">
+        <ChapterView bookId={book.id} chapter={chapter} translation={settings.translation} />
+      </div>
 
       <div className="bible-nav">
         <button className="btn btn-secondary" onClick={prev} disabled={atStart}>
