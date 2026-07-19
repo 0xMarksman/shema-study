@@ -7,6 +7,7 @@ import { decryptMessage, getCachedChannelKey, cacheChannelKey, loadKeyPair, decr
 import { ArrowLeftIcon, LockIcon, SendIcon, SmileIcon, GifIcon, FlagIcon, BookOpenIcon } from "./icons";
 import { getAvatar } from "../lib/avatars";
 import { AvatarDisplay } from "../lib/AvatarIcon";
+import { ReaderOverlay, type ReaderRequest } from "./ReaderOverlay";
 
 const QUICK_REACTIONS = ["❤️", "🙏", "👍", "😂", "😮", "🔥", "✝️", "🕊️"];
 const GIPHY_KEY = import.meta.env.VITE_GIPHY_KEY as string | undefined;
@@ -131,7 +132,8 @@ const REPORT_REASONS = [
 ];
 
 export default function ChatView({ channelId, title, isGroup = false, onBack }: ChatViewProps) {
-  const { user, settings, openBibleRef } = useAppState();
+  const { user, settings } = useAppState();
+  const [reader, setReader] = useState<ReaderRequest | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [decrypted, setDecrypted] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
@@ -387,7 +389,10 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
                   {!isMine && <span className="chat-sender">{m.senderUsername}</span>}
                   {gif
                     ? <img src={gif.url} alt="GIF" className="chat-gif" loading="lazy" />
-                    : <span className="chat-body">{renderWithVerseChips(rawBody, (ref) => { openBibleRef(ref.bookId, ref.chapter); onBack(); })}</span>}
+                    : <span className="chat-body">{renderWithVerseChips(rawBody, (ref) => {
+                        const book = BIBLE_BOOKS.find((b) => b.id === ref.bookId);
+                        if (book) setReader({ reference: `${book.name} ${ref.chapter}`, returnLabel: "Back to message" });
+                      })}</span>}
                   <span className="chat-time">{formatTime(m.sentAt)}</span>
                   {pickerFor === m.id && (
                     <div className="reaction-picker" onClick={(e) => e.stopPropagation()}>
@@ -598,6 +603,8 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
           </div>
         </div>
       )}
+
+      {reader && <ReaderOverlay request={reader} onClose={() => setReader(null)} />}
     </div>
   );
 }

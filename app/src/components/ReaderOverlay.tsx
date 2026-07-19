@@ -12,6 +12,8 @@ export interface ReaderRequest {
   /** When set, the reader offers "Mark as read" for this plan day/track. */
   day?: number;
   track?: Track;
+  /** Overrides the generic "Close" label — e.g. "Back to message" when opened from chat. */
+  returnLabel?: string;
 }
 
 export function ReaderOverlay({
@@ -62,7 +64,7 @@ export function ReaderOverlay({
         <button className="aa-btn" onClick={() => setShowAppearance(true)} aria-label="Appearance">
           Aa
         </button>
-        <button onClick={onClose} aria-label="Close reader" style={{ padding: 6 }}>
+        <button onClick={onClose} aria-label={request.returnLabel ?? "Close reader"} title={request.returnLabel} style={{ padding: 6 }}>
           <CloseIcon className="q-icon" />
         </button>
       </header>
@@ -125,7 +127,7 @@ export function ReaderOverlay({
           </button>
         ) : (
           <button className="btn btn-secondary btn-block" onClick={onClose}>
-            Close
+            {request.returnLabel ? `← ${request.returnLabel}` : "Close"}
           </button>
         )}
       </footer>
