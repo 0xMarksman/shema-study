@@ -17,6 +17,7 @@
   --base-size: 16px;
   --line-height: 1.55;
   --letter-spacing: 0em;
+  --tab-bar-h: 56px;
 
   font-family: var(--font);
   font-size: var(--base-size);
@@ -397,6 +398,20 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 }
 .setting-row + .setting-row { border-top: 1px solid var(--border); }
 .setting-row label:first-child { font-weight: 500; color: var(--text-h); }
+
+/* Divider between app settings and bible reader settings */
+.setting-section-divider {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  padding: 14px 0 4px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+}
+/* A setting-row after a divider should not double-border */
+.setting-section-divider + .setting-row { border-top: none; }
 
 .swatches { display: flex; gap: 10px; }
 .swatch {
@@ -1108,11 +1123,20 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 .groups-input-sm { padding: 5px 8px; font-size: 0.85rem; max-width: 140px; }
 
 /* ── Chat screen ──────────────────────────────────────────────────────────── */
+/* The chat takes over the full viewport so it isn't squished by .app-shell's
+   16px side padding or bottom tab-bar padding. */
 .chat-screen {
-  flex: 1;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 680px;
+  z-index: 30;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
-  height: 100%;
   overflow: hidden;
 }
 .chat-header {

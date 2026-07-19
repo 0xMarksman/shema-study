@@ -4,6 +4,7 @@ import {
   type Accent,
   type FontChoice,
   type TextAlign,
+  type TextScale,
 } from "../types";
 import { CheckCircleIcon } from "./icons";
 
@@ -71,6 +72,26 @@ export function AppearanceControls({ showRedLetters = true }: { showRedLetters?:
           <option value="mono">Monospaced</option>
         </select>
       </div>
+
+      {/* ── App text size ────────────────────────────────────────── */}
+      <div className="setting-row">
+        <label style={{ fontWeight: 500, color: "var(--text-h)" }}>App text size</label>
+        <div className="segmented" role="group" aria-label="App text size">
+          {(["s", "m", "l", "xl"] as TextScale[]).map((s) => (
+            <button
+              key={s}
+              className={(settings.scale ?? "m") === s ? "active" : ""}
+              onClick={() => updateSettings({ scale: s })}
+              aria-pressed={(settings.scale ?? "m") === s}
+              style={{ padding: "5px 10px", fontWeight: s === "m" ? 500 : undefined }}
+            >
+              {s.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="setting-section-divider">Bible Reader Typography</div>
 
       {/* ── Granular font size slider ────────────────────────────── */}
       <div className="setting-row" style={{ display: "block" }}>
