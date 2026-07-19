@@ -19,6 +19,7 @@ import {
   ChevronRightIcon, CopyIcon, BellIcon, PencilIcon, GearIcon,
 } from "./icons";
 import ChatView from "./ChatView";
+import { DayNumberInput } from "./DayNumberInput";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -327,7 +328,7 @@ function CreateGroupView({ onBack, onCreate }: { onBack: () => void; onCreate: (
         </label>
         <label className="groups-label">
           Starting from day #{startDay}
-          <input className="groups-input" type="number" min={1} max={365} value={startDay} onChange={(e) => setStartDay(Number(e.target.value))} />
+          <DayNumberInput className="groups-input" max={365} value={startDay} onCommit={setStartDay} />
         </label>
         {err && <p className="groups-error">{err}</p>}
         <button className="btn-primary" type="submit" disabled={busy}>
@@ -648,7 +649,7 @@ function GroupSettingsSheet({
             <label className="groups-label" style={{ marginBottom: 4 }}>Plan start</label>
             <div style={{ display: "flex", gap: 8 }}>
               <input type="date" className="groups-input" style={{ flex: 1 }} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-              <input type="number" className="groups-input" style={{ width: 72 }} min={1} max={365} value={startDay} onChange={(e) => setStartDay(Number(e.target.value))} placeholder="Day" />
+              <DayNumberInput className="groups-input" style={{ width: 72 }} max={365} value={startDay} placeholder="Day" onCommit={setStartDay} />
             </div>
           </div>
           {err && <p className="groups-error">{err}</p>}

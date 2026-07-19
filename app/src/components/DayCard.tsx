@@ -87,7 +87,7 @@ export function DayCard({ day }: { day: PlanDay }) {
 
       <div className="section-label">Readings</div>
       <div className="card" style={{ paddingTop: 4, paddingBottom: 4 }}>
-        {TRACKS.map((track) => {
+        {TRACKS.filter((track) => day[track]).map((track) => {
           const Icon = TRACK_ICONS[track];
           const done = progress.has(progressKey(day.day, track));
           return (

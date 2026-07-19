@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { catchMeUp, currentDay, daysBehind, firstIncompleteDay, isDayComplete } from "../lib/schedule";
+import { catchMeUp, currentDay, daysBehind, firstIncompleteDay, isDayComplete, todayIso } from "../lib/schedule";
 import { useAppState } from "../state/AppState";
 import { TRACKS, TRANSLATIONS, type Translation } from "../types";
 import { AppearanceControls } from "./AppearancePanel";
@@ -9,6 +9,8 @@ import { AVATAR_PRESETS, getAvatar } from "../lib/avatars";
 import { AvatarDisplay, AvatarIcon } from "../lib/AvatarIcon";
 import { updateProfile } from "../lib/api";
 import { PLAN_TEMPLATES } from "../lib/planTemplates";
+import { CustomPlanBuilderSheet } from "./CustomPlanBuilder";
+import { DayNumberInput } from "./DayNumberInput";
 
 export function SettingsScreen() {
   const { plan, settings, progress, updateSettings, resetProgress } = useAppState();
@@ -100,21 +102,12 @@ export function SettingsScreen() {
             </div>
             <div className="setting-row">
               <label htmlFor="start-day-setting">Day on start date</label>
-              <input
+              <DayNumberInput
                 id="start-day-setting"
-                type="number"
-                min={1}
+                value={settings.startDay}
                 max={total || 365}
                 style={{ width: 84 }}
-                value={settings.startDay}
-                onChange={(e) => {
-                  const v = parseInt(e.target.value, 10);
-                  if (!Number.isNaN(v)) {
-                    updateSettings({
-                      startDay: Math.min(Math.max(v, 1), total || 365),
-                    });
-                  }
-                }}
+                onCommit={(v) => updateSettings({ startDay: v })}
               />
             </div>
             <div className="setting-row">
@@ -284,8 +277,10 @@ function RemindersCard() {
 function PlanTemplateCard() {
   const { settings, updateSettings } = useAppState();
   const [showPicker, setShowPicker] = useState(false);
+  const [showBuilder, setShowBuilder] = useState(false);
 
   const active = PLAN_TEMPLATES.find((t) => t.id === settings.planTemplateId) ?? PLAN_TEMPLATES[0];
+  const isCustom = active.id === "custom";
 
   return (
     <>
@@ -294,11 +289,26 @@ function PlanTemplateCard() {
         <div className="setting-row">
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 600, fontSize: "0.92rem", color: "var(--text-h)" }}>{active.name}</div>
-            <div className="small muted">{active.description}</div>
+            <div className="small muted">
+              {isCustom && settings.customPlanBookIds.length > 0
+                ? `${settings.customPlanBookIds.length} book${settings.customPlanBookIds.length === 1 ? "" : "s"} · ${settings.customPlanPace} chapters/day`
+                : active.description}
+            </div>
           </div>
-          <button className="btn btn-secondary" style={{ whiteSpace: "nowrap" }} onClick={() => setShowPicker(true)}>
-            Change
-          </button>
+          <div style={{ display: "flex", gap: 6 }}>
+            {isCustom && (
+              <button
+                className="btn btn-secondary"
+                style={{ whiteSpace: "nowrap" }}
+                onClick={() => setShowBuilder(true)}
+              >
+                Edit
+              </button>
+            )}
+            <button className="btn btn-secondary" style={{ whiteSpace: "nowrap" }} onClick={() => setShowPicker(true)}>
+              Change
+            </button>
+          </div>
         </div>
         {showPicker && (
           <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -308,6 +318,17 @@ function PlanTemplateCard() {
                 className="plan-template-option"
                 data-active={t.id === settings.planTemplateId}
                 onClick={() => {
+                  if (t.id === "custom") {
+                    setShowPicker(false);
+                    setShowBuilder(true);
+                    return;
+                  }
+                  if (t.id === "parasha") {
+                    // Anchors the cycle so "Day 1" is always today's actual portion.
+                    updateSettings({ planTemplateId: t.id, startDate: todayIso(), startDay: 1 });
+                    setShowPicker(false);
+                    return;
+                  }
                   updateSettings({ planTemplateId: t.id });
                   setShowPicker(false);
                 }}
@@ -322,6 +343,17 @@ function PlanTemplateCard() {
           </div>
         )}
       </div>
+      {showBuilder && (
+        <CustomPlanBuilderSheet
+          initialBookIds={settings.customPlanBookIds}
+          initialPace={settings.customPlanPace}
+          onClose={() => setShowBuilder(false)}
+          onSave={(bookIds, pace) => {
+            updateSettings({ customPlanBookIds: bookIds, customPlanPace: pace, planTemplateId: "custom" });
+            setShowBuilder(false);
+          }}
+        />
+      )}
     </>
   );
 }

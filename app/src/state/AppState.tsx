@@ -18,7 +18,8 @@ import {
   register as apiRegister,
   storeSession,
 } from "../lib/api";
-import { progressKey } from "../lib/schedule";
+import { progressKey, dateForDay } from "../lib/schedule";
+import { generateParashaPlan } from "../lib/parashaPlan";
 import {
   DEFAULT_SETTINGS,
   type PlanDay,
@@ -99,7 +100,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   // Load reading plan — either the static plan.json or a generated template.
   useEffect(() => {
     const templateId = state.settings.planTemplateId ?? "default";
-    if (templateId !== "default" && templateId !== "custom") {
+    if (templateId !== "default" && templateId !== "custom" && templateId !== "parasha") {
       const generated = generatePlan(templateId);
       if (generated) { setPlan(generated); setPlanLoading(false); return; }
     }
@@ -113,12 +114,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setPlanLoading(false);
       return;
     }
+    if (templateId === "parasha") {
+      const anchor = state.settings.startDate ? dateForDay(state.settings, 1) ?? new Date() : new Date();
+      generateParashaPlan(anchor, 371)
+        .then((days) => setPlan(days))
+        .catch(() => setSyncError("Couldn't load the Parashah cycle. Check your connection and reload."))
+        .finally(() => setPlanLoading(false));
+      return;
+    }
     fetch("/plan.json")
       .then((res) => res.json())
       .then((days: PlanDay[]) => setPlan(days))
       .catch(() => setSyncError("Couldn't load the reading plan. Check your connection and reload."))
       .finally(() => setPlanLoading(false));
-  }, [state.settings.planTemplateId, state.settings.customPlanBookIds, state.settings.customPlanPace]);
+  }, [state.settings.planTemplateId, state.settings.customPlanBookIds, state.settings.customPlanPace, state.settings.startDate, state.settings.startDay]);
 
   // Persist every state change locally (guest mode works fully offline)…
   useEffect(() => {

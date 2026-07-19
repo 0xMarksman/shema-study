@@ -12,6 +12,7 @@ const QUICK_REACTIONS = ["❤️", "🙏", "👍", "😂", "😮", "🔥", "✝�
 const GIPHY_KEY = import.meta.env.VITE_GIPHY_KEY as string | undefined;
 
 import { BIBLE_BOOKS } from "../lib/bibleBooks";
+import { fetchChapter } from "../lib/bibleApi";
 
 // ─── Book name normalisation table ────────────────────────────────────────────
 const BOOK_ALIASES: Record<string, string> = {
@@ -130,7 +131,7 @@ const REPORT_REASONS = [
 ];
 
 export default function ChatView({ channelId, title, isGroup = false, onBack }: ChatViewProps) {
-  const { user, openBibleRef } = useAppState();
+  const { user, settings, openBibleRef } = useAppState();
   const [messages, setMessages] = useState<Message[]>([]);
   const [decrypted, setDecrypted] = useState<Record<string, string>>({});
   const [text, setText] = useState("");
@@ -150,7 +151,23 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
   const [vpBook, setVpBook] = useState(40);
   const [vpChapter, setVpChapter] = useState(1);
   const [vpVerse, setVpVerse] = useState("");
+  const [vpVerseCount, setVpVerseCount] = useState<number | null>(null);
+  const [vpVerseLoading, setVpVerseLoading] = useState(false);
   const vpBookEntry = BIBLE_BOOKS.find((b) => b.id === vpBook) ?? BIBLE_BOOKS[39];
+
+  // Fetch the real verse count for the selected book/chapter so the picker can
+  // show an actual verse grid instead of a free-typed guess.
+  useEffect(() => {
+    if (!showVersePicker) return;
+    let cancelled = false;
+    setVpVerseLoading(true);
+    setVpVerseCount(null);
+    fetchChapter(settings.translation, vpBook, vpChapter)
+      .then((verses) => { if (!cancelled) setVpVerseCount(verses.length); })
+      .catch(() => { if (!cancelled) setVpVerseCount(null); })
+      .finally(() => { if (!cancelled) setVpVerseLoading(false); });
+    return () => { cancelled = true; };
+  }, [showVersePicker, settings.translation, vpBook, vpChapter]);
   const lastTypingRef = useRef<number>(0);
   const typingTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -497,7 +514,27 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
               </div>
             </label>
             <label className="verse-picker-label" style={{ marginTop: 12 }}>
-              Verse(s) <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional, e.g. 16 or 1-3)</span>
+              Verse(s) <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional — tap one, or type a range)</span>
+              {vpVerseLoading ? (
+                <p className="small muted" style={{ margin: "6px 0 0" }}>Loading verses…</p>
+              ) : vpVerseCount ? (
+                <div className="verse-picker-chapters">
+                  {Array.from({ length: vpVerseCount }, (_, i) => i + 1).map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      className={`verse-picker-ch-btn ${vpVerse === String(v) ? "selected" : ""}`}
+                      onClick={() => setVpVerse(String(v))}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="small muted" style={{ margin: "6px 0 0" }}>
+                  Couldn't load verses (check your connection) — you can still type one below.
+                </p>
+              )}
               <input
                 className="verse-picker-select"
                 type="text"

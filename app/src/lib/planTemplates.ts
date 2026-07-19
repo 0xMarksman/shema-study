@@ -65,6 +65,14 @@ export const PLAN_TEMPLATES: PlanTemplate[] = [
     category: "reading",
     generated: true,
   },
+  {
+    id: "parasha",
+    name: "Weekly Parashah (Messianic)",
+    description: "The traditional annual Torah portion cycle with haftarah, synced to this week's actual reading in the Hebrew calendar.",
+    days: 0,
+    category: "messianic",
+    generated: true,
+  },
 ];
 
 // ─── Reading schedule generators ─────────────────────────────────────────────

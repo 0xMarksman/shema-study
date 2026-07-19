@@ -4,6 +4,7 @@ import { TANAKH_BOOKS, BRIT_CHADASHAH_BOOKS, findDayForBook } from "../lib/planB
 import { useAppState } from "../state/AppState";
 import { BookIcon, ClockBackIcon } from "./icons";
 import { DayCard } from "./DayCard";
+import { DayNumberInput } from "./DayNumberInput";
 
 export function TodayScreen() {
   const { plan, planLoading, settings, syncError } = useAppState();
@@ -123,18 +124,13 @@ function Onboarding() {
 
         <div className="field">
           <label htmlFor="start-day">Begin at day</label>
-          <input
+          <DayNumberInput
             id="start-day"
-            type="number"
-            min={1}
             max={plan.length || 365}
             value={startDay}
-            onChange={(e) => {
-              const v = parseInt(e.target.value, 10);
-              if (!Number.isNaN(v)) {
-                setStartDay(Math.min(Math.max(v, 1), plan.length || 365));
-                setBookSearchResult(null);
-              }
+            onCommit={(v) => {
+              setStartDay(v);
+              setBookSearchResult(null);
             }}
           />
         </div>
