@@ -1,1 +1,32 @@
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Node
+node_modules/
+npm-debug.log*
+.npm
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+
+# Fly.io
+.fly/
+
+# SQLite (local dev DB)
+*.db
+*.db-shm
+*.db-wal

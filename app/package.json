@@ -1,11 +1,11 @@
 {
-  "name": "bible-planner-web",
+  "name": "shema-study",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:server": "npm run dev --prefix server",
+    "dev:server": "npm run dev --prefix ../server",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
