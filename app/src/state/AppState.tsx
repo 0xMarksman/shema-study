@@ -27,6 +27,7 @@ import {
   type Track,
   type User,
 } from "../types";
+import { generatePlan, generateCustomPlan } from "../lib/planTemplates";
 
 const STATE_KEY = "bible-planner:state";
 const SKIP_AUTH_KEY = "bible-planner:skip-auth";
@@ -93,20 +94,72 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     () => localStorage.getItem(SKIP_AUTH_KEY) === "1",
   );
   const pushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reminderTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load the 365-day plan (served statically, cached by the service worker).
+  // Load reading plan — either the static plan.json or a generated template.
   useEffect(() => {
+    const templateId = state.settings.planTemplateId ?? "default";
+    if (templateId !== "default" && templateId !== "custom") {
+      const generated = generatePlan(templateId);
+      if (generated) { setPlan(generated); setPlanLoading(false); return; }
+    }
+    if (templateId === "custom") {
+      const custom = generateCustomPlan(
+        state.settings.customPlanBookIds ?? [],
+        state.settings.customPlanPace ?? 3,
+        true,
+      );
+      setPlan(custom.length ? custom : []);
+      setPlanLoading(false);
+      return;
+    }
     fetch("/plan.json")
       .then((res) => res.json())
       .then((days: PlanDay[]) => setPlan(days))
       .catch(() => setSyncError("Couldn't load the reading plan. Check your connection and reload."))
       .finally(() => setPlanLoading(false));
-  }, []);
+  }, [state.settings.planTemplateId, state.settings.customPlanBookIds, state.settings.customPlanPace]);
 
   // Persist every state change locally (guest mode works fully offline)…
   useEffect(() => {
     localStorage.setItem(STATE_KEY, JSON.stringify(state));
   }, [state]);
+
+  // Schedule/cancel browser notification reminders.
+  useEffect(() => {
+    if (reminderTimer.current) { clearTimeout(reminderTimer.current); reminderTimer.current = null; }
+    const { reminderEnabled, reminderTime, reminderFrequency } = state.settings;
+    if (!reminderEnabled || !("Notification" in window) || Notification.permission !== "granted") return;
+
+    function scheduleNext() {
+      const [h, m] = (reminderTime ?? "08:00").split(":").map(Number);
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(h, m, 0, 0);
+      if (next <= now) next.setDate(next.getDate() + 1);
+
+      // Skip days not in the schedule
+      const dayOfWeek = next.getDay(); // 0=Sun, 6=Sat
+      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      if ((reminderFrequency === "weekdays" && !isWeekday) ||
+          (reminderFrequency === "weekends" && !isWeekend)) {
+        next.setDate(next.getDate() + 1);
+      }
+
+      const ms = next.getTime() - Date.now();
+      reminderTimer.current = setTimeout(() => {
+        new Notification("Time to read! 📖", {
+          body: "Your daily Bible reading is waiting for you.",
+          icon: "/icons/icon-192.png",
+        });
+        scheduleNext(); // reschedule for next day
+      }, ms);
+    }
+
+    scheduleNext();
+    return () => { if (reminderTimer.current) clearTimeout(reminderTimer.current); };
+  }, [state.settings.reminderEnabled, state.settings.reminderTime, state.settings.reminderFrequency]);
 
   // …and, when signed in, debounce-push it to the server.
   const schedulePush = useCallback((next: PlanState) => {

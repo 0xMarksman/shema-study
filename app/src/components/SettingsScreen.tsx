@@ -4,10 +4,11 @@ import { useAppState } from "../state/AppState";
 import { TRACKS, TRANSLATIONS, type Translation } from "../types";
 import { AppearanceControls } from "./AppearancePanel";
 import { AuthForm } from "./AuthScreen";
-import { ClockBackIcon, UserCircleIcon } from "./icons";
+import { BellIcon, ClockBackIcon, UserCircleIcon } from "./icons";
 import { AVATAR_PRESETS, getAvatar } from "../lib/avatars";
 import { AvatarDisplay, AvatarIcon } from "../lib/AvatarIcon";
 import { updateProfile } from "../lib/api";
+import { PLAN_TEMPLATES } from "../lib/planTemplates";
 
 export function SettingsScreen() {
   const { plan, settings, progress, updateSettings, resetProgress } = useAppState();
@@ -159,6 +160,9 @@ export function SettingsScreen() {
         )}
       </div>
 
+      <RemindersCard />
+      <PlanTemplateCard />
+
       <div className="section-label">Account & Sync</div>
       <AccountCard />
 
@@ -201,6 +205,121 @@ export function SettingsScreen() {
           <button className="btn btn-danger btn-block" onClick={() => setConfirmReset(true)}>
             Reset All Progress
           </button>
+        )}
+      </div>
+    </>
+  );
+}
+
+function RemindersCard() {
+  const { settings, updateSettings } = useAppState();
+  const [permDenied, setPermDenied] = useState(false);
+
+  async function handleToggle() {
+    if (!settings.reminderEnabled) {
+      if ("Notification" in window) {
+        const perm = await Notification.requestPermission();
+        if (perm === "denied") { setPermDenied(true); return; }
+      }
+    }
+    setPermDenied(false);
+    updateSettings({ reminderEnabled: !settings.reminderEnabled });
+  }
+
+  return (
+    <>
+      <div className="section-label">
+        <BellIcon className="q-icon" /> Reminders
+      </div>
+      <div className="card">
+        <div className="setting-row">
+          <label>Daily reminder</label>
+          <button
+            className={`toggle-btn ${settings.reminderEnabled ? "toggle-on" : ""}`}
+            onClick={() => void handleToggle()}
+            aria-checked={settings.reminderEnabled}
+            role="switch"
+          >
+            {settings.reminderEnabled ? "On" : "Off"}
+          </button>
+        </div>
+        {settings.reminderEnabled && (
+          <>
+            <div className="setting-row">
+              <label>Time</label>
+              <input
+                type="time"
+                value={settings.reminderTime}
+                onChange={(e) => updateSettings({ reminderTime: e.target.value })}
+              />
+            </div>
+            <div className="setting-row">
+              <label>Days</label>
+              <select
+                value={settings.reminderFrequency}
+                onChange={(e) =>
+                  updateSettings({ reminderFrequency: e.target.value as "daily" | "weekdays" | "weekends" })
+                }
+              >
+                <option value="daily">Every day</option>
+                <option value="weekdays">Weekdays only</option>
+                <option value="weekends">Weekends only</option>
+              </select>
+            </div>
+          </>
+        )}
+        {permDenied && (
+          <p className="small muted" style={{ margin: "8px 0 0", color: "var(--danger, #e05)" }}>
+            Notifications are blocked. Enable them in your browser or device settings.
+          </p>
+        )}
+        <p className="small muted" style={{ margin: "8px 0 0" }}>
+          You'll receive a notification to open your reading for the day.
+        </p>
+      </div>
+    </>
+  );
+}
+
+function PlanTemplateCard() {
+  const { settings, updateSettings } = useAppState();
+  const [showPicker, setShowPicker] = useState(false);
+
+  const active = PLAN_TEMPLATES.find((t) => t.id === settings.planTemplateId) ?? PLAN_TEMPLATES[0];
+
+  return (
+    <>
+      <div className="section-label">Reading Plan</div>
+      <div className="card">
+        <div className="setting-row">
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 600, fontSize: "0.92rem", color: "var(--text-h)" }}>{active.name}</div>
+            <div className="small muted">{active.description}</div>
+          </div>
+          <button className="btn btn-secondary" style={{ whiteSpace: "nowrap" }} onClick={() => setShowPicker(true)}>
+            Change
+          </button>
+        </div>
+        {showPicker && (
+          <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+            {PLAN_TEMPLATES.map((t) => (
+              <button
+                key={t.id}
+                className="plan-template-option"
+                data-active={t.id === settings.planTemplateId}
+                onClick={() => {
+                  updateSettings({ planTemplateId: t.id });
+                  setShowPicker(false);
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>{t.name}</span>
+                <span className="small muted">{t.description}</span>
+              </button>
+            ))}
+            <button className="btn btn-secondary btn-block" style={{ marginTop: 4 }} onClick={() => setShowPicker(false)}>
+              Cancel
+            </button>
+          </div>
         )}
       </div>
     </>

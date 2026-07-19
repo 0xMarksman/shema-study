@@ -88,6 +88,18 @@ export interface Settings {
   /** Last position in the standalone Bible tab. */
   lastBookId: number;
   lastChapter: number;
+  /** Active reading plan template id. Default = full 365-day Messianic plan. */
+  planTemplateId: string;
+  /** Custom plan book IDs (used when planTemplateId === 'custom'). */
+  customPlanBookIds: number[];
+  /** Chapters per day for custom/generated plans. */
+  customPlanPace: number;
+  /** Daily reminder notification enabled. */
+  reminderEnabled: boolean;
+  /** 24h time string for daily reminder, e.g. "08:00". */
+  reminderTime: string;
+  /** Which days to send the reminder. */
+  reminderFrequency: "daily" | "weekdays" | "weekends";
 }
 
 export interface PlanState {
@@ -117,6 +129,12 @@ export const DEFAULT_SETTINGS: Settings = {
   redLetters: true,
   lastBookId: 40,
   lastChapter: 1,
+  planTemplateId: "default",
+  customPlanBookIds: [],
+  customPlanPace: 3,
+  reminderEnabled: false,
+  reminderTime: "08:00",
+  reminderFrequency: "daily",
 };
 
 export interface User {

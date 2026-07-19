@@ -203,6 +203,46 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 
 .btn-block { width: 100%; }
 
+/* Toggle button (on/off switch style) */
+.toggle-btn {
+  padding: 4px 12px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.toggle-btn.toggle-on {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Plan template option in picker */
+.plan-template-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--app-bg);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+.plan-template-option[data-active="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.plan-template-option:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+
 /* ---------- tab bar ---------- */
 
 .tab-bar {
@@ -1086,23 +1126,103 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   border-radius: 6px;
   border: 1px solid var(--border);
 }
-.groups-chat-btn {
-  margin: 16px;
-  padding: 13px 20px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
+/* Kept for legacy compat (no longer renders) */
+.groups-chat-btn { display: none; }
+
+/* Group detail hero card */
+.group-hero-card {
   display: flex;
   align-items: center;
-  gap: 8px;
-  justify-content: center;
-  transition: opacity 0.15s;
+  gap: 14px;
+  padding: 16px;
+  margin: 12px 16px 0;
+  background: var(--card-bg);
+  border-radius: 14px;
+  border: 1px solid var(--border);
 }
-.groups-chat-btn:hover { opacity: 0.88; }
+.group-hero-avatar {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.group-hero-body { flex: 1; min-width: 0; }
+.group-hero-name { margin: 0 0 3px; font-size: 1.05rem; font-weight: 700; color: var(--text-h); }
+.group-hero-desc { margin: 0; font-size: 0.82rem; color: var(--text-muted); }
+.group-hero-desc-empty { font-style: italic; }
+
+/* Stats bar */
+.group-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin: 12px 16px 0;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.group-stat {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 6px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.group-stat:last-child { border-right: none; }
+.group-stat-num { font-size: 0.95rem; font-weight: 700; color: var(--text-h); line-height: 1.2; }
+.group-stat-label { font-size: 0.68rem; color: var(--text-muted); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Quick action buttons */
+.group-actions-grid {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px 0;
+  flex-wrap: wrap;
+}
+.group-action-btn {
+  flex: 1;
+  min-width: 70px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 5px;
+  padding: 10px 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.group-action-btn:hover { background: color-mix(in srgb, var(--accent) 8%, var(--card-bg)); }
+.group-action-btn svg { width: 20px; height: 20px; }
+
+/* Sheet backdrop / bottom sheet (reusable) */
+.sheet-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  display: flex; align-items: flex-end;
+}
+.sheet {
+  background: var(--app-bg);
+  border-radius: 20px 20px 0 0;
+  padding: 10px 20px 40px;
+  width: 100%; max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+}
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  margin: 0 auto 14px;
+}
+
 .groups-member-row {
   display: flex;
   align-items: center;
@@ -1119,8 +1239,6 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   color: var(--text-muted);
 }
 .groups-admin-badge { background: color-mix(in srgb, var(--accent) 15%, transparent); border-color: var(--accent); color: var(--accent); }
-.groups-plan-edit { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.groups-input-sm { padding: 5px 8px; font-size: 0.85rem; max-width: 140px; }
 
 /* ── Chat screen ──────────────────────────────────────────────────────────── */
 /* The chat takes over the full viewport so it isn't squished by .app-shell's

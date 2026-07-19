@@ -16,7 +16,7 @@ import { realtime } from "../lib/realtime";
 import { useAppState } from "../state/AppState";
 import {
   UsersIcon, PersonAddIcon, MessageCircleIcon,
-  ChevronRightIcon, CopyIcon, BellIcon, PencilIcon,
+  ChevronRightIcon, CopyIcon, BellIcon, PencilIcon, GearIcon,
 } from "./icons";
 import ChatView from "./ChatView";
 
@@ -428,11 +428,8 @@ function GroupDetailView({
   const [group, setGroup] = useState<(Group & { members: GroupMember[] }) | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [showNewThread, setShowNewThread] = useState(false);
-  const [editPlan, setEditPlan] = useState(false);
-  const [newStartDate, setNewStartDate] = useState("");
-  const [newStartDay, setNewStartDay] = useState(1);
+  const [showSettings, setShowSettings] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -444,7 +441,6 @@ function GroupDetailView({
 
   useEffect(() => { void load(); }, [load]);
 
-  // When a new member joins, admin provisions their group key
   useEffect(() => {
     return realtime.on("group:member_joined", async (data) => {
       const { groupId: gid, userId: newUserId } = data as { groupId: string; userId: string };
@@ -454,37 +450,16 @@ function GroupDetailView({
         const myJwk = await exportPublicKey(pair.publicKey);
         const myPubKey = await importPublicKey(myJwk);
         const channelKey = await generateChannelKey();
-        // Encrypt for the new member
         const { publicKeyJwk: newMemberJwk } = await fetchPublicKey(newUserId);
         const newMemberPubKey = await importPublicKey(newMemberJwk);
         const encryptedKey = await encryptChannelKey(channelKey, newMemberPubKey);
         await uploadGroupKey(groupId, newUserId, encryptedKey);
-        // Also re-encrypt with admin's own key if not cached
         const myEncKey = await encryptChannelKey(channelKey, myPubKey);
         await uploadGroupKey(groupId, user!.id, myEncKey);
       } catch { /* non-fatal */ }
       await load();
     });
   }, [groupId, group?.role, user, load]);
-
-  useEffect(() => {
-    if (group) {
-      setNewStartDate(group.planStartDate ?? "");
-      setNewStartDay(group.planStartDay);
-    }
-  }, [group]);
-
-  async function savePlan() {
-    if (!group) return;
-    setBusy(true);
-    try {
-      await updateGroup(group.id, { planStartDate: newStartDate || undefined, planStartDay: newStartDay });
-      await load();
-      onChanged();
-      setEditPlan(false);
-    } catch { /* ignore */ }
-    setBusy(false);
-  }
 
   async function copyCode() {
     if (!group) return;
@@ -496,58 +471,88 @@ function GroupDetailView({
   if (!group) return <div className="groups-screen"><p className="groups-loading">Loading…</p></div>;
 
   const isAdmin = group.role === "admin";
+  // Estimate current group plan day
+  const groupDay = group.planStartDate
+    ? Math.max(1, Math.floor((Date.now() - new Date(group.planStartDate).getTime()) / 86400000) + group.planStartDay)
+    : null;
 
   return (
     <div className="groups-screen">
+      {/* Header */}
       <div className="groups-header">
-        <button className="groups-back-btn" onClick={onBack}>&larr; Back</button>
+        <button className="groups-back-btn" onClick={onBack}>← Back</button>
         <h2 className="groups-title">{group.name}</h2>
-      </div>
-
-      {group.description && <p className="groups-detail-desc">{group.description}</p>}
-
-      <div className="groups-info-row">
-        <span className="groups-info-label">Invite code</span>
-        <span className="groups-invite-code">{group.inviteCode}</span>
-        <button className="groups-icon-btn" onClick={() => void copyCode()} title="Copy">
-          {copied ? "✓" : <CopyIcon />}
-        </button>
-      </div>
-
-      <div className="groups-info-row">
-        <span className="groups-info-label">Plan start</span>
-        {editPlan ? (
-          <div className="groups-plan-edit">
-            <input type="date" className="groups-input groups-input-sm" value={newStartDate} onChange={(e) => setNewStartDate(e.target.value)} />
-            <input type="number" className="groups-input groups-input-sm" min={1} max={365} value={newStartDay}
-              onChange={(e) => setNewStartDay(Number(e.target.value))} placeholder="Day #" />
-            <button className="btn-primary btn-sm" onClick={() => void savePlan()} disabled={busy}>Save</button>
-            <button className="btn-secondary btn-sm" onClick={() => setEditPlan(false)}>Cancel</button>
-          </div>
-        ) : (
-          <>
-            <span>{group.planStartDate ? `${group.planStartDate} (Day ${group.planStartDay})` : "Not set"}</span>
-            {isAdmin && (
-              <button className="groups-text-btn" onClick={() => setEditPlan(true)}>Edit</button>
-            )}
-          </>
+        {isAdmin && (
+          <button className="groups-icon-btn" onClick={() => setShowSettings(true)} title="Group settings">
+            <GearIcon className="q-icon" />
+          </button>
         )}
       </div>
 
-      {group.channelId && (
-        <button className="groups-chat-btn" onClick={() => onChat(group.channelId!, group.name, true, group.id)}>
-          <MessageCircleIcon />
-          Open Group Chat
-        </button>
-      )}
+      {/* Hero card */}
+      <div className="group-hero-card">
+        <div className="group-hero-avatar">{group.name.charAt(0).toUpperCase()}</div>
+        <div className="group-hero-body">
+          <h3 className="group-hero-name">{group.name}</h3>
+          {group.description
+            ? <p className="group-hero-desc">{group.description}</p>
+            : isAdmin && <p className="group-hero-desc group-hero-desc-empty">Add a description in group settings</p>}
+        </div>
+      </div>
 
-      {/* Threads section */}
+      {/* Stats bar */}
+      <div className="group-stats-bar">
+        <div className="group-stat">
+          <span className="group-stat-num">{group.members.length}</span>
+          <span className="group-stat-label">Members</span>
+        </div>
+        <div className="group-stat">
+          <span className="group-stat-num">{threads.length}</span>
+          <span className="group-stat-label">Threads</span>
+        </div>
+        <div className="group-stat">
+          <span className="group-stat-num">{groupDay ?? "—"}</span>
+          <span className="group-stat-label">Plan Day</span>
+        </div>
+        <div className="group-stat" style={{ cursor: "pointer" }} onClick={() => void copyCode()}>
+          <span className="group-stat-num" style={{ fontSize: "0.72rem", letterSpacing: "0.08em" }}>{group.inviteCode}</span>
+          <span className="group-stat-label">{copied ? "Copied!" : "Invite Code"}</span>
+        </div>
+      </div>
+
+      {/* Quick actions */}
+      <div className="group-actions-grid">
+        {group.channelId && (
+          <button className="group-action-btn" onClick={() => onChat(group.channelId!, group.name, true, group.id)}>
+            <MessageCircleIcon className="q-icon" />
+            <span>Group Chat</span>
+          </button>
+        )}
+        <button className="group-action-btn" onClick={() => setShowNewThread(true)}>
+          <PencilIcon className="q-icon" />
+          <span>New Thread</span>
+        </button>
+        <button className="group-action-btn" onClick={() => void copyCode()}>
+          <CopyIcon className="q-icon" />
+          <span>{copied ? "Copied!" : "Invite"}</span>
+        </button>
+        {isAdmin && (
+          <button className="group-action-btn" onClick={() => setShowSettings(true)}>
+            <GearIcon className="q-icon" />
+            <span>Settings</span>
+          </button>
+        )}
+      </div>
+
+      {/* Threads */}
       <section className="groups-section">
         <div className="groups-section-header">
           <h3 className="groups-section-title">Threads</h3>
           <button className="groups-text-btn" onClick={() => setShowNewThread(true)}>+ New Thread</button>
         </div>
-        {threads.length === 0 && <p className="groups-empty-text">No threads yet. Create one to start a focused discussion.</p>}
+        {threads.length === 0 && (
+          <p className="groups-empty-text">No threads yet — create one to start a focused discussion.</p>
+        )}
         {threads.map((t) => (
           <button key={t.id} className="groups-row thread-row" onClick={() => onChat(t.channelId, `${t.emoji} ${t.name}`, true, groupId)}>
             <div className="thread-emoji-badge">{t.emoji}</div>
@@ -567,17 +572,94 @@ function GroupDetailView({
         )}
       </section>
 
+      {/* Members */}
       <section className="groups-section">
         <h3 className="groups-section-title">Members ({group.members.length})</h3>
         {group.members.map((m) => (
           <div key={m.id} className="groups-member-row">
             <div className="groups-row-avatar">{m.username.charAt(0).toUpperCase()}</div>
             <span className="groups-member-name">{m.username}</span>
-            {m.id === user?.id && <span className="groups-member-badge">You</span>}
-            {m.role === "admin" && <span className="groups-member-badge groups-admin-badge">Admin</span>}
+            <div style={{ display: "flex", gap: 4, marginLeft: "auto" }}>
+              {m.id === user?.id && <span className="groups-member-badge">You</span>}
+              {m.role === "admin" && <span className="groups-member-badge groups-admin-badge">Admin</span>}
+            </div>
           </div>
         ))}
       </section>
+
+      {/* Admin settings sheet */}
+      {showSettings && (
+        <GroupSettingsSheet
+          group={group}
+          onClose={() => setShowSettings(false)}
+          onSaved={() => { void load(); onChanged(); setShowSettings(false); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function GroupSettingsSheet({
+  group, onClose, onSaved,
+}: {
+  group: Group & { members: GroupMember[] };
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [name, setName] = useState(group.name);
+  const [desc, setDesc] = useState(group.description ?? "");
+  const [startDate, setStartDate] = useState(group.planStartDate ?? "");
+  const [startDay, setStartDay] = useState(group.planStartDay);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true); setErr(null);
+    try {
+      await updateGroup(group.id, {
+        name: name.trim() || undefined,
+        description: desc,
+        planStartDate: startDate || undefined,
+        planStartDay: startDay,
+      });
+      onSaved();
+    } catch {
+      setErr("Failed to save settings.");
+    }
+    setBusy(false);
+  }
+
+  return (
+    <div className="sheet-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="sheet" role="dialog" aria-modal="true" aria-label="Group Settings">
+        <div className="sheet-handle" />
+        <h3 style={{ margin: "0 0 16px", fontWeight: 700, color: "var(--text-h)" }}>Group Settings</h3>
+        <form onSubmit={(e) => void handleSave(e)}>
+          <label className="groups-label">
+            Group name
+            <input className="groups-input" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
+          </label>
+          <label className="groups-label" style={{ marginTop: 12 }}>
+            Description
+            <textarea className="groups-input groups-textarea" value={desc} onChange={(e) => setDesc(e.target.value)} maxLength={300} rows={2} placeholder="What this group is about…" />
+          </label>
+          <div style={{ marginTop: 12 }}>
+            <label className="groups-label" style={{ marginBottom: 4 }}>Plan start</label>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input type="date" className="groups-input" style={{ flex: 1 }} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              <input type="number" className="groups-input" style={{ width: 72 }} min={1} max={365} value={startDay} onChange={(e) => setStartDay(Number(e.target.value))} placeholder="Day" />
+            </div>
+          </div>
+          {err && <p className="groups-error">{err}</p>}
+          <button className="btn btn-block" type="submit" disabled={busy} style={{ marginTop: 16 }}>
+            {busy ? "Saving…" : "Save Changes"}
+          </button>
+          <button type="button" className="btn btn-secondary btn-block" style={{ marginTop: 8 }} onClick={onClose}>
+            Cancel
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
