@@ -30,7 +30,6 @@ export default function App() {
           : settings.themeMode;
       root.dataset.accent = settings.accent;
       root.dataset.font = settings.font;
-      root.dataset.scale = settings.scale;
       root.dataset.textAlign = settings.textAlign ?? "left";
       // Reader-scoped typography (these vars only affect .reader-body, not the whole app)
       root.style.setProperty("--reader-font-size", `${settings.fontSize ?? 16}px`);
@@ -44,7 +43,6 @@ export default function App() {
     settings.themeMode,
     settings.accent,
     settings.font,
-    settings.scale,
     settings.fontSize,
     settings.lineHeight,
     settings.letterSpacing,

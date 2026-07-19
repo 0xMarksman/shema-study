@@ -14,13 +14,12 @@
 
   --sans: system-ui, "Segoe UI", Roboto, sans-serif;
   --font: var(--sans);
-  --base-size: 16px;
   --line-height: 1.55;
   --letter-spacing: 0em;
   --tab-bar-h: 56px;
 
   font-family: var(--font);
-  font-size: var(--base-size);
+  font-size: 16px;
   line-height: var(--line-height);
   letter-spacing: var(--letter-spacing);
   color: var(--text);
@@ -99,11 +98,6 @@
 [data-font="serif"] .reader-body { font-family: "New York", ui-serif, Georgia, "Times New Roman", serif; }
 [data-font="rounded"] .reader-body { font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif; }
 [data-font="mono"] .reader-body { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
-
-/* Text size */
-:root[data-scale="s"] { --base-size: 14.5px; }
-:root[data-scale="l"] { --base-size: 18px; }
-:root[data-scale="xl"] { --base-size: 20px; }
 
 * { box-sizing: border-box; }
 
