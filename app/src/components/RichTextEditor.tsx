@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
+import { BIBLE_BOOKS } from "../lib/bibleBooks";
 
 // ─── Sanitizer ───────────────────────────────────────────────────────────────
 
@@ -170,8 +171,11 @@ export function RichTextEditor({
   const isFocused = useRef(false);
   const savedRange = useRef<Range | null>(null);
   const [editing, setEditing] = useState(false);
-  const [showVerseForm, setShowVerseForm] = useState(false);
-  const [verseInput, setVerseInput] = useState("");
+  const [showVersePicker, setShowVersePicker] = useState(false);
+  const [vpBook, setVpBook] = useState(40);
+  const [vpChapter, setVpChapter] = useState(1);
+  const [vpVerse, setVpVerse] = useState("");
+  const vpBookEntry = BIBLE_BOOKS.find((b) => b.id === vpBook) ?? BIBLE_BOOKS[39];
 
   // Sync external value → DOM when not actively editing
   useEffect(() => {
@@ -199,7 +203,7 @@ export function RichTextEditor({
   const handleBlur = () => {
     // Delay so clicks on toolbar buttons aren't counted as blur
     setTimeout(() => {
-      if (!editorRef.current?.contains(document.activeElement) && !showVerseForm) {
+      if (!editorRef.current?.contains(document.activeElement) && !showVersePicker) {
         isFocused.current = false;
         setEditing(false);
         saveContent();
@@ -220,13 +224,15 @@ export function RichTextEditor({
     if (sel && sel.rangeCount > 0) {
       savedRange.current = sel.getRangeAt(0).cloneRange();
     }
-    setShowVerseForm(true);
+    setShowVersePicker(true);
+    setVpBook(40); setVpChapter(1); setVpVerse("");
   };
 
-  const insertVerse = () => {
-    const ref = verseInput.trim();
-    if (!ref) { setShowVerseForm(false); return; }
-
+  const insertVerseFromPicker = () => {
+    const v = vpVerse.trim();
+    const ref = v
+      ? `${vpBookEntry.name} ${vpChapter}:${v}`
+      : `${vpBookEntry.name} ${vpChapter}`;
     const editor = editorRef.current;
     if (editor) {
       editor.focus();
@@ -242,14 +248,8 @@ export function RichTextEditor({
       );
     }
     savedRange.current = null;
-    setVerseInput("");
-    setShowVerseForm(false);
+    setShowVersePicker(false);
     saveContent();
-  };
-
-  const onVerseKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") { e.preventDefault(); insertVerse(); }
-    if (e.key === "Escape") { setShowVerseForm(false); }
   };
 
   const isEmpty = !value || value.replace(/<[^>]*>/g, "").trim() === "";
@@ -320,23 +320,76 @@ export function RichTextEditor({
         </button>
       </div>
 
-      {showVerseForm && (
-        <div className="rte-verse-form">
-          <input
-            autoFocus
-            type="text"
-            className="rte-verse-input"
-            placeholder="e.g. John 3:16 or Genesis 1:1-3"
-            value={verseInput}
-            onChange={(e) => setVerseInput(e.target.value)}
-            onKeyDown={onVerseKeyDown}
-          />
-          <button className="btn" style={{ padding: "6px 12px" }} onMouseDown={(e) => { e.preventDefault(); insertVerse(); }}>
-            Insert
-          </button>
-          <button className="btn btn-secondary" style={{ padding: "6px 12px" }} onMouseDown={(e) => { e.preventDefault(); setShowVerseForm(false); }}>
-            Cancel
-          </button>
+      {showVersePicker && (
+        <div
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }}
+          onClick={() => setShowVersePicker(false)}
+        >
+          <div
+            className="report-modal verse-picker-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ margin: "0 0 14px" }}>Insert Verse Reference</h3>
+            <label className="verse-picker-label">
+              Book
+              <select
+                className="verse-picker-select"
+                value={vpBook}
+                onChange={(e) => { setVpBook(Number(e.target.value)); setVpChapter(1); setVpVerse(""); }}
+              >
+                <optgroup label="Tanakh">
+                  {BIBLE_BOOKS.filter((b) => b.id <= 39).map((b) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="B'rit Chadashah">
+                  {BIBLE_BOOKS.filter((b) => b.id >= 40).map((b) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </optgroup>
+              </select>
+            </label>
+            <label className="verse-picker-label" style={{ marginTop: 12 }}>
+              Chapter
+              <div className="verse-picker-chapters">
+                {Array.from({ length: vpBookEntry.chapters }, (_, i) => i + 1).map((c) => (
+                  <button
+                    key={c}
+                    className={`verse-picker-ch-btn ${c === vpChapter ? "selected" : ""}`}
+                    onMouseDown={(e) => { e.preventDefault(); setVpChapter(c); setVpVerse(""); }}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </label>
+            <label className="verse-picker-label" style={{ marginTop: 12 }}>
+              Verse(s) <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional, e.g. 16 or 1-3)</span>
+              <input
+                className="verse-picker-select"
+                type="text"
+                placeholder="e.g. 16 or 1-3"
+                value={vpVerse}
+                onChange={(e) => setVpVerse(e.target.value)}
+                onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === "Enter") { e.preventDefault(); insertVerseFromPicker(); } }}
+                style={{ marginTop: 6 }}
+              />
+            </label>
+            <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+              <button
+                className="btn"
+                onMouseDown={(e) => { e.preventDefault(); insertVerseFromPicker(); }}
+              >
+                Insert
+              </button>
+              <button
+                className="btn btn-secondary"
+                onMouseDown={(e) => { e.preventDefault(); setShowVersePicker(false); }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

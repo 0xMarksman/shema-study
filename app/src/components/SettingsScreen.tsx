@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { catchMeUp, currentDay, daysBehind, firstIncompleteDay, isDayComplete } from "../lib/schedule";
 import { useAppState } from "../state/AppState";
 import { TRACKS, TRANSLATIONS, type Translation } from "../types";
@@ -6,6 +6,7 @@ import { AppearanceControls } from "./AppearancePanel";
 import { AuthForm } from "./AuthScreen";
 import { ClockBackIcon, UserCircleIcon } from "./icons";
 import { AVATAR_PRESETS, getAvatar } from "../lib/avatars";
+import { AvatarDisplay, AvatarIcon } from "../lib/AvatarIcon";
 import { updateProfile } from "../lib/api";
 
 export function SettingsScreen() {
@@ -210,7 +211,18 @@ function AccountCard() {
   const { user, logout, updateSettings } = useAppState();
   const [savingAvatar, setSavingAvatar] = useState(false);
   const [avatarMsg, setAvatarMsg] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const currentAvatar = user?.avatar ?? "default";
+
+  function patchLocalAvatar(val: string) {
+    const raw = localStorage.getItem("bible-planner:user");
+    if (raw) {
+      const u = JSON.parse(raw) as { avatar?: string };
+      u.avatar = val;
+      localStorage.setItem("bible-planner:user", JSON.stringify(u));
+    }
+    updateSettings({}); // trigger re-render
+  }
 
   async function handleAvatarChange(id: string) {
     if (!user) return;
@@ -218,15 +230,7 @@ function AccountCard() {
     setAvatarMsg(null);
     try {
       await updateProfile(id);
-      // Update local user record
-      updateSettings({}); // trigger re-render (user state is in AppState)
-      // Patch stored user
-      const raw = localStorage.getItem("bible-planner:user");
-      if (raw) {
-        const u = JSON.parse(raw) as { avatar?: string };
-        u.avatar = id;
-        localStorage.setItem("bible-planner:user", JSON.stringify(u));
-      }
+      patchLocalAvatar(id);
       setAvatarMsg("Avatar updated!");
       setTimeout(() => setAvatarMsg(null), 2000);
     } catch {
@@ -235,20 +239,40 @@ function AccountCard() {
     setSavingAvatar(false);
   }
 
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSavingAvatar(true);
+    setAvatarMsg(null);
+    try {
+      const dataUrl = await resizeImage(file, 200);
+      await updateProfile(dataUrl);
+      patchLocalAvatar(dataUrl);
+      setAvatarMsg("Photo updated!");
+      setTimeout(() => setAvatarMsg(null), 2000);
+    } catch {
+      setAvatarMsg("Failed to upload — try again.");
+    }
+    setSavingAvatar(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   if (user) {
     const preset = getAvatar(currentAvatar);
+    const isPhoto = currentAvatar.startsWith("data:") || currentAvatar.startsWith("http");
     return (
       <div className="card">
         <div className="setting-row">
           <label>Signed in as</label>
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span
+            <AvatarDisplay
+              avatarId={currentAvatar}
+              bg={preset.bg}
+              fg={preset.fg}
+              username={user.username}
               className="avatar-circle"
-              style={{ background: preset.bg, color: preset.fg }}
               aria-hidden
-            >
-              {preset.symbol}
-            </span>
+            />
             <span className="muted">{user.username}</span>
           </span>
         </div>
@@ -257,19 +281,49 @@ function AccountCard() {
           <p style={{ margin: "0 0 8px", fontWeight: 500, color: "var(--text-h)", display: "flex", alignItems: "center", gap: 6 }}>
             <UserCircleIcon className="q-icon" /> Profile picture
           </p>
+
+          {/* Photo upload */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => void handlePhotoUpload(e)}
+            />
+            <button
+              className={`btn btn-secondary${isPhoto ? " btn-block" : ""}`}
+              style={{ flex: isPhoto ? 1 : undefined }}
+              disabled={savingAvatar}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {isPhoto ? "Replace photo" : "Upload photo"}
+            </button>
+            {isPhoto && (
+              <button
+                className="btn btn-secondary"
+                disabled={savingAvatar}
+                onClick={() => void handleAvatarChange("default")}
+              >
+                Remove
+              </button>
+            )}
+          </div>
+
+          {/* Preset grid */}
           <div className="avatar-grid">
             {AVATAR_PRESETS.map((a) => (
               <button
                 key={a.id}
-                className={`avatar-opt ${currentAvatar === a.id ? "selected" : ""}`}
+                className={`avatar-opt ${!isPhoto && currentAvatar === a.id ? "selected" : ""}`}
                 style={{ background: a.bg, color: a.fg }}
                 title={a.label}
                 disabled={savingAvatar}
                 onClick={() => void handleAvatarChange(a.id)}
                 aria-label={a.label}
-                aria-pressed={currentAvatar === a.id}
+                aria-pressed={!isPhoto && currentAvatar === a.id}
               >
-                {a.symbol}
+                <AvatarIcon id={a.id} size={20} />
               </button>
             ))}
           </div>
@@ -295,4 +349,22 @@ function AccountCard() {
       <AuthForm />
     </div>
   );
+}
+
+function resizeImage(file: File, maxSize: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
 }

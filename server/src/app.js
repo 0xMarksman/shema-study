@@ -510,7 +510,7 @@ app.get("/api/channels/:id/messages", requireAuth, async (req, res) => {
     const limit = Math.min(Number(req.query.limit ?? 50), 100);
     const { rows } = await db.execute({
       sql: `SELECT m.id, m.channel_id, m.sender_id, u.username as sender_username,
-                   m.content, m.sent_at
+                   u.avatar as sender_avatar, m.content, m.sent_at
             FROM messages m JOIN users u ON u.id = m.sender_id
             WHERE m.channel_id = ? AND m.sent_at < ?
             ORDER BY m.sent_at DESC LIMIT ?`,
@@ -537,6 +537,7 @@ app.get("/api/channels/:id/messages", requireAuth, async (req, res) => {
       messages: rows.reverse().map((r) => ({
         id: String(r.id), channelId: String(r.channel_id),
         senderId: String(r.sender_id), senderUsername: String(r.sender_username),
+        senderAvatar: r.sender_avatar ? String(r.sender_avatar) : "default",
         content: String(r.content), sentAt: Number(r.sent_at),
         reactions: reactionsMap[String(r.id)] ?? [],
       })),
@@ -556,11 +557,13 @@ app.post("/api/channels/:id/messages", requireAuth, async (req, res) => {
     if (!content || typeof content !== "string") return res.status(400).json({ error: "content required." });
     const id = crypto.randomUUID();
     const sentAt = Date.now();
+    const { rows: uRows } = await db.execute({ sql: "SELECT avatar FROM users WHERE id = ?", args: [req.userId] });
+    const senderAvatar = uRows[0]?.avatar ? String(uRows[0].avatar) : "default";
     await db.execute({
       sql: "INSERT INTO messages (id, channel_id, sender_id, content, sent_at) VALUES (?, ?, ?, ?, ?)",
       args: [id, channelId, req.userId, content, sentAt],
     });
-    const msg = { id, channelId, senderId: req.userId, senderUsername: req.username, content, sentAt, reactions: [] };
+    const msg = { id, channelId, senderId: req.userId, senderUsername: req.username, senderAvatar, content, sentAt, reactions: [] };
     // Push real-time + create notifications for all participants
     const { rows: dmParts } = await db.execute({
       sql: "SELECT user_id FROM channel_participants WHERE channel_id = ?", args: [channelId],
@@ -574,7 +577,7 @@ app.post("/api/channels/:id/messages", requireAuth, async (req, res) => {
       sql: `SELECT c.type, COALESCE(t.name, g.name) AS title
             FROM channels c
             LEFT JOIN threads t ON t.channel_id = c.id
-            LEFT JOIN groups g ON g.id = c.group_id
+            LEFT JOIN groups_data g ON g.id = c.group_id
             WHERE c.id = ?`,
       args: [channelId],
     });

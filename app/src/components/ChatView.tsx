@@ -6,6 +6,7 @@ import { realtime } from "../lib/realtime";
 import { decryptMessage, getCachedChannelKey, cacheChannelKey, loadKeyPair, decryptChannelKey, type EncryptedMessage } from "../lib/encryption";
 import { ArrowLeftIcon, LockIcon, SendIcon, SmileIcon, GifIcon, FlagIcon, BookOpenIcon } from "./icons";
 import { getAvatar } from "../lib/avatars";
+import { AvatarDisplay } from "../lib/AvatarIcon";
 
 const QUICK_REACTIONS = ["❤️", "🙏", "👍", "😂", "😮", "🔥", "✝️", "🕊️"];
 const GIPHY_KEY = import.meta.env.VITE_GIPHY_KEY as string | undefined;
@@ -148,6 +149,7 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
   const [showVersePicker, setShowVersePicker] = useState(false);
   const [vpBook, setVpBook] = useState(40);
   const [vpChapter, setVpChapter] = useState(1);
+  const [vpVerse, setVpVerse] = useState("");
   const vpBookEntry = BIBLE_BOOKS.find((b) => b.id === vpBook) ?? BIBLE_BOOKS[39];
   const lastTypingRef = useRef<number>(0);
   const typingTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
@@ -349,17 +351,19 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
             grouped[r.emoji].count++;
             if (r.userId === myId) grouped[r.emoji].mine = true;
           }
-          const senderAvatar = getAvatar((m as Message & { senderAvatar?: string }).senderAvatar);
+          const rawAvatarId = (m as Message & { senderAvatar?: string }).senderAvatar ?? "default";
+          const senderAvatar = getAvatar(rawAvatarId);
           return (
             <div key={m.id} className={`chat-bubble-row ${isMine ? "chat-mine" : "chat-theirs"}`}>
               {!isMine && (
-                <span
+                <AvatarDisplay
+                  avatarId={rawAvatarId}
+                  bg={senderAvatar.bg}
+                  fg={senderAvatar.fg}
+                  username={m.senderUsername}
                   className="chat-avatar"
-                  style={{ background: senderAvatar.bg, color: senderAvatar.fg }}
-                  title={m.senderUsername}
-                >
-                  {senderAvatar.id === "default" ? m.senderUsername.charAt(0).toUpperCase() : senderAvatar.symbol}
-                </span>
+                  size={16}
+                />
               )}
               <div className="chat-bubble-wrap">
                 <div className={`chat-bubble ${isMine ? "chat-bubble-mine" : "chat-bubble-theirs"}`}>
@@ -438,7 +442,7 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
         <button type="button" className="chat-gif-btn" onClick={() => setShowGifPicker((v) => !v)} aria-label="GIF" title="Send GIF">
           <GifIcon />
         </button>
-        <button type="button" className="chat-gif-btn" onClick={() => { setShowVersePicker(true); setVpBook(40); setVpChapter(1); }} aria-label="Insert verse" title="Insert verse reference">
+        <button type="button" className="chat-gif-btn" onClick={() => { setShowVersePicker(true); setVpBook(40); setVpChapter(1); setVpVerse(""); }} aria-label="Insert verse" title="Insert verse reference">
           <BookOpenIcon />
         </button>
         <input
@@ -464,67 +468,7 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
               <select
                 className="verse-picker-select"
                 value={vpBook}
-                onChange={(e) => { setVpBook(Number(e.target.value)); setVpChapter(1); }}
-              >
-                <optgroup label="Tanakh">
-                  {BIBLE_BOOKS.filter((b) => b.id <= 39).map((b) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </optgroup>
-                <optgroup label="B'rit Chadashah">
-                  {BIBLE_BOOKS.filter((b) => b.id >= 40).map((b) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </optgroup>
-              </select>
-            </label>
-            <label className="verse-picker-label">
-              Chapter
-              <div className="verse-picker-chapters">
-                {Array.from({ length: vpBookEntry.chapters }, (_, i) => i + 1).map((c) => (
-                  <button
-                    key={c}
-                    className={`verse-picker-ch-btn ${c === vpChapter ? "selected" : ""}`}
-                    onClick={() => setVpChapter(c)}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </label>
-            <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-              <button
-                className="btn"
-                onClick={() => {
-                  const ref = `${vpBookEntry.name} ${vpChapter}`;
-                  setText((prev) => prev ? `${prev} ${ref}` : ref);
-                  setShowVersePicker(false);
-                }}
-              >
-                Insert
-              </button>
-              <button
-                className="btn btn-secondary"
-                onClick={() => setShowVersePicker(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Verse picker modal */}
-      {showVersePicker && (
-        <div className="report-modal-backdrop" onClick={() => setShowVersePicker(false)}>
-          <div className="report-modal verse-picker-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ margin: "0 0 14px" }}>Insert Verse Reference</h3>
-            <label className="verse-picker-label">
-              Book
-              <select
-                className="verse-picker-select"
-                value={vpBook}
-                onChange={(e) => { setVpBook(Number(e.target.value)); setVpChapter(1); }}
+                onChange={(e) => { setVpBook(Number(e.target.value)); setVpChapter(1); setVpVerse(""); }}
               >
                 <optgroup label="Tanakh">
                   {BIBLE_BOOKS.filter((b) => b.id <= 39).map((b) => (
@@ -545,18 +489,30 @@ export default function ChatView({ channelId, title, isGroup = false, onBack }: 
                   <button
                     key={c}
                     className={`verse-picker-ch-btn ${c === vpChapter ? "selected" : ""}`}
-                    onClick={() => setVpChapter(c)}
+                    onClick={() => { setVpChapter(c); setVpVerse(""); }}
                   >
                     {c}
                   </button>
                 ))}
               </div>
             </label>
+            <label className="verse-picker-label" style={{ marginTop: 12 }}>
+              Verse(s) <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional, e.g. 16 or 1-3)</span>
+              <input
+                className="verse-picker-select"
+                type="text"
+                placeholder="e.g. 16 or 1-3"
+                value={vpVerse}
+                onChange={(e) => setVpVerse(e.target.value)}
+                style={{ marginTop: 6 }}
+              />
+            </label>
             <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
               <button
                 className="btn"
                 onClick={() => {
-                  const ref = `${vpBookEntry.name} ${vpChapter}`;
+                  const v = vpVerse.trim();
+                  const ref = v ? `${vpBookEntry.name} ${vpChapter}:${v}` : `${vpBookEntry.name} ${vpChapter}`;
                   setText((prev) => prev ? `${prev} ${ref}` : ref);
                   setShowVersePicker(false);
                 }}
