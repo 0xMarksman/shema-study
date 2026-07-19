@@ -3,7 +3,7 @@
  * The default plan comes from plan.json (full 365-day Messianic study plan).
  * All other templates generate simplified daily reading schedules.
  */
-import { BIBLE_BOOKS } from "./bibleBooks";
+import { BIBLE_BOOKS, type BibleBook } from "./bibleBooks";
 import type { PlanDay } from "../types";
 
 export interface PlanTemplate {
@@ -71,6 +71,14 @@ export const PLAN_TEMPLATES: PlanTemplate[] = [
     description: "The traditional annual Torah portion cycle with haftarah, synced to this week's actual reading in the Hebrew calendar.",
     days: 0,
     category: "messianic",
+    generated: true,
+  },
+  {
+    id: "four-plus-one",
+    name: "Four Places a Day",
+    description: "Four simultaneous strands each day — Torah & History, Prophets & Wisdom, Gospels & Acts, and Epistles & Revelation — plus a daily Psalm (the Psalter repeats over the year). Whole Bible in about a year.",
+    days: 365,
+    category: "reading",
     generated: true,
   },
 ];
@@ -213,11 +221,50 @@ export function generateCustomPlan(
   });
 }
 
+/**
+ * Four simultaneous strands a day (a generated, canonical-order approximation
+ * of the "four passages + a Psalm" reading style — not a reproduction of any
+ * specific publisher's day-by-day schedule) plus the Psalter on repeat.
+ */
+function generateFourPlusOne(): PlanDay[] {
+  const DAYS = 365;
+  const chapterList = (books: BibleBook[]) =>
+    books.flatMap((b) => Array.from({ length: b.chapters }, (_, i) => ({ book: b.name, ch: i + 1 })));
+
+  const torahHistory = chapterList(BIBLE_BOOKS.filter((b) => b.id <= 17));
+  const prophetsWisdom = chapterList(BIBLE_BOOKS.filter((b) => b.id === 18 || (b.id >= 20 && b.id <= 39)));
+  const gospelsActs = chapterList(BIBLE_BOOKS.filter((b) => b.id >= 40 && b.id <= 44));
+  const epistlesRevelation = chapterList(BIBLE_BOOKS.filter((b) => b.id >= 45 && b.id <= 66));
+
+  const chunksOf = (strand: ChapterRef[]) => chunkArray(strand, Math.max(1, Math.ceil(strand.length / DAYS)));
+  const [chunkA, chunkB, chunkC, chunkD] = [torahHistory, prophetsWisdom, gospelsActs, epistlesRevelation].map(chunksOf);
+
+  return Array.from({ length: DAYS }, (_, i) => {
+    const a = chunkA[i] ?? [];
+    const b = chunkB[i] ?? [];
+    const c = chunkC[i] ?? [];
+    const d = chunkD[i] ?? [];
+    const tanakh = [formatChapterRefs(a), formatChapterRefs(b)].filter(Boolean).join("; ");
+    const nt = [formatChapterRefs(c), formatChapterRefs(d)].filter(Boolean).join("; ");
+    const first = a[0] ?? b[0] ?? c[0] ?? d[0];
+    return {
+      day: i + 1,
+      tanakh,
+      psalm: `Psalms ${(i % 150) + 1}`,
+      proverbs: "",
+      brit_chadashah: nt,
+      theme: first ? `${first.book} ${first.ch}` : "",
+      questions: [],
+    };
+  });
+}
+
 const generators: Record<string, () => PlanDay[]> = {
   "nt-90": generateNT90,
   "torah-50": generateTorah50,
   "psalms-30": generatePsalms30,
   "whole-bible-1yr": generateWholeBible1yr,
+  "four-plus-one": generateFourPlusOne,
 };
 
 export function generatePlan(templateId: string): PlanDay[] | null {
