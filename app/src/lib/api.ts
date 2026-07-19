@@ -26,9 +26,11 @@ export function clearSession(): void {
   localStorage.removeItem(USER_KEY);
 }
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",

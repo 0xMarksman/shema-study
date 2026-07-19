@@ -11,6 +11,8 @@ export function AuthForm({ onDone }: { onDone?: () => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const passwordOk = password.length === 0 || password.length >= 8;
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -51,10 +53,15 @@ export function AuthForm({ onDone }: { onDone?: () => void }) {
           required
           minLength={8}
         />
+        {mode === "register" && (
+          <p className={`field-hint ${!passwordOk ? "field-hint--error" : ""}`}>
+            At least 8 characters
+          </p>
+        )}
       </div>
       {error && <p className="error-text">{error}</p>}
       <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-        <button className="btn" type="submit" disabled={busy || !username || !password}>
+        <button className="btn" type="submit" disabled={busy || !username || !password || (mode === "register" && !passwordOk)}>
           {mode === "login" ? "Sign In" : "Create Account"}
         </button>
         <button
