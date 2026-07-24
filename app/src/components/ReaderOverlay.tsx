@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { chapterTitle, parseReference } from "../lib/passage";
 import { progressKey } from "../lib/schedule";
+import { useChapterVerses } from "../lib/useChapterVerses";
 import { useAppState } from "../state/AppState";
 import { TRANSLATIONS, type Track, type Translation } from "../types";
 import { AppearanceSheet } from "./AppearancePanel";
+import { BibleAudioControls } from "./BibleAudioControls";
 import { ChapterView } from "./ChapterView";
 import { CheckCircleIcon, ChevronIcon, CloseIcon } from "./icons";
 
@@ -27,12 +29,20 @@ export function ReaderOverlay({
   const chapters = parseReference(request.reference);
   const [index, setIndex] = useState(0);
   const [showAppearance, setShowAppearance] = useState(false);
+  const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 
   const current = chapters[index] ?? null;
+  const currentVerses = useChapterVerses(
+    settings.translation,
+    current?.book.id ?? 0,
+    current?.chapter ?? 1,
+    Boolean(current),
+  );
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: 0 });
+    setActiveVerse(null);
   }, [index]);
 
   useEffect(() => {
@@ -81,10 +91,19 @@ export function ReaderOverlay({
                 {settings.translation}
               </span>
             </h3>
+            <BibleAudioControls
+              reference={chapterTitle(current)}
+              verses={currentVerses.verses}
+              loading={currentVerses.loading}
+              onVerseChange={setActiveVerse}
+            />
             <ChapterView
               bookId={current.book.id}
               chapter={current.chapter}
-              translation={settings.translation}
+              verses={currentVerses.verses}
+              error={currentVerses.error}
+              loading={currentVerses.loading}
+              activeVerse={activeVerse}
             />
             {chapters.length > 1 && (
               <div className="chapter-nav">

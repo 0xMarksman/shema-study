@@ -12,6 +12,7 @@ import { PLAN_TEMPLATES } from "../lib/planTemplates";
 import { CustomPlanBuilderSheet } from "./CustomPlanBuilder";
 import { DayNumberInput } from "./DayNumberInput";
 import { buildAnswersExport, downloadTextFile } from "../lib/exportAnswers";
+import { getVoiceLabel, useSpeechVoices } from "../lib/speech";
 
 export function SettingsScreen() {
   const { plan, settings, progress, updateSettings, resetProgress } = useAppState();
@@ -88,6 +89,8 @@ export function SettingsScreen() {
           required) and cached for the session.
         </p>
       </div>
+
+      <AudioBibleCard />
 
       <div className="section-label">Plan</div>
       <div className="card">
@@ -278,6 +281,75 @@ function RemindersCard() {
         )}
         <p className="small muted" style={{ margin: "8px 0 0" }}>
           You'll receive a notification to open your reading for the day.
+        </p>
+      </div>
+    </>
+  );
+}
+
+function AudioBibleCard() {
+  const { settings, updateSettings } = useAppState();
+  const { voices, ready } = useSpeechVoices();
+  const selectedVoice = voices.find((voice) => voice.voiceURI === settings.bibleVoiceURI) ?? null;
+  const supported = typeof window !== "undefined" && "speechSynthesis" in window;
+
+  return (
+    <>
+      <div className="section-label">Audio Bible</div>
+      <div className="card">
+        <div className="setting-row">
+          <label htmlFor="bible-voice-select">Voice</label>
+          <select
+            id="bible-voice-select"
+            className="settings-voice-select"
+            value={settings.bibleVoiceURI}
+            onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
+            disabled={!supported || !ready}
+          >
+            <option value="">Browser default</option>
+            {voices.map((voice) => (
+              <option key={voice.voiceURI} value={voice.voiceURI}>
+                {voice.name} ({voice.lang})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="setting-row">
+          <label htmlFor="bible-speech-rate">Rate</label>
+          <div className="setting-control">
+            <input
+              id="bible-speech-rate"
+              type="range"
+              min="0.75"
+              max="1.25"
+              step="0.05"
+              value={settings.bibleSpeechRate}
+              onChange={(e) => updateSettings({ bibleSpeechRate: Number(e.target.value) })}
+            />
+            <span className="range-value">{settings.bibleSpeechRate.toFixed(2)}x</span>
+          </div>
+        </div>
+        <div className="setting-row">
+          <label htmlFor="bible-speech-pitch">Pitch</label>
+          <div className="setting-control">
+            <input
+              id="bible-speech-pitch"
+              type="range"
+              min="0.75"
+              max="1.25"
+              step="0.05"
+              value={settings.bibleSpeechPitch}
+              onChange={(e) => updateSettings({ bibleSpeechPitch: Number(e.target.value) })}
+            />
+            <span className="range-value">{settings.bibleSpeechPitch.toFixed(2)}</span>
+          </div>
+        </div>
+        <p className="small muted" style={{ margin: "8px 0 0" }}>
+          {supported
+            ? ready
+              ? `Current voice: ${getVoiceLabel(selectedVoice)}`
+              : "Loading browser voices..."
+            : "Audio Bible playback is not supported in this browser."}
         </p>
       </div>
     </>

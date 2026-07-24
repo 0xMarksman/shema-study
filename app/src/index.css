@@ -495,6 +495,87 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   flex-shrink: 1;
 }
 
+.settings-voice-select {
+  max-width: 70%;
+  flex: 1;
+}
+
+.setting-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.setting-control input[type="range"] {
+  flex: 1;
+  min-width: 120px;
+}
+
+.range-value {
+  min-width: 52px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.audio-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.audio-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.audio-card__buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.audio-card__buttons .btn {
+  min-width: 84px;
+}
+
+.audio-mini-chip {
+  position: sticky;
+  bottom: 12px;
+  z-index: 6;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+  box-shadow: var(--shadow);
+}
+
+.audio-mini-chip__status {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.verse--active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  padding-left: 10px;
+  margin-left: -10px;
+}
+
 /* Divider between app settings and bible reader settings */
 .setting-section-divider {
   font-size: 0.72rem;

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { BIBLE_BOOKS } from "../lib/bibleBooks";
+import { useChapterVerses } from "../lib/useChapterVerses";
 import { useAppState } from "../state/AppState";
 import { TRANSLATIONS, type Translation } from "../types";
 import { AppearanceSheet } from "./AppearancePanel";
+import { BibleAudioControls } from "./BibleAudioControls";
 import { ChapterView } from "./ChapterView";
 import { ChevronIcon } from "./icons";
 
@@ -10,10 +12,12 @@ import { ChevronIcon } from "./icons";
 export function BibleScreen() {
   const { settings, updateSettings } = useAppState();
   const [showAppearance, setShowAppearance] = useState(false);
+  const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
   const book = BIBLE_BOOKS.find((b) => b.id === settings.lastBookId) ?? BIBLE_BOOKS[0];
   const chapter = Math.min(Math.max(settings.lastChapter, 1), book.chapters);
+  const { verses, error, loading } = useChapterVerses(settings.translation, book.id, chapter);
 
   const go = (bookId: number, nextChapter: number) => {
     updateSettings({ lastBookId: bookId, lastChapter: nextChapter });
@@ -21,6 +25,7 @@ export function BibleScreen() {
 
   useEffect(() => {
     topRef.current?.scrollIntoView();
+    setActiveVerse(null);
   }, [settings.lastBookId, settings.lastChapter]);
 
   const prev = () => {
@@ -89,14 +94,27 @@ export function BibleScreen() {
       </div>
 
       <h3 style={{ margin: "10px 2px 12px", fontSize: "1.3rem" }}>
-        {displayName} {chapter}{" "}
-        <span className="small muted" style={{ fontWeight: 400 }}>
+        {displayName} {chapter} <span className="small muted" style={{ fontWeight: 400 }}>
           {settings.translation}
         </span>
       </h3>
 
+      <BibleAudioControls
+        reference={`${displayName} ${chapter}`}
+        verses={verses}
+        loading={loading}
+        onVerseChange={setActiveVerse}
+      />
+
       <div className="reader-body">
-        <ChapterView bookId={book.id} chapter={chapter} translation={settings.translation} />
+        <ChapterView
+          bookId={book.id}
+          chapter={chapter}
+          verses={verses}
+          error={error}
+          loading={loading}
+          activeVerse={activeVerse}
+        />
       </div>
 
       <div className="bible-nav">

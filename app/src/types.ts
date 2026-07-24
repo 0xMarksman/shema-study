@@ -89,6 +89,12 @@ export interface Settings {
   /** Last position in the standalone Bible tab. */
   lastBookId: number;
   lastChapter: number;
+  /** Saved browser TTS voice URI for the audio Bible. */
+  bibleVoiceURI: string;
+  /** Speech rate for browser TTS. */
+  bibleSpeechRate: number;
+  /** Speech pitch for browser TTS. */
+  bibleSpeechPitch: number;
   /** Active reading plan template id. Default = full 365-day Messianic plan. */
   planTemplateId: string;
   /** Custom plan book IDs (used when planTemplateId === 'custom'). */
@@ -130,6 +136,9 @@ export const DEFAULT_SETTINGS: Settings = {
   redLetters: true,
   lastBookId: 40,
   lastChapter: 1,
+  bibleVoiceURI: "",
+  bibleSpeechRate: 1,
+  bibleSpeechPitch: 1,
   planTemplateId: "default",
   customPlanBookIds: [],
   customPlanPace: 3,
