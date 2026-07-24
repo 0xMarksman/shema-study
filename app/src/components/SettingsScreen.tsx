@@ -12,7 +12,7 @@ import { PLAN_TEMPLATES } from "../lib/planTemplates";
 import { CustomPlanBuilderSheet } from "./CustomPlanBuilder";
 import { DayNumberInput } from "./DayNumberInput";
 import { buildAnswersExport, downloadTextFile } from "../lib/exportAnswers";
-import { getVoiceLabel, useSpeechVoices } from "../lib/speech";
+import { getBestAvailableVoice, getVoiceLabel, sortVoicesByNaturalness, useSpeechVoices } from "../lib/speech";
 
 export function SettingsScreen() {
   const { plan, settings, progress, updateSettings, resetProgress } = useAppState();
@@ -290,7 +290,9 @@ function RemindersCard() {
 function AudioBibleCard() {
   const { settings, updateSettings } = useAppState();
   const { voices, ready } = useSpeechVoices();
-  const selectedVoice = voices.find((voice) => voice.voiceURI === settings.bibleVoiceURI) ?? null;
+  const sortedVoices = sortVoicesByNaturalness(voices, settings.translation);
+  const selectedVoice = sortedVoices.find((voice) => voice.voiceURI === settings.bibleVoiceURI) ?? null;
+  const recommendedVoice = getBestAvailableVoice(sortedVoices, settings.translation);
   const supported = typeof window !== "undefined" && "speechSynthesis" in window;
 
   return (
@@ -299,20 +301,31 @@ function AudioBibleCard() {
       <div className="card">
         <div className="setting-row">
           <label htmlFor="bible-voice-select">Voice</label>
-          <select
-            id="bible-voice-select"
-            className="settings-voice-select"
-            value={settings.bibleVoiceURI}
-            onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
-            disabled={!supported || !ready}
-          >
-            <option value="">Browser default</option>
-            {voices.map((voice) => (
-              <option key={voice.voiceURI} value={voice.voiceURI}>
-                {voice.name} ({voice.lang})
-              </option>
-            ))}
-          </select>
+          <div className="audio-voice-picker">
+            <select
+              id="bible-voice-select"
+              className="settings-voice-select"
+              value={settings.bibleVoiceURI}
+              onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
+              disabled={!supported || !ready}
+            >
+              <option value="">Browser default</option>
+              {sortedVoices.map((voice) => (
+                <option key={voice.voiceURI} value={voice.voiceURI}>
+                  {voice.name} ({voice.lang}){voice.localService ? " · local" : ""}
+                </option>
+              ))}
+            </select>
+            {recommendedVoice && recommendedVoice.voiceURI !== settings.bibleVoiceURI && (
+              <button
+                className="btn btn-secondary"
+                onClick={() => updateSettings({ bibleVoiceURI: recommendedVoice.voiceURI })}
+                disabled={!supported || !ready}
+              >
+                Try recommended
+              </button>
+            )}
+          </div>
         </div>
         <div className="setting-row">
           <label htmlFor="bible-speech-rate">Rate</label>
@@ -347,7 +360,7 @@ function AudioBibleCard() {
         <p className="small muted" style={{ margin: "8px 0 0" }}>
           {supported
             ? ready
-              ? `Current voice: ${getVoiceLabel(selectedVoice)}`
+              ? `Current voice: ${getVoiceLabel(selectedVoice)}${recommendedVoice ? ` · recommended: ${getVoiceLabel(recommendedVoice)}` : ""}`
               : "Loading browser voices..."
             : "Audio Bible playback is not supported in this browser."}
         </p>

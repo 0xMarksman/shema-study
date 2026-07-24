@@ -29,7 +29,7 @@ export function supportsBrowserSpeech() {
 export function buildBibleSpeechBlocks(reference: string, verses: BibleVerse[]) {
   return [
     { text: reference, verse: null },
-    ...verses.map((verse) => ({ text: `Verse ${verse.verse}. ${verse.text}`, verse: verse.verse })),
+    ...verses.map((verse) => ({ text: verse.text, verse: verse.verse })),
   ];
 }
 
@@ -154,4 +154,36 @@ export function useBibleSpeech() {
 export function getVoiceLabel(voice: SpeechSynthesisVoice | null) {
   if (!voice) return "Browser default";
   return `${voice.name} (${voice.lang})`;
+}
+
+function getVoiceQualityScore(voice: SpeechSynthesisVoice, preferredLang?: string) {
+  const name = `${voice.name} ${voice.voiceURI}`.toLowerCase();
+  let score = 0;
+
+  if (preferredLang && voice.lang.toLowerCase().startsWith(preferredLang.toLowerCase())) {
+    score += 30;
+  }
+  if (voice.localService) score += 12;
+  if (voice.default) score += 8;
+  if (name.includes("natural") || name.includes("neural") || name.includes("enhanced")) score += 25;
+  if (name.includes("google") || name.includes("microsoft") || name.includes("apple")) score += 14;
+  if (name.includes("samantha") || name.includes("victoria") || name.includes("daniel") || name.includes("alex")) score += 18;
+  if (name.includes("tessa") || name.includes("ava") || name.includes("aria") || name.includes("narrator")) score += 10;
+  if (name.includes("espeak") || name.includes("festival") || name.includes("default")) score -= 12;
+
+  return score;
+}
+
+export function sortVoicesByNaturalness(voices: SpeechSynthesisVoice[], preferredLang?: string) {
+  return [...voices].sort((left, right) => {
+    const scoreDelta = getVoiceQualityScore(right, preferredLang) - getVoiceQualityScore(left, preferredLang);
+    if (scoreDelta !== 0) return scoreDelta;
+    const langDelta = left.lang.localeCompare(right.lang);
+    if (langDelta !== 0) return langDelta;
+    return left.name.localeCompare(right.name);
+  });
+}
+
+export function getBestAvailableVoice(voices: SpeechSynthesisVoice[], preferredLang?: string) {
+  return sortVoicesByNaturalness(voices, preferredLang)[0] ?? null;
 }

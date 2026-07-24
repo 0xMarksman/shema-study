@@ -541,8 +541,27 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   flex-wrap: wrap;
 }
 
+.audio-voice-picker {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.audio-voice-picker .settings-voice-select {
+  flex: 1;
+  max-width: none;
+}
+
 .audio-card__buttons .btn {
   min-width: 84px;
+}
+
+.audio-card__tuning {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
 }
 
 .audio-mini-chip {
