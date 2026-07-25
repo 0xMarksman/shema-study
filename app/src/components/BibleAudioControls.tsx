@@ -102,6 +102,34 @@ export function BibleAudioControls({
           </button>
         </div>
       </div>
+      {supported && ready && sortedVoices.length > 0 && (
+        <div className="setting-row" style={{ paddingTop: 0 }}>
+          <label htmlFor="player-voice-select">Voice</label>
+          <div className="audio-voice-picker">
+            <select
+              id="player-voice-select"
+              className="settings-voice-select"
+              value={settings.bibleVoiceURI}
+              onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
+            >
+              <option value="">Browser default</option>
+              {sortedVoices.map((voice) => (
+                <option key={voice.voiceURI} value={voice.voiceURI}>
+                  {voice.name} ({voice.lang}){voice.localService ? " · local" : ""}
+                </option>
+              ))}
+            </select>
+            {recommendedVoice && recommendedVoice.voiceURI !== settings.bibleVoiceURI && (
+              <button
+                className="btn btn-secondary"
+                onClick={() => updateSettings({ bibleVoiceURI: recommendedVoice.voiceURI })}
+              >
+                Try recommended
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       {showTuning && (
         <div className="audio-card__tuning">
           <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
