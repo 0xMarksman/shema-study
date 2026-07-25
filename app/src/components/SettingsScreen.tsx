@@ -239,15 +239,14 @@ function RemindersCard() {
       </div>
       <div className="card">
         <div className="setting-row">
-          <label>Daily reminder</label>
+          <label id="daily-reminder-toggle-label">Daily reminder</label>
           <button
-            className={`toggle-btn ${settings.reminderEnabled ? "toggle-on" : ""}`}
+            className={`toggle ${settings.reminderEnabled ? "on" : ""}`}
             onClick={() => void handleToggle()}
             aria-checked={settings.reminderEnabled}
             role="switch"
-          >
-            {settings.reminderEnabled ? "On" : "Off"}
-          </button>
+            aria-labelledby="daily-reminder-toggle-label"
+          />
         </div>
         {settings.reminderEnabled && (
           <>

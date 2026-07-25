@@ -229,26 +229,24 @@ export function BibleAudioControls({
 
             <div className="audio-card__tuning">
               <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
-                <label>Auto-scroll verses</label>
+                <label id="player-autoscroll-toggle-label">Auto-scroll verses</label>
                 <button
-                  className={`toggle-btn ${settings.bibleAutoScroll ? "toggle-on" : ""}`}
+                  className={`toggle ${settings.bibleAutoScroll ? "on" : ""}`}
                   onClick={() => updateSettings({ bibleAutoScroll: !settings.bibleAutoScroll })}
                   aria-checked={settings.bibleAutoScroll}
                   role="switch"
-                >
-                  {settings.bibleAutoScroll ? "On" : "Off"}
-                </button>
+                  aria-labelledby="player-autoscroll-toggle-label"
+                />
               </div>
               <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
-                <label>Auto chapter progression</label>
+                <label id="player-autoadvance-toggle-label">Auto chapter progression</label>
                 <button
-                  className={`toggle-btn ${settings.bibleAutoAdvance ? "toggle-on" : ""}`}
+                  className={`toggle ${settings.bibleAutoAdvance ? "on" : ""}`}
                   onClick={() => updateSettings({ bibleAutoAdvance: !settings.bibleAutoAdvance })}
                   aria-checked={settings.bibleAutoAdvance}
                   role="switch"
-                >
-                  {settings.bibleAutoAdvance ? "On" : "Off"}
-                </button>
+                  aria-labelledby="player-autoadvance-toggle-label"
+                />
               </div>
               <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
                 <label htmlFor="player-autoscroll-resume">Resume auto-scroll</label>

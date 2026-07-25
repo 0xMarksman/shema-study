@@ -779,16 +779,29 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   padding: 11px 0;
 }
 .setting-row + .setting-row { border-top: 1px solid var(--border); }
-.setting-row label:first-child { font-weight: 500; color: var(--text-h); }
+.setting-row label:first-child {
+  font-weight: 500;
+  color: var(--text-h);
+  flex: 1;
+  min-width: 0;
+  padding-right: 8px;
+}
+.setting-row > :last-child {
+  flex-shrink: 0;
+}
 .setting-row select {
   max-width: 60%;
+  width: clamp(170px, 42%, 280px);
   min-width: 0;
   flex-shrink: 1;
+  min-height: 38px;
 }
 
 .settings-voice-select {
-  max-width: 70%;
+  max-width: none;
   flex: 1;
+  width: 100%;
+  min-height: 38px;
 }
 
 .setting-control {
@@ -810,6 +823,72 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
+}
+
+@media (max-width: 520px) {
+  .setting-row {
+    gap: 8px;
+  }
+
+  .setting-row label:first-child {
+    padding-right: 4px;
+  }
+
+  .setting-row select,
+  .setting-row input[type="date"],
+  .setting-row input[type="time"] {
+    width: min(58vw, 220px);
+    max-width: 58vw;
+  }
+
+  .setting-control {
+    min-width: 132px;
+  }
+
+  .setting-control input[type="range"] {
+    min-width: 96px;
+  }
+
+  .audio-voice-picker {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .audio-voice-picker .settings-voice-select,
+  .audio-voice-picker .btn {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .setting-row label:first-child {
+    padding-right: 0;
+  }
+
+  .setting-row > :last-child {
+    width: 100%;
+  }
+
+  .setting-row select,
+  .setting-row input[type="date"],
+  .setting-row input[type="time"] {
+    width: 100%;
+    max-width: none;
+  }
+
+  .setting-control {
+    width: 100%;
+    min-width: 0;
+    justify-content: space-between;
+  }
 }
 
 .audio-card {
@@ -1326,16 +1405,19 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 .theme-swatch.selected { color: var(--accent); }
 .theme-swatch.selected .disc { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
 
-.toggle {
+.toggle,
+.toggle-btn {
   position: relative;
   width: 46px;
   height: 28px;
   border-radius: 14px;
+  border: 1px solid transparent;
   background: var(--border);
   transition: background 0.15s ease;
   flex-shrink: 0;
 }
-.toggle::after {
+.toggle::after,
+.toggle-btn::after {
   content: "";
   position: absolute;
   top: 3px;
@@ -1347,8 +1429,10 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   box-shadow: var(--shadow);
   transition: transform 0.15s ease;
 }
-.toggle.on { background: var(--accent); }
-.toggle.on::after { transform: translateX(18px); }
+.toggle.on,
+.toggle-btn.toggle-on { background: var(--accent); }
+.toggle.on::after,
+.toggle-btn.toggle-on::after { transform: translateX(18px); }
 
 /* ---------- bible tab ---------- */
 
@@ -1643,7 +1727,8 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 }
 
 /* ---------- appearance sliders ---------- */
-.appearance-slider {
+.appearance-slider,
+.setting-control input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
@@ -1656,7 +1741,8 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   accent-color: var(--accent);
   cursor: pointer;
 }
-.appearance-slider::-webkit-slider-thumb {
+.appearance-slider::-webkit-slider-thumb,
+.setting-control input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
@@ -1665,7 +1751,8 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   box-shadow: var(--shadow);
   cursor: pointer;
 }
-.appearance-slider::-moz-range-thumb {
+.appearance-slider::-moz-range-thumb,
+.setting-control input[type="range"]::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;

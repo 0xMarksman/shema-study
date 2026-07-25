@@ -593,15 +593,14 @@ function GroupDetailView({
       <section className="groups-section">
         <div className="card" style={{ paddingTop: 10, paddingBottom: 10 }}>
           <div className="setting-row" style={{ borderTop: 0, paddingTop: 0 }}>
-            <label>Track my group reading progress</label>
+            <label id="group-progress-toggle-label">Track my group reading progress</label>
             <button
-              className={`toggle-btn ${groupProgressEnabled ? "toggle-on" : ""}`}
+              className={`toggle ${groupProgressEnabled ? "on" : ""}`}
               role="switch"
               aria-checked={groupProgressEnabled}
+              aria-labelledby="group-progress-toggle-label"
               onClick={() => setGroupProgressTracking(!groupProgressEnabled)}
-            >
-              {groupProgressEnabled ? "On" : "Off"}
-            </button>
+            />
           </div>
           <p className="small muted" style={{ margin: "0 0 8px" }}>
             Group progress is tracked separately. Your personal plan progress is unaffected.
