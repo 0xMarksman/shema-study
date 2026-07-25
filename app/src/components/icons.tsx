@@ -341,6 +341,23 @@ export function CalendarIcon({ className }: IconProps) {
   );
 }
 
+export function PlayIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <polygon points="8,5 19,12 8,19" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function PauseIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <rect x="7" y="5" width="4" height="14" rx="1" fill="currentColor" />
+      <rect x="13" y="5" width="4" height="14" rx="1" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function UserCircleIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden>

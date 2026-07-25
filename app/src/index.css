@@ -802,6 +802,82 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   gap: 12px;
 }
 
+.audio-dock {
+  position: sticky;
+  top: 8px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+}
+
+.audio-dock__btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg);
+  color: var(--text-h);
+  flex-shrink: 0;
+}
+
+.audio-dock__btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.audio-dock__btn--primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: transparent;
+}
+
+.audio-dock__meta {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.audio-dock__status {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.audio-dock__status--speaking { color: var(--success); }
+.audio-dock__status--paused { color: var(--accent); }
+
+.audio-dock__detail {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.audio-dock__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.audio-panel {
+  margin-top: 8px;
+}
+
 .audio-card__header {
   display: flex;
   flex-wrap: wrap;
@@ -830,6 +906,21 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 
 .audio-card__buttons .btn {
   min-width: 84px;
+}
+
+.audio-card__buttons .audio-btn-icon {
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audio-card__buttons .audio-btn-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .audio-card__tuning {
