@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import type { Group, GroupMember, DmChannel, Thread, AppNotification } from "../types";
+import type { Group, GroupMember, DmChannel, Thread, AppNotification, PlanDay } from "../types";
 import {
   listGroups, getGroup, createGroup, joinGroup, lookupInviteCode,
   updateGroup, deleteGroup, leaveGroup, removeGroupMember, setGroupMemberRole,
@@ -19,10 +19,13 @@ import { useAppState } from "../state/AppState";
 import {
   UsersIcon, PersonAddIcon, MessageCircleIcon,
   ChevronRightIcon, CopyIcon, BellIcon, PencilIcon, GearIcon,
-  TrashIcon, LogOutIcon,
+  TrashIcon, LogOutIcon, CheckCircleIcon,
 } from "./icons";
 import ChatView from "./ChatView";
 import { DayNumberInput } from "./DayNumberInput";
+import { ReaderOverlay, type ReaderRequest } from "./ReaderOverlay";
+import { TRACK_LABELS, TRACKS } from "../types";
+import { groupProgressScopeId, isGroupProgressOptedIn, setGroupProgressOptIn } from "../lib/groupPlanProgress";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -467,13 +470,16 @@ function GroupDetailView({
   onChat: (channelId: string, title: string, isGroup?: boolean, chatGroupId?: string) => void;
   onChanged: () => void;
 }) {
-  const { user } = useAppState();
+  const { user, isTrackDoneScoped, toggleProgressScoped } = useAppState();
   const [group, setGroup] = useState<(Group & { members: GroupMember[] }) | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
+  const [groupPlan, setGroupPlan] = useState<PlanDay[]>([]);
   const [showNewThread, setShowNewThread] = useState(false);
   const [editingThread, setEditingThread] = useState<Thread | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [reader, setReader] = useState<ReaderRequest | null>(null);
+  const [groupProgressEnabled, setGroupProgressEnabled] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -484,6 +490,17 @@ function GroupDetailView({
   }, [groupId]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    fetch("/plan.json")
+      .then((res) => res.json())
+      .then((days: PlanDay[]) => setGroupPlan(days))
+      .catch(() => setGroupPlan([]));
+  }, []);
+
+  useEffect(() => {
+    setGroupProgressEnabled(isGroupProgressOptedIn(groupId));
+  }, [groupId]);
 
   useEffect(() => {
     return realtime.on("group:member_joined", async (data) => {
@@ -552,6 +569,13 @@ function GroupDetailView({
   const groupDay = group.planStartDate
     ? Math.max(1, Math.floor((Date.now() - new Date(group.planStartDate).getTime()) / 86400000) + group.planStartDay)
     : null;
+  const groupScopeId = groupProgressScopeId(group.id);
+  const groupPlanDay = groupDay && groupPlan.length > 0 ? groupPlan[groupDay - 1] ?? null : null;
+
+  const setGroupProgressTracking = (enabled: boolean) => {
+    setGroupProgressEnabled(enabled);
+    setGroupProgressOptIn(group.id, enabled);
+  };
 
   return (
     <div className="groups-screen">
@@ -565,6 +589,70 @@ function GroupDetailView({
           </button>
         )}
       </div>
+
+      <section className="groups-section">
+        <div className="card" style={{ paddingTop: 10, paddingBottom: 10 }}>
+          <div className="setting-row" style={{ borderTop: 0, paddingTop: 0 }}>
+            <label>Track my group reading progress</label>
+            <button
+              className={`toggle-btn ${groupProgressEnabled ? "toggle-on" : ""}`}
+              role="switch"
+              aria-checked={groupProgressEnabled}
+              onClick={() => setGroupProgressTracking(!groupProgressEnabled)}
+            >
+              {groupProgressEnabled ? "On" : "Off"}
+            </button>
+          </div>
+          <p className="small muted" style={{ margin: "0 0 8px" }}>
+            Group progress is tracked separately. Your personal plan progress is unaffected.
+          </p>
+
+          {groupProgressEnabled && groupPlanDay && (
+            <>
+              <div className="small muted" style={{ margin: "6px 0 8px" }}>
+                Group Day {groupDay} readings
+              </div>
+              {TRACKS.filter((track) => groupPlanDay[track]).map((track) => {
+                const done = isTrackDoneScoped("default", groupPlanDay.day, track, groupScopeId);
+                return (
+                  <div className={`reading-row ${done ? "done" : ""}`} key={`group-${track}`}>
+                    <button
+                      className="reading-main"
+                      onClick={() =>
+                        setReader({
+                          reference: groupPlanDay[track],
+                          returnLabel: "Back to group",
+                        })
+                      }
+                      title={`Read ${groupPlanDay[track]}`}
+                    >
+                      <span style={{ minWidth: 0 }}>
+                        <span className="reading-track">{TRACK_LABELS[track]}</span>
+                        <br />
+                        <span className="reading-ref">{groupPlanDay[track]}</span>
+                      </span>
+                    </button>
+                    <button
+                      className={`check-btn ${done ? "done" : ""}`}
+                      onClick={() => toggleProgressScoped("default", groupPlanDay.day, track, groupScopeId)}
+                      aria-label={`Mark group ${TRACK_LABELS[track]} ${done ? "unread" : "read"}`}
+                      aria-pressed={done}
+                    >
+                      <CheckCircleIcon filled={done} />
+                    </button>
+                  </div>
+                );
+              })}
+            </>
+          )}
+
+          {groupProgressEnabled && !groupPlanDay && (
+            <p className="small muted" style={{ margin: "8px 0 0" }}>
+              Group plan day is not available yet. Ask an admin to set the group plan start date.
+            </p>
+          )}
+        </div>
+      </section>
 
       {/* Hero card */}
       <div className="group-hero-card">
@@ -699,6 +787,12 @@ function GroupDetailView({
           onClose={() => setShowSettings(false)}
           onSaved={() => { void load(); onChanged(); setShowSettings(false); }}
           onDeleted={() => { onChanged(); onBack(); }}
+        />
+      )}
+      {reader && (
+        <ReaderOverlay
+          request={reader}
+          onClose={() => setReader(null)}
         />
       )}
     </div>

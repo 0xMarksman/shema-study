@@ -1,6 +1,7 @@
 import { TRACKS, type Settings } from "../types";
 
 const MS_PER_DAY = 86_400_000;
+export const PERSONAL_PROGRESS_SCOPE = "personal";
 
 /** Local-midnight timestamp for an ISO yyyy-mm-dd date string. */
 function localMidnight(isoDate: string): number {
@@ -42,11 +43,25 @@ export function dateForDay(settings: Settings, day: number): Date | null {
  * plan's checked-off days into another's (and switching back restores it).
  */
 export function progressKey(templateId: string, day: number, track: string): string {
-  return `${templateId}::${day}::${track}`;
+  return `${PERSONAL_PROGRESS_SCOPE}::${templateId}::${day}::${track}`;
 }
 
-export function isDayComplete(progress: Set<string>, templateId: string, day: number): boolean {
-  return TRACKS.every((track) => progress.has(progressKey(templateId, day, track)));
+export function scopedProgressKey(
+  templateId: string,
+  day: number,
+  track: string,
+  scopeId: string = PERSONAL_PROGRESS_SCOPE,
+): string {
+  return `${scopeId}::${templateId}::${day}::${track}`;
+}
+
+export function isDayComplete(
+  progress: Set<string>,
+  templateId: string,
+  day: number,
+  scopeId: string = PERSONAL_PROGRESS_SCOPE,
+): boolean {
+  return TRACKS.every((track) => progress.has(scopedProgressKey(templateId, day, track, scopeId)));
 }
 
 /** The earliest scheduled day (at or after startDay) that isn't fully checked off. */

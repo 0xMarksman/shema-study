@@ -18,7 +18,7 @@ import {
   register as apiRegister,
   storeSession,
 } from "../lib/api";
-import { progressKey, dateForDay } from "../lib/schedule";
+import { PERSONAL_PROGRESS_SCOPE, progressKey, scopedProgressKey, dateForDay } from "../lib/schedule";
 import { generateParashaPlan } from "../lib/parashaPlan";
 import {
   DEFAULT_SETTINGS,
@@ -59,9 +59,13 @@ function migrateState(raw: PlanState): PlanState {
 
   return {
     ...raw,
-    progress: progress.map((key) =>
-      typeof key === "string" && !key.includes("::") ? `${templateId}::${key}` : key,
-    ),
+    progress: progress.map((key) => {
+      if (typeof key !== "string") return key;
+      if (!key.includes("::")) return `${PERSONAL_PROGRESS_SCOPE}::${templateId}::${key}`;
+      const parts = key.split("::");
+      if (parts.length === 3) return `${PERSONAL_PROGRESS_SCOPE}::${key}`;
+      return key;
+    }),
     answers: migratedAnswers,
     customQuestions: migratedCustomQuestions,
   };
@@ -106,6 +110,8 @@ interface AppStateValue {
   skipAuth: () => void;
   updateSettings: (patch: Partial<Settings>) => void;
   toggleProgress: (day: number, track: Track) => void;
+  toggleProgressScoped: (templateId: string, day: number, track: Track, scopeId: string) => void;
+  isTrackDoneScoped: (templateId: string, day: number, track: Track, scopeId: string) => boolean;
   /** Update a study-question answer. key = `"day:questionIndex"`. */
   updateAnswer: (key: string, html: string) => void;
   customQuestions: Record<string, string[]>;
@@ -287,12 +293,34 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [mutate],
   );
 
+  const toggleProgressScoped = useCallback(
+    (templateId: string, day: number, track: Track, scopeId: string) => {
+      mutate((prev) => {
+        const key = scopedProgressKey(templateId, day, track, scopeId);
+        const set = new Set(prev.progress);
+        if (set.has(key)) set.delete(key);
+        else set.add(key);
+        return { ...prev, progress: [...set] };
+      });
+    },
+    [mutate],
+  );
+
+  const isTrackDoneScoped = useCallback(
+    (templateId: string, day: number, track: Track, scopeId: string) => {
+      return progress.has(scopedProgressKey(templateId, day, track, scopeId));
+    },
+    [progress],
+  );
+
   const resetProgress = useCallback(() => {
     // Only clears the active plan's progress — other plans you've switched
     // away from keep theirs, matching the per-template progress scoping.
     mutate((prev) => ({
       ...prev,
-      progress: prev.progress.filter((key) => !key.startsWith(`${prev.settings.planTemplateId}::`)),
+      progress: prev.progress.filter(
+        (key) => !key.startsWith(`${PERSONAL_PROGRESS_SCOPE}::${prev.settings.planTemplateId}::`),
+      ),
     }));
   }, [mutate]);
 
@@ -411,6 +439,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     skipAuth,
     updateSettings,
     toggleProgress,
+    toggleProgressScoped,
+    isTrackDoneScoped,
     updateAnswer,
     addCustomQuestion,
     removeCustomQuestion,
