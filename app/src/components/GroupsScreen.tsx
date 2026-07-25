@@ -659,6 +659,7 @@ function GroupDetailView({
   const groupScopeId = groupProgressScopeId(group.id, user?.id);
   const groupPlanDay = effectiveGroupDay && groupPlan.length > 0 ? groupPlan[effectiveGroupDay - 1] ?? null : null;
   const currentGroupTracks = groupPlanDay ? TRACKS.filter((track) => Boolean(groupPlanDay[track])) : [];
+  const getActiveTracks = (planDay: PlanDay) => TRACKS.filter((track) => Boolean(planDay[track]));
 
   const groupTotalReadings = groupPlan.reduce(
     (sum, day) => sum + TRACKS.filter((track) => Boolean(day[track])).length,
@@ -676,6 +677,75 @@ function GroupDetailView({
   }, 0);
   const groupProgressPercent = groupTotalReadings > 0 ? Math.round((groupCompletedReadings / groupTotalReadings) * 100) : 0;
 
+  const buildGroupReaderRequest = (dayIndex: number, trackIndex: number): ReaderRequest | null => {
+    if (dayIndex < 0 || dayIndex >= groupPlan.length) return null;
+    const day = groupPlan[dayIndex];
+    const activeTracks = getActiveTracks(day);
+    if (trackIndex < 0 || trackIndex >= activeTracks.length) return null;
+    const track = activeTracks[trackIndex];
+    const reference = day[track];
+    if (!reference) return null;
+
+    let globalIndex = 0;
+    for (let i = 0; i < dayIndex; i++) {
+      globalIndex += getActiveTracks(groupPlan[i]).length;
+    }
+    globalIndex += trackIndex;
+
+    return {
+      reference,
+      day: day.day,
+      track,
+      dayReadingIndex: globalIndex + 1,
+      dayReadingCount: groupTotalReadings,
+      dayReadingLabel: "Group reading",
+      returnLabel: "Back to group",
+    };
+  };
+
+  const resolveReaderPosition = (currentTrack: (typeof TRACKS)[number]) => {
+    if (!reader?.day) return null;
+    const dayIndex = groupPlan.findIndex((planDay) => planDay.day === reader.day);
+    if (dayIndex < 0) return null;
+    const activeTracks = getActiveTracks(groupPlan[dayIndex]);
+    const trackIndex = activeTracks.findIndex((track) => track === currentTrack);
+    if (trackIndex < 0) return null;
+    return { dayIndex, trackIndex };
+  };
+
+  const findAdjacentReading = (
+    fromDayIndex: number,
+    fromTrackIndex: number,
+    delta: 1 | -1,
+    unreadOnly: boolean,
+  ) => {
+    if (delta === 1) {
+      for (let dayIndex = fromDayIndex; dayIndex < groupPlan.length; dayIndex++) {
+        const activeTracks = getActiveTracks(groupPlan[dayIndex]);
+        const start = dayIndex === fromDayIndex ? fromTrackIndex + 1 : 0;
+        for (let trackIndex = start; trackIndex < activeTracks.length; trackIndex++) {
+          const track = activeTracks[trackIndex];
+          if (!unreadOnly || !isTrackDoneScoped(group.planTemplateId || "default", groupPlan[dayIndex].day, track, groupScopeId)) {
+            return { dayIndex, trackIndex };
+          }
+        }
+      }
+      return null;
+    }
+
+    for (let dayIndex = fromDayIndex; dayIndex >= 0; dayIndex--) {
+      const activeTracks = getActiveTracks(groupPlan[dayIndex]);
+      const start = dayIndex === fromDayIndex ? fromTrackIndex - 1 : activeTracks.length - 1;
+      for (let trackIndex = start; trackIndex >= 0; trackIndex--) {
+        const track = activeTracks[trackIndex];
+        if (!unreadOnly || !isTrackDoneScoped(group.planTemplateId || "default", groupPlan[dayIndex].day, track, groupScopeId)) {
+          return { dayIndex, trackIndex };
+        }
+      }
+    }
+    return null;
+  };
+
   const setGroupProgressTracking = (enabled: boolean) => {
     setGroupProgressEnabled(enabled);
     setGroupProgressOptIn(group.id, enabled);
@@ -690,12 +760,10 @@ function GroupDetailView({
 
   const openCurrentGroupReading = () => {
     if (!groupPlanDay) return;
-    const firstTrack = currentGroupTracks[0];
-    if (!firstTrack || !groupPlanDay[firstTrack]) return;
-    setReader({
-      reference: groupPlanDay[firstTrack],
-      returnLabel: "Back to group",
-    });
+    if (!effectiveGroupDay) return;
+    const request = buildGroupReaderRequest(effectiveGroupDay - 1, 0);
+    if (!request) return;
+    setReader(request);
   };
 
   return (
@@ -825,12 +893,14 @@ function GroupDetailView({
                   <div className={`reading-row ${done ? "done" : ""}`} key={`group-${track}`}>
                     <button
                       className="reading-main"
-                      onClick={() =>
-                        setReader({
-                          reference: groupPlanDay[track],
-                          returnLabel: "Back to group",
-                        })
-                      }
+                      onClick={() => {
+                        if (!effectiveGroupDay) return;
+                        const trackIndex = currentGroupTracks.findIndex((candidate) => candidate === track);
+                        if (trackIndex < 0) return;
+                        const request = buildGroupReaderRequest(effectiveGroupDay - 1, trackIndex);
+                        if (!request) return;
+                        setReader(request);
+                      }}
                       title={`Read ${groupPlanDay[track]}`}
                     >
                       <span style={{ minWidth: 0 }}>
@@ -1016,6 +1086,36 @@ function GroupDetailView({
         <ReaderOverlay
           request={reader}
           onClose={() => setReader(null)}
+          onAdvanceToNextReading={(currentTrack) => {
+            const position = resolveReaderPosition(currentTrack);
+            if (!position) return false;
+            const next = findAdjacentReading(position.dayIndex, position.trackIndex, 1, true);
+            if (!next) return false;
+            const request = buildGroupReaderRequest(next.dayIndex, next.trackIndex);
+            if (!request) return false;
+            setReader(request);
+            return true;
+          }}
+          onGoToPreviousReading={(currentTrack) => {
+            const position = resolveReaderPosition(currentTrack);
+            if (!position) return false;
+            const previous = findAdjacentReading(position.dayIndex, position.trackIndex, -1, false);
+            if (!previous) return false;
+            const request = buildGroupReaderRequest(previous.dayIndex, previous.trackIndex);
+            if (!request) return false;
+            setReader(request);
+            return true;
+          }}
+          onGoToNextReading={(currentTrack) => {
+            const position = resolveReaderPosition(currentTrack);
+            if (!position) return false;
+            const next = findAdjacentReading(position.dayIndex, position.trackIndex, 1, false);
+            if (!next) return false;
+            const request = buildGroupReaderRequest(next.dayIndex, next.trackIndex);
+            if (!request) return false;
+            setReader(request);
+            return true;
+          }}
         />
       )}
     </div>

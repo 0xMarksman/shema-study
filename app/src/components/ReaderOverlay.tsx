@@ -18,6 +18,7 @@ export interface ReaderRequest {
   track?: Track;
   dayReadingIndex?: number;
   dayReadingCount?: number;
+  dayReadingLabel?: string;
   /** Overrides the generic "Close" label — e.g. "Back to message" when opened from chat. */
   returnLabel?: string;
 }
@@ -91,6 +92,7 @@ export function ReaderOverlay({
   const done = markable && progress.has(progressKey(settings.planTemplateId, request.day!, request.track!));
   const readingIndex = request.dayReadingIndex ?? null;
   const readingCount = request.dayReadingCount ?? null;
+  const readingLabel = request.dayReadingLabel ?? "Day";
 
   const handleVerseTap = (verse: number) => {
     setSelectedVerse(verse);
@@ -253,7 +255,7 @@ export function ReaderOverlay({
             </button>
             <span className="small muted reader-footer-nav__label">
               {readingIndex && readingCount
-                ? `Day ${request.day} · ${readingIndex} of ${readingCount}`
+                ? `${readingLabel} ${readingIndex} of ${readingCount}`
                 : `Day ${request.day}`}
             </span>
             <button
