@@ -63,10 +63,12 @@ export function BibleAudioControls({
       onVerseStart: onVerseChange,
       onComplete: onPlaybackComplete,
     });
+    onPlaybackControl?.("play");
     onJumpHandled?.();
   }, [
     blocks,
     jumpToVerse,
+    onPlaybackControl,
     onJumpHandled,
     onPlaybackComplete,
     onVerseChange,
@@ -213,6 +215,43 @@ export function BibleAudioControls({
           )}
 
           <div className="audio-card__tuning">
+            <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
+              <label>Auto-scroll verses</label>
+              <button
+                className={`toggle-btn ${settings.bibleAutoScroll ? "toggle-on" : ""}`}
+                onClick={() => updateSettings({ bibleAutoScroll: !settings.bibleAutoScroll })}
+                aria-checked={settings.bibleAutoScroll}
+                role="switch"
+              >
+                {settings.bibleAutoScroll ? "On" : "Off"}
+              </button>
+            </div>
+            <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
+              <label>Auto chapter progression</label>
+              <button
+                className={`toggle-btn ${settings.bibleAutoAdvance ? "toggle-on" : ""}`}
+                onClick={() => updateSettings({ bibleAutoAdvance: !settings.bibleAutoAdvance })}
+                aria-checked={settings.bibleAutoAdvance}
+                role="switch"
+              >
+                {settings.bibleAutoAdvance ? "On" : "Off"}
+              </button>
+            </div>
+            <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
+              <label htmlFor="player-autoscroll-resume">Resume auto-scroll</label>
+              <div className="setting-control">
+                <input
+                  id="player-autoscroll-resume"
+                  type="range"
+                  min="600"
+                  max="3500"
+                  step="100"
+                  value={settings.bibleAutoScrollResumeMs}
+                  onChange={(e) => updateSettings({ bibleAutoScrollResumeMs: Number(e.target.value) })}
+                />
+                <span className="range-value">{(settings.bibleAutoScrollResumeMs / 1000).toFixed(1)}s</span>
+              </div>
+            </div>
             <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
               <label htmlFor="player-speech-rate">Rate</label>
               <div className="setting-control">

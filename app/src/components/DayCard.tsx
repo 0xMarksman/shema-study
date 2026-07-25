@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getHebrewDateInfo, type HebrewHoliday } from "../lib/hebrewCalendar";
+import { buildDailyPrayer } from "../lib/dailyPrayer";
+import { clearPlanPrayerOverride, clearPrayerOverride, getPlanPrayerOverride, getPrayerOverride, setPlanPrayerOverride, setPrayerOverride } from "../lib/dailyPrayerOverrides";
 import { dateForDay, isDayComplete, progressKey } from "../lib/schedule";
 import { useAppState } from "../state/AppState";
 import {
@@ -45,6 +47,8 @@ export function DayCard({ day }: { day: PlanDay }) {
   const [reader, setReader] = useState<ReaderRequest | null>(null);
   const [addingQ, setAddingQ] = useState(false);
   const [newQText, setNewQText] = useState("");
+  const [editingPrayer, setEditingPrayer] = useState(false);
+  const [copiedPrayer, setCopiedPrayer] = useState(false);
 
   const date = dateForDay(settings, day.day);
   const hebrewInfo = date
@@ -53,6 +57,37 @@ export function DayCard({ day }: { day: PlanDay }) {
   const dayComplete = isDayComplete(progress, settings.planTemplateId, day.day);
   const customQKey = `${settings.planTemplateId}::${day.day}`;
   const dayTracks = TRACKS.filter((track) => day[track]);
+  const dailyPrayer = buildDailyPrayer(settings.planTemplateId, day);
+  const planPrayerOverride = getPlanPrayerOverride(settings.planTemplateId);
+  const prayerOverride = getPrayerOverride(settings.planTemplateId, day.day);
+  const prayerText = prayerOverride ?? planPrayerOverride ?? dailyPrayer?.text ?? "";
+  const [prayerDraft, setPrayerDraft] = useState(prayerText);
+
+  useEffect(() => {
+    if (!editingPrayer) {
+      setPrayerDraft(prayerText);
+    }
+  }, [editingPrayer, prayerText]);
+
+  const copyPrayer = async () => {
+    if (!prayerText) return;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(prayerText);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = prayerText;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopiedPrayer(true);
+      window.setTimeout(() => setCopiedPrayer(false), 1200);
+    } catch {
+      // Ignore clipboard errors silently.
+    }
+  };
 
   const getNextUnreadTrack = (fromTrack: Track): Track | null => {
     const startIdx = TRACKS.indexOf(fromTrack);
@@ -176,6 +211,95 @@ export function DayCard({ day }: { day: PlanDay }) {
             </div>
           );
         })}
+        {dailyPrayer && (
+          <div className="question question--prayer">
+            <div className="question-label">
+              <StarIcon className="q-icon" />
+              {dailyPrayer.title}
+            </div>
+            <div className="question-text question-text--prayer">{prayerText}</div>
+            {editingPrayer ? (
+              <div className="prayer-editor-wrap">
+                <textarea
+                  className="highlight-note-input"
+                  value={prayerDraft}
+                  onChange={(e) => setPrayerDraft(e.target.value)}
+                  maxLength={1200}
+                />
+                <div className="small muted" style={{ marginTop: 6 }}>{prayerDraft.length}/1200</div>
+                <div className="prayer-actions">
+                  <button
+                    className="btn"
+                    onClick={() => {
+                      const next = setPrayerOverride(settings.planTemplateId, day.day, prayerDraft);
+                      setPrayerDraft(next ?? planPrayerOverride ?? dailyPrayer.text);
+                      setEditingPrayer(false);
+                    }}
+                  >
+                    Save for today
+                  </button>
+                  <button
+                    className="btn"
+                    onClick={() => {
+                      const next = setPlanPrayerOverride(settings.planTemplateId, prayerDraft);
+                      clearPrayerOverride(settings.planTemplateId, day.day);
+                      setPrayerDraft(next ?? dailyPrayer.text);
+                      setEditingPrayer(false);
+                    }}
+                  >
+                    Save for this plan
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      clearPrayerOverride(settings.planTemplateId, day.day);
+                      setPrayerDraft(planPrayerOverride ?? dailyPrayer.text);
+                      setEditingPrayer(false);
+                    }}
+                  >
+                    Reset today
+                  </button>
+                  {planPrayerOverride && (
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        clearPlanPrayerOverride(settings.planTemplateId);
+                        setPrayerDraft(dailyPrayer.text);
+                        setEditingPrayer(false);
+                      }}
+                    >
+                      Clear plan default
+                    </button>
+                  )}
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setPrayerDraft(prayerText);
+                      setEditingPrayer(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="prayer-actions">
+                <button className="btn btn-secondary" onClick={() => void copyPrayer()}>
+                  {copiedPrayer ? "Copied" : "Copy prayer"}
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setPrayerDraft(prayerText);
+                    setEditingPrayer(true);
+                  }}
+                >
+                  Edit prayer
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── Custom Questions ─────────────────────────────────────────────── */}

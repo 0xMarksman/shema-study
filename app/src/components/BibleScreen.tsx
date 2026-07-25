@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { BIBLE_BOOKS } from "../lib/bibleBooks";
 import { useChapterVerses } from "../lib/useChapterVerses";
-import { getChapterHighlights, toggleChapterHighlight } from "../lib/verseHighlights";
+import { getChapterHighlightsDetailed, removeVerseHighlight, setVerseHighlight, type ChapterHighlights } from "../lib/verseHighlights";
 import { useAppState } from "../state/AppState";
 import { TRANSLATIONS, type Translation } from "../types";
 import { AppearanceSheet } from "./AppearancePanel";
 import { BibleAudioControls } from "./BibleAudioControls";
 import { ChapterView } from "./ChapterView";
 import { ChevronIcon } from "./icons";
+import { VerseHighlightSheet } from "./VerseHighlightSheet";
 
 /** Free-reading Bible tab: any book, any chapter, remembers your place. */
 export function BibleScreen() {
@@ -16,7 +17,8 @@ export function BibleScreen() {
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [jumpToVerse, setJumpToVerse] = useState<number | null>(null);
-  const [highlightedVerses, setHighlightedVerses] = useState<Set<number>>(new Set());
+  const [highlightedVerses, setHighlightedVerses] = useState<ChapterHighlights>({});
+  const [editingHighlightVerse, setEditingHighlightVerse] = useState<number | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
   const book = BIBLE_BOOKS.find((b) => b.id === settings.lastBookId) ?? BIBLE_BOOKS[0];
@@ -32,7 +34,8 @@ export function BibleScreen() {
     setActiveVerse(null);
     setSelectedVerse(null);
     setJumpToVerse(null);
-    setHighlightedVerses(getChapterHighlights(book.id, chapter));
+    setHighlightedVerses(getChapterHighlightsDetailed(book.id, chapter));
+    setEditingHighlightVerse(null);
   }, [settings.lastBookId, settings.lastChapter]);
 
   const handleVerseTap = (verse: number) => {
@@ -42,7 +45,7 @@ export function BibleScreen() {
 
   const handleVerseDoubleTap = (verse: number) => {
     setSelectedVerse(verse);
-    setHighlightedVerses(toggleChapterHighlight(book.id, chapter, verse));
+    setEditingHighlightVerse(verse);
   };
 
   const prev = () => {
@@ -139,6 +142,20 @@ export function BibleScreen() {
           onVerseDoubleTap={handleVerseDoubleTap}
         />
       </div>
+
+      {editingHighlightVerse !== null && (
+        <VerseHighlightSheet
+          verse={editingHighlightVerse}
+          current={highlightedVerses[editingHighlightVerse] ?? null}
+          onSave={({ style, note }) => {
+            setHighlightedVerses(setVerseHighlight(book.id, chapter, editingHighlightVerse, { style, note }));
+          }}
+          onRemove={() => {
+            setHighlightedVerses(removeVerseHighlight(book.id, chapter, editingHighlightVerse));
+          }}
+          onClose={() => setEditingHighlightVerse(null)}
+        />
+      )}
 
       <div className="bible-nav">
         <button className="btn btn-secondary" onClick={prev} disabled={atStart}>

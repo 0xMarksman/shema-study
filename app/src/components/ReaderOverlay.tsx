@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { chapterTitle, parseReference } from "../lib/passage";
 import { progressKey } from "../lib/schedule";
 import { useChapterVerses } from "../lib/useChapterVerses";
-import { getChapterHighlights, toggleChapterHighlight } from "../lib/verseHighlights";
+import { getChapterHighlightsDetailed, removeVerseHighlight, setVerseHighlight, type ChapterHighlights } from "../lib/verseHighlights";
 import { useAppState } from "../state/AppState";
 import { TRANSLATIONS, type Track, type Translation } from "../types";
 import { AppearanceSheet } from "./AppearancePanel";
 import { BibleAudioControls } from "./BibleAudioControls";
 import { ChapterView } from "./ChapterView";
 import { CheckCircleIcon, ChevronIcon, CloseIcon } from "./icons";
+import { VerseHighlightSheet } from "./VerseHighlightSheet";
 
 export interface ReaderRequest {
   reference: string;
@@ -43,7 +44,8 @@ export function ReaderOverlay({
   const [jumpToVerse, setJumpToVerse] = useState<number | null>(null);
   const [autoPlaySignal, setAutoPlaySignal] = useState<number | undefined>(undefined);
   const [continuousAudio, setContinuousAudio] = useState(false);
-  const [highlightedVerses, setHighlightedVerses] = useState<Set<number>>(new Set());
+  const [highlightedVerses, setHighlightedVerses] = useState<ChapterHighlights>({});
+  const [editingHighlightVerse, setEditingHighlightVerse] = useState<number | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 
   const current = chapters[index] ?? null;
@@ -60,10 +62,11 @@ export function ReaderOverlay({
     setSelectedVerse(null);
     setJumpToVerse(null);
     if (current) {
-      setHighlightedVerses(getChapterHighlights(current.book.id, current.chapter));
+      setHighlightedVerses(getChapterHighlightsDetailed(current.book.id, current.chapter));
     } else {
-      setHighlightedVerses(new Set());
+      setHighlightedVerses({});
     }
+    setEditingHighlightVerse(null);
   }, [index]);
 
   useEffect(() => {
@@ -92,13 +95,16 @@ export function ReaderOverlay({
   };
 
   const handleVerseDoubleTap = (verse: number) => {
-    if (!current) return;
     setSelectedVerse(verse);
-    setHighlightedVerses(toggleChapterHighlight(current.book.id, current.chapter, verse));
+    setEditingHighlightVerse(verse);
   };
 
   const handleAudioCompleted = () => {
     if (!continuousAudio) return;
+    if (!settings.bibleAutoAdvance) {
+      setContinuousAudio(false);
+      return;
+    }
 
     if (index < chapters.length - 1) {
       setIndex((value) => value + 1);
@@ -175,7 +181,10 @@ export function ReaderOverlay({
               onJumpHandled={() => setJumpToVerse(null)}
               onPlaybackComplete={handleAudioCompleted}
               onPlaybackControl={(action) => {
-                if (action === "play") setContinuousAudio(true);
+                if (action === "play") {
+                  setSelectedVerse(null);
+                  setContinuousAudio(settings.bibleAutoAdvance);
+                }
                 if (action === "pause" || action === "stop") setContinuousAudio(false);
               }}
               autoPlaySignal={autoPlaySignal}
@@ -188,6 +197,7 @@ export function ReaderOverlay({
               loading={currentVerses.loading}
               activeVerse={activeVerse}
               selectedVerse={selectedVerse}
+              autoScrollActiveVerse={settings.bibleAutoScroll}
               highlightedVerses={highlightedVerses}
               onVerseTap={handleVerseTap}
               onVerseDoubleTap={handleVerseDoubleTap}
@@ -264,6 +274,21 @@ export function ReaderOverlay({
       </footer>
 
       {showAppearance && <AppearanceSheet onClose={() => setShowAppearance(false)} />}
+      {current && editingHighlightVerse !== null && (
+        <VerseHighlightSheet
+          verse={editingHighlightVerse}
+          current={highlightedVerses[editingHighlightVerse] ?? null}
+          onSave={({ style, note }) => {
+            setHighlightedVerses(
+              setVerseHighlight(current.book.id, current.chapter, editingHighlightVerse, { style, note }),
+            );
+          }}
+          onRemove={() => {
+            setHighlightedVerses(removeVerseHighlight(current.book.id, current.chapter, editingHighlightVerse));
+          }}
+          onClose={() => setEditingHighlightVerse(null)}
+        />
+      )}
     </div>
   );
 }

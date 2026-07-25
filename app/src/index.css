@@ -987,10 +987,91 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 }
 
 .verse--saved {
-  background: color-mix(in srgb, #f5b50a 14%, transparent);
   border-left: 3px solid #d29a08;
   padding-left: 10px;
   margin-left: -10px;
+}
+
+.verse--saved--gold {
+  background: color-mix(in srgb, #f5b50a 14%, transparent);
+  border-left-color: #d29a08;
+}
+
+.verse--saved--mint {
+  background: color-mix(in srgb, #40c47a 15%, transparent);
+  border-left-color: #2ea968;
+}
+
+.verse--saved--sky {
+  background: color-mix(in srgb, #4d8fe8 15%, transparent);
+  border-left-color: #3b79c9;
+}
+
+.verse--saved--rose {
+  background: color-mix(in srgb, #d95f87 15%, transparent);
+  border-left-color: #bb496f;
+}
+
+.verse-note-badge {
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+  vertical-align: middle;
+}
+
+.highlight-style-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.highlight-style-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card-bg);
+  padding: 9px 10px;
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.highlight-style-btn.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.highlight-style-btn__swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #000 14%, transparent);
+}
+
+.highlight-style-btn[data-style="gold"] .highlight-style-btn__swatch { background: #f5b50a; }
+.highlight-style-btn[data-style="mint"] .highlight-style-btn__swatch { background: #40c47a; }
+.highlight-style-btn[data-style="sky"] .highlight-style-btn__swatch { background: #4d8fe8; }
+.highlight-style-btn[data-style="rose"] .highlight-style-btn__swatch { background: #d95f87; }
+
+.highlight-note-input {
+  width: 100%;
+  min-height: 104px;
+  resize: vertical;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-h);
+  font: inherit;
+  line-height: 1.45;
 }
 
 .event-steps {
@@ -1369,6 +1450,29 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   margin-bottom: 8px;
   color: var(--text);
   font-size: 0.95rem;
+}
+
+.question--prayer {
+  border-top: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--border));
+  margin-top: 2px;
+  padding-top: 12px;
+}
+
+.question-text--prayer {
+  white-space: pre-wrap;
+  line-height: 1.55;
+  margin-bottom: 2px;
+}
+
+.prayer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.prayer-editor-wrap {
+  margin-top: 8px;
 }
 
 /* ---------- Rich text editor ---------- */

@@ -357,6 +357,21 @@ function AudioBibleCard() {
             <span className="range-value">{settings.bibleSpeechPitch.toFixed(2)}</span>
           </div>
         </div>
+        <div className="setting-row">
+          <label htmlFor="bible-autoscroll-resume">Auto-scroll resumes</label>
+          <div className="setting-control">
+            <input
+              id="bible-autoscroll-resume"
+              type="range"
+              min="600"
+              max="3500"
+              step="100"
+              value={settings.bibleAutoScrollResumeMs}
+              onChange={(e) => updateSettings({ bibleAutoScrollResumeMs: Number(e.target.value) })}
+            />
+            <span className="range-value">{(settings.bibleAutoScrollResumeMs / 1000).toFixed(1)}s</span>
+          </div>
+        </div>
         <p className="small muted" style={{ margin: "8px 0 0" }}>
           {supported
             ? ready

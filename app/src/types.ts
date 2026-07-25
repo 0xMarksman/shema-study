@@ -95,6 +95,12 @@ export interface Settings {
   bibleSpeechRate: number;
   /** Speech pitch for browser TTS. */
   bibleSpeechPitch: number;
+  /** Keep the active spoken verse centered as audio advances. */
+  bibleAutoScroll: boolean;
+  /** Automatically continue into next chapter/reading after completion. */
+  bibleAutoAdvance: boolean;
+  /** Milliseconds after manual scrolling stops before auto-follow resumes. */
+  bibleAutoScrollResumeMs: number;
   /** Active reading plan template id. Default = full 365-day Messianic plan. */
   planTemplateId: string;
   /** Custom plan book IDs (used when planTemplateId === 'custom'). */
@@ -139,6 +145,9 @@ export const DEFAULT_SETTINGS: Settings = {
   bibleVoiceURI: "",
   bibleSpeechRate: 1,
   bibleSpeechPitch: 1,
+  bibleAutoScroll: true,
+  bibleAutoAdvance: true,
+  bibleAutoScrollResumeMs: 1400,
   planTemplateId: "default",
   customPlanBookIds: [],
   customPlanPace: 3,
