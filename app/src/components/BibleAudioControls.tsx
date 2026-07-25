@@ -14,6 +14,7 @@ export function BibleAudioControls({
   onPlaybackComplete,
   onPlaybackControl,
   autoPlaySignal,
+  pauseSignal,
 }: {
   reference: string;
   verses: BibleVerse[] | null;
@@ -24,6 +25,7 @@ export function BibleAudioControls({
   onPlaybackComplete?: () => void;
   onPlaybackControl?: (action: "play" | "pause" | "stop") => void;
   autoPlaySignal?: number;
+  pauseSignal?: number;
 }) {
   const { settings, updateSettings } = useAppState();
   const [collapsed, setCollapsed] = useState(false);
@@ -108,6 +110,13 @@ export function BibleAudioControls({
     pendingAutoPlaySignal.current = undefined;
   }, [canSpeak, status]);
 
+  useEffect(() => {
+    if (pauseSignal === undefined) return;
+    if (status !== "speaking") return;
+    pause();
+    onPlaybackControl?.("pause");
+  }, [onPlaybackControl, pause, pauseSignal, status]);
+
   const statusLabel = status === "speaking" ? "Playing" : status === "paused" ? "Paused" : "Ready";
   const canTogglePlayback = canSpeak || status === "paused" || status === "speaking";
 
@@ -173,134 +182,142 @@ export function BibleAudioControls({
       </div>
 
       {showPanel && (
-        <div className="card audio-panel">
-          <div className="small muted" style={{ marginBottom: 8 }}>
-            {supported
-              ? ready
-                ? `Voice: ${getVoiceLabel(selectedVoice)} · ${settings.bibleSpeechRate.toFixed(2)}x · pitch ${settings.bibleSpeechPitch.toFixed(2)}`
-                : "Loading browser voices..."
-              : "Audio playback is not supported in this browser."}
-          </div>
+        <div className="sheet-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setShowPanel(false); }}>
+          <div className="sheet audio-panel-sheet" role="dialog" aria-modal="true" aria-label="Audio settings" onClick={(event) => event.stopPropagation()}>
+            <div className="sheet-handle" />
+            <h3 style={{ margin: "0 0 10px" }}>Audio Settings</h3>
 
-          {recommendedVoice && recommendedVoice.voiceURI !== settings.bibleVoiceURI && (
-            <button
-              className="btn btn-secondary"
-              onClick={() => updateSettings({ bibleVoiceURI: recommendedVoice.voiceURI })}
-              disabled={!supported || !ready}
-              style={{ marginBottom: 10 }}
-            >
-              Try recommended
-            </button>
-          )}
+            <div className="small muted" style={{ marginBottom: 8 }}>
+              {supported
+                ? ready
+                  ? `Voice: ${getVoiceLabel(selectedVoice)} · ${settings.bibleSpeechRate.toFixed(2)}x · pitch ${settings.bibleSpeechPitch.toFixed(2)}`
+                  : "Loading browser voices..."
+                : "Audio playback is not supported in this browser."}
+            </div>
 
-          {supported && ready && sortedVoices.length > 0 && (
-            <div className="setting-row" style={{ paddingTop: 0 }}>
-              <label htmlFor="player-voice-select">Voice</label>
-              <div className="audio-voice-picker">
-                <select
-                  id="player-voice-select"
-                  className="settings-voice-select"
-                  value={settings.bibleVoiceURI}
-                  onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
+            {recommendedVoice && recommendedVoice.voiceURI !== settings.bibleVoiceURI && (
+              <button
+                className="btn btn-secondary"
+                onClick={() => updateSettings({ bibleVoiceURI: recommendedVoice.voiceURI })}
+                disabled={!supported || !ready}
+                style={{ marginBottom: 10 }}
+              >
+                Try recommended
+              </button>
+            )}
+
+            {supported && ready && sortedVoices.length > 0 && (
+              <div className="setting-row" style={{ paddingTop: 0 }}>
+                <label htmlFor="player-voice-select">Voice</label>
+                <div className="audio-voice-picker">
+                  <select
+                    id="player-voice-select"
+                    className="settings-voice-select"
+                    value={settings.bibleVoiceURI}
+                    onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
+                  >
+                    <option value="">Browser default</option>
+                    {sortedVoices.map((voice) => (
+                      <option key={voice.voiceURI} value={voice.voiceURI}>
+                        {voice.name} ({voice.lang}){voice.localService ? " · local" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            <div className="audio-card__tuning">
+              <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
+                <label>Auto-scroll verses</label>
+                <button
+                  className={`toggle-btn ${settings.bibleAutoScroll ? "toggle-on" : ""}`}
+                  onClick={() => updateSettings({ bibleAutoScroll: !settings.bibleAutoScroll })}
+                  aria-checked={settings.bibleAutoScroll}
+                  role="switch"
                 >
-                  <option value="">Browser default</option>
-                  {sortedVoices.map((voice) => (
-                    <option key={voice.voiceURI} value={voice.voiceURI}>
-                      {voice.name} ({voice.lang}){voice.localService ? " · local" : ""}
-                    </option>
-                  ))}
-                </select>
+                  {settings.bibleAutoScroll ? "On" : "Off"}
+                </button>
+              </div>
+              <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
+                <label>Auto chapter progression</label>
+                <button
+                  className={`toggle-btn ${settings.bibleAutoAdvance ? "toggle-on" : ""}`}
+                  onClick={() => updateSettings({ bibleAutoAdvance: !settings.bibleAutoAdvance })}
+                  aria-checked={settings.bibleAutoAdvance}
+                  role="switch"
+                >
+                  {settings.bibleAutoAdvance ? "On" : "Off"}
+                </button>
+              </div>
+              <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
+                <label htmlFor="player-autoscroll-resume">Resume auto-scroll</label>
+                <div className="setting-control">
+                  <input
+                    id="player-autoscroll-resume"
+                    type="range"
+                    min="600"
+                    max="3500"
+                    step="100"
+                    value={settings.bibleAutoScrollResumeMs}
+                    onChange={(e) => updateSettings({ bibleAutoScrollResumeMs: Number(e.target.value) })}
+                  />
+                  <span className="range-value">{(settings.bibleAutoScrollResumeMs / 1000).toFixed(1)}s</span>
+                </div>
+              </div>
+              <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
+                <label htmlFor="player-speech-rate">Rate</label>
+                <div className="setting-control">
+                  <input
+                    id="player-speech-rate"
+                    type="range"
+                    min="0.75"
+                    max="1.25"
+                    step="0.05"
+                    value={settings.bibleSpeechRate}
+                    onChange={(e) => updateSettings({ bibleSpeechRate: Number(e.target.value) })}
+                  />
+                  <span className="range-value">{settings.bibleSpeechRate.toFixed(2)}x</span>
+                </div>
+              </div>
+              <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
+                <label htmlFor="player-speech-pitch">Pitch</label>
+                <div className="setting-control">
+                  <input
+                    id="player-speech-pitch"
+                    type="range"
+                    min="0.75"
+                    max="1.25"
+                    step="0.05"
+                    value={settings.bibleSpeechPitch}
+                    onChange={(e) => updateSettings({ bibleSpeechPitch: Number(e.target.value) })}
+                  />
+                  <span className="range-value">{settings.bibleSpeechPitch.toFixed(2)}</span>
+                </div>
               </div>
             </div>
-          )}
 
-          <div className="audio-card__tuning">
-            <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
-              <label>Auto-scroll verses</label>
+            {!loading && blocks.length === 0 && (
+              <p className="small muted" style={{ margin: "10px 0 0" }}>
+                This chapter is empty.
+              </p>
+            )}
+
+            <div className="audio-card__buttons" style={{ marginTop: 10 }}>
               <button
-                className={`toggle-btn ${settings.bibleAutoScroll ? "toggle-on" : ""}`}
-                onClick={() => updateSettings({ bibleAutoScroll: !settings.bibleAutoScroll })}
-                aria-checked={settings.bibleAutoScroll}
-                role="switch"
+                className="btn btn-secondary"
+                onClick={() => {
+                  stop();
+                  onPlaybackControl?.("stop");
+                }}
+                disabled={status === "idle"}
               >
-                {settings.bibleAutoScroll ? "On" : "Off"}
+                Stop
+              </button>
+              <button className="btn btn-secondary" onClick={() => setShowPanel(false)}>
+                Done
               </button>
             </div>
-            <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
-              <label>Auto chapter progression</label>
-              <button
-                className={`toggle-btn ${settings.bibleAutoAdvance ? "toggle-on" : ""}`}
-                onClick={() => updateSettings({ bibleAutoAdvance: !settings.bibleAutoAdvance })}
-                aria-checked={settings.bibleAutoAdvance}
-                role="switch"
-              >
-                {settings.bibleAutoAdvance ? "On" : "Off"}
-              </button>
-            </div>
-            <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
-              <label htmlFor="player-autoscroll-resume">Resume auto-scroll</label>
-              <div className="setting-control">
-                <input
-                  id="player-autoscroll-resume"
-                  type="range"
-                  min="600"
-                  max="3500"
-                  step="100"
-                  value={settings.bibleAutoScrollResumeMs}
-                  onChange={(e) => updateSettings({ bibleAutoScrollResumeMs: Number(e.target.value) })}
-                />
-                <span className="range-value">{(settings.bibleAutoScrollResumeMs / 1000).toFixed(1)}s</span>
-              </div>
-            </div>
-            <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
-              <label htmlFor="player-speech-rate">Rate</label>
-              <div className="setting-control">
-                <input
-                  id="player-speech-rate"
-                  type="range"
-                  min="0.75"
-                  max="1.25"
-                  step="0.05"
-                  value={settings.bibleSpeechRate}
-                  onChange={(e) => updateSettings({ bibleSpeechRate: Number(e.target.value) })}
-                />
-                <span className="range-value">{settings.bibleSpeechRate.toFixed(2)}x</span>
-              </div>
-            </div>
-            <div className="setting-row" style={{ padding: 0, borderTop: 0 }}>
-              <label htmlFor="player-speech-pitch">Pitch</label>
-              <div className="setting-control">
-                <input
-                  id="player-speech-pitch"
-                  type="range"
-                  min="0.75"
-                  max="1.25"
-                  step="0.05"
-                  value={settings.bibleSpeechPitch}
-                  onChange={(e) => updateSettings({ bibleSpeechPitch: Number(e.target.value) })}
-                />
-                <span className="range-value">{settings.bibleSpeechPitch.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-
-          {!loading && blocks.length === 0 && (
-            <p className="small muted" style={{ margin: "10px 0 0" }}>
-              This chapter is empty.
-            </p>
-          )}
-
-          <div className="audio-card__buttons" style={{ marginTop: 10 }}>
-            <button
-              className="btn btn-secondary"
-              onClick={() => {
-                stop();
-                onPlaybackControl?.("stop");
-              }}
-              disabled={status === "idle"}
-            >
-              Stop
-            </button>
           </div>
         </div>
       )}

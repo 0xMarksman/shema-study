@@ -43,6 +43,7 @@ export function ReaderOverlay({
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [jumpToVerse, setJumpToVerse] = useState<number | null>(null);
   const [autoPlaySignal, setAutoPlaySignal] = useState<number | undefined>(undefined);
+  const [pauseAudioSignal, setPauseAudioSignal] = useState<number | undefined>(undefined);
   const [continuousAudio, setContinuousAudio] = useState(false);
   const [audioIsPlaying, setAudioIsPlaying] = useState(false);
   const [highlightedVerses, setHighlightedVerses] = useState<ChapterHighlights>({});
@@ -98,6 +99,7 @@ export function ReaderOverlay({
 
   const handleVerseDoubleTap = (verse: number) => {
     setSelectedVerse(verse);
+    setPauseAudioSignal(Date.now());
     setEditingHighlightVerse(verse);
   };
 
@@ -195,6 +197,7 @@ export function ReaderOverlay({
                 }
               }}
               autoPlaySignal={autoPlaySignal}
+              pauseSignal={pauseAudioSignal}
             />
             <ChapterView
               bookId={current.book.id}

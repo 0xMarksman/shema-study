@@ -18,6 +18,7 @@ export function BibleScreen() {
   const [audioIsPlaying, setAudioIsPlaying] = useState(false);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [jumpToVerse, setJumpToVerse] = useState<number | null>(null);
+  const [pauseAudioSignal, setPauseAudioSignal] = useState<number | undefined>(undefined);
   const [highlightedVerses, setHighlightedVerses] = useState<ChapterHighlights>({});
   const [editingHighlightVerse, setEditingHighlightVerse] = useState<number | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
@@ -47,6 +48,7 @@ export function BibleScreen() {
 
   const handleVerseDoubleTap = (verse: number) => {
     setSelectedVerse(verse);
+    setPauseAudioSignal(Date.now());
     setEditingHighlightVerse(verse);
   };
 
@@ -136,6 +138,7 @@ export function BibleScreen() {
           }
           if (action === "pause" || action === "stop") setAudioIsPlaying(false);
         }}
+        pauseSignal={pauseAudioSignal}
       />
 
       <div className="reader-body">
