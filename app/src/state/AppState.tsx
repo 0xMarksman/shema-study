@@ -30,8 +30,13 @@ import {
 } from "../types";
 import { generatePlan, generateCustomPlan } from "../lib/planTemplates";
 
-const STATE_KEY = "bible-planner:state";
+const LEGACY_STATE_KEY = "bible-planner:state";
+const STATE_KEY_PREFIX = "bible-planner:state:";
 const SKIP_AUTH_KEY = "bible-planner:skip-auth";
+
+function stateKeyForUser(userId: string | null): string {
+  return `${STATE_KEY_PREFIX}${userId ? `user:${userId}` : "guest"}`;
+}
 
 /**
  * Progress/answers/custom-questions used to be un-scoped (e.g. "day:track",
@@ -71,9 +76,9 @@ function migrateState(raw: PlanState): PlanState {
   };
 }
 
-function loadLocalState(): PlanState {
+function loadLocalState(stateKey: string, allowLegacyFallback = false): PlanState {
   try {
-    const raw = localStorage.getItem(STATE_KEY);
+    const raw = localStorage.getItem(stateKey);
     if (raw) {
       const parsed = JSON.parse(raw) as PlanState;
       const settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
@@ -91,6 +96,26 @@ function loadLocalState(): PlanState {
         updatedAt: parsed.updatedAt ?? 0,
       });
     }
+    if (allowLegacyFallback) {
+      const legacyRaw = localStorage.getItem(LEGACY_STATE_KEY);
+      if (legacyRaw) {
+        const parsed = JSON.parse(legacyRaw) as PlanState;
+        const settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
+        return migrateState({
+          settings,
+          progress: Array.isArray(parsed.progress) ? parsed.progress : [],
+          answers:
+            parsed.answers && typeof parsed.answers === "object" && !Array.isArray(parsed.answers)
+              ? parsed.answers
+              : {},
+          customQuestions:
+            parsed.customQuestions && typeof parsed.customQuestions === "object" && !Array.isArray(parsed.customQuestions)
+              ? parsed.customQuestions
+              : {},
+          updatedAt: parsed.updatedAt ?? 0,
+        });
+      }
+    }
   } catch {
     // Corrupt local state falls through to defaults.
   }
@@ -104,6 +129,7 @@ interface AppStateValue {
   progress: Set<string>;
   answers: Record<string, string>;
   user: User | null;
+  isAuthTransitioning: boolean;
   syncError: string | null;
   /** True after the user chose "continue without an account" on the landing page. */
   skippedAuth: boolean;
@@ -127,16 +153,26 @@ interface AppStateValue {
 const AppStateContext = createContext<AppStateValue | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(() => (getToken() ? getStoredUser() : null));
+  const currentStateKeyRef = useRef(stateKeyForUser(user?.id ?? null));
   const [plan, setPlan] = useState<PlanDay[]>([]);
   const [planLoading, setPlanLoading] = useState(true);
-  const [state, setState] = useState<PlanState>(loadLocalState);
-  const [user, setUser] = useState<User | null>(() => (getToken() ? getStoredUser() : null));
+  const [state, setState] = useState<PlanState>(() => loadLocalState(currentStateKeyRef.current, true));
+  const [isAuthTransitioning, setIsAuthTransitioning] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [skippedAuth, setSkippedAuth] = useState(
     () => localStorage.getItem(SKIP_AUTH_KEY) === "1",
   );
   const pushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reminderTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const nextKey = stateKeyForUser(user?.id ?? null);
+    if (nextKey === currentStateKeyRef.current) return;
+    currentStateKeyRef.current = nextKey;
+    setState(loadLocalState(nextKey));
+    setSyncError(null);
+  }, [user?.id]);
 
   // Load reading plan — either the static plan.json or a generated template.
   useEffect(() => {
@@ -172,7 +208,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   // Persist every state change locally (guest mode works fully offline)…
   useEffect(() => {
-    localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    localStorage.setItem(currentStateKeyRef.current, JSON.stringify(state));
   }, [state]);
 
   // Schedule/cancel browser notification reminders.
@@ -365,6 +401,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const adoptSession = useCallback(
     async (token: string, nextUser: User) => {
+      setIsAuthTransitioning(true);
       storeSession(token, nextUser);
       setUser(nextUser);
       // Pull-and-reconcile runs via the user effect; merge progress by union so a
@@ -387,6 +424,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       } catch {
         // Reconcile effect will retry on next load.
+      } finally {
+        setIsAuthTransitioning(false);
       }
     },
     [],
@@ -423,6 +462,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // Signing out returns to the landing page, so clear any earlier "skip" too.
     localStorage.removeItem(SKIP_AUTH_KEY);
     setSkippedAuth(false);
+    setIsAuthTransitioning(false);
     setUser(null);
   }, []);
 
@@ -434,6 +474,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     answers: state.answers,
     customQuestions: state.customQuestions ?? {},
     user,
+    isAuthTransitioning,
     syncError,
     skippedAuth,
     skipAuth,

@@ -527,6 +527,22 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 .tab-bar button.active { color: var(--accent); background: var(--accent-bg); }
 .tab-bar svg { width: 22px; height: 22px; }
 
+@media (min-width: 700px) {
+  .tab-bar {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(680px, calc(100vw - 24px));
+    justify-content: center;
+    overflow-x: visible;
+    padding-left: 12px;
+    padding-right: 12px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 14px 14px 0 0;
+  }
+}
+
 /* ---------- today / day detail ---------- */
 
 .day-header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }

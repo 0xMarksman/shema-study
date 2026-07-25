@@ -15,7 +15,7 @@ import { useAppState } from "./state/AppState";
 type Tab = "today" | "events" | "plan" | "bible" | "community" | "settings";
 
 export default function App() {
-  const { settings, user, skippedAuth, skipAuth } = useAppState();
+  const { settings, user, skippedAuth, skipAuth, isAuthTransitioning } = useAppState();
   const [tab, setTab] = useState<Tab>("today");
 
   // Apply appearance settings as root data-attributes driving the CSS variables.
@@ -23,6 +23,18 @@ export default function App() {
     const root = document.documentElement;
     const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
+      if (!user && !skippedAuth) {
+        // Logged-out landing page always uses a neutral default appearance.
+        root.dataset.theme = "sepia";
+        root.dataset.accent = "deepblue";
+        root.dataset.font = "system";
+        root.dataset.textAlign = "left";
+        root.style.setProperty("--reader-font-size", "16px");
+        root.style.setProperty("--reader-line-height", "1.55");
+        root.style.setProperty("--reader-letter-spacing", "0em");
+        return;
+      }
+
       root.dataset.theme =
         settings.themeMode === "system"
           ? systemDark.matches
@@ -48,6 +60,8 @@ export default function App() {
     settings.lineHeight,
     settings.letterSpacing,
     settings.textAlign,
+    user,
+    skippedAuth,
   ]);
 
   // Navigate to Bible tab when openBibleRef is called
@@ -79,6 +93,15 @@ export default function App() {
   }, [user]);
 
   // Land on the login page unless already signed in (or explicitly skipped).
+  if (isAuthTransitioning) {
+    return (
+      <div className="auth-screen" aria-live="polite">
+        <div className="spinner" aria-hidden="true" />
+        <p>Loading your preferences...</p>
+      </div>
+    );
+  }
+
   if (!user && !skippedAuth) {
     return <AuthScreen onSkip={skipAuth} />;
   }
