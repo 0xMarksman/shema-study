@@ -19,7 +19,7 @@ import { useAppState } from "../state/AppState";
 import {
   UsersIcon, PersonAddIcon, MessageCircleIcon,
   ChevronRightIcon, CopyIcon, BellIcon, PencilIcon, GearIcon,
-  TrashIcon, LogOutIcon, CheckCircleIcon,
+  TrashIcon, LogOutIcon, CheckCircleIcon, BookOpenIcon,
 } from "./icons";
 import ChatView from "./ChatView";
 import { DayNumberInput } from "./DayNumberInput";
@@ -658,6 +658,7 @@ function GroupDetailView({
     : groupDay;
   const groupScopeId = groupProgressScopeId(group.id, user?.id);
   const groupPlanDay = effectiveGroupDay && groupPlan.length > 0 ? groupPlan[effectiveGroupDay - 1] ?? null : null;
+  const currentGroupTracks = groupPlanDay ? TRACKS.filter((track) => Boolean(groupPlanDay[track])) : [];
 
   const groupTotalReadings = groupPlan.reduce(
     (sum, day) => sum + TRACKS.filter((track) => Boolean(day[track])).length,
@@ -685,6 +686,16 @@ function GroupDetailView({
     markProgressThroughDayScoped(group.planTemplateId || "default", groupPlan, effectiveGroupDay, groupScopeId);
     setCatchUpNotice(`You're synced to Group Day ${effectiveGroupDay}. This only updated your progress.`);
     window.setTimeout(() => setCatchUpNotice(null), 2600);
+  };
+
+  const openCurrentGroupReading = () => {
+    if (!groupPlanDay) return;
+    const firstTrack = currentGroupTracks[0];
+    if (!firstTrack || !groupPlanDay[firstTrack]) return;
+    setReader({
+      reference: groupPlanDay[firstTrack],
+      returnLabel: "Back to group",
+    });
   };
 
   return (
@@ -718,9 +729,31 @@ function GroupDetailView({
           <div className="small muted" style={{ margin: "0 0 8px" }}>
             Selected plan: <strong style={{ color: "var(--text-h)" }}>{selectedTemplate.name}</strong>
           </div>
+          <div className="small muted" style={{ margin: "0 0 8px" }}>
+            Group day: <strong style={{ color: "var(--text-h)" }}>{effectiveGroupDay ?? "Not set"}</strong>
+          </div>
           <p className="small muted" style={{ margin: "0 0 8px" }}>
             Admins manage group timing (plan/day) in Group Settings. Catch-up applies only to your own profile progress.
           </p>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+            <button
+              className="btn btn-secondary"
+              onClick={openCurrentGroupReading}
+              type="button"
+              disabled={!groupPlanDay || currentGroupTracks.length === 0}
+            >
+              Read Group Day
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowGroupPlanDetails((value) => !value)}
+              type="button"
+              disabled={groupPlan.length === 0}
+            >
+              {showGroupPlanDetails ? "Hide Full Group Plan" : "View Full Group Plan"}
+            </button>
+          </div>
 
           {groupProgressEnabled && (
             <>
@@ -732,17 +765,9 @@ function GroupDetailView({
               </div>
               <button
                 className="btn btn-secondary"
-                onClick={() => setShowGroupPlanDetails((value) => !value)}
-                type="button"
-              >
-                {showGroupPlanDetails ? "Hide Full Group Plan" : "View Full Group Plan"}
-              </button>
-              <button
-                className="btn btn-secondary"
                 onClick={catchMeUpToGroupDay}
                 type="button"
                 disabled={!effectiveGroupDay || groupPlan.length === 0}
-                style={{ marginLeft: 8 }}
               >
                 Catch Me Up to Group Day
               </button>
@@ -754,13 +779,20 @@ function GroupDetailView({
             </>
           )}
 
-          {groupProgressEnabled && showGroupPlanDetails && groupPlan.length > 0 && (
+          {!groupProgressEnabled && (
+            <p className="small muted" style={{ margin: "0 0 8px" }}>
+              Enable tracking above to save your personal completion for this group plan.
+            </p>
+          )}
+
+          {showGroupPlanDetails && groupPlan.length > 0 && (
             <div className="card" style={{ marginTop: 10, padding: "8px 12px", maxHeight: 320, overflowY: "auto" }}>
               {groupPlan.map((day) => {
                 const activeTracks = TRACKS.filter((track) => Boolean(day[track]));
-                const doneCount = activeTracks.filter((track) =>
-                  isTrackDoneScoped(group.planTemplateId || "default", day.day, track, groupScopeId)).length;
-                const done = activeTracks.length > 0 && doneCount === activeTracks.length;
+                const doneCount = groupProgressEnabled
+                  ? activeTracks.filter((track) => isTrackDoneScoped(group.planTemplateId || "default", day.day, track, groupScopeId)).length
+                  : 0;
+                const done = groupProgressEnabled && activeTracks.length > 0 && doneCount === activeTracks.length;
                 return (
                   <div key={`group-plan-summary-${day.day}`} className={`reading-row ${done ? "done" : ""}`} style={{ margin: "0", padding: "8px 0" }}>
                     <span style={{ flex: 1, minWidth: 0 }}>
@@ -769,7 +801,7 @@ function GroupDetailView({
                       <span className="small muted">{activeTracks.map((track) => TRACK_LABELS[track]).join(" · ")}</span>
                     </span>
                     <span className="small muted" style={{ whiteSpace: "nowrap" }}>
-                      {doneCount}/{activeTracks.length}
+                      {groupProgressEnabled ? `${doneCount}/${activeTracks.length}` : "Tracking off"}
                     </span>
                   </div>
                 );
@@ -777,13 +809,18 @@ function GroupDetailView({
             </div>
           )}
 
-          {groupProgressEnabled && groupPlanDay && (
+          {groupPlanDay && (
             <>
               <div className="small muted" style={{ margin: "6px 0 8px" }}>
                 Group Day {effectiveGroupDay} readings
               </div>
-              {TRACKS.filter((track) => groupPlanDay[track]).map((track) => {
-                const done = isTrackDoneScoped(group.planTemplateId || "default", groupPlanDay.day, track, groupScopeId);
+              {!groupProgressEnabled && (
+                <p className="small muted" style={{ margin: "0 0 8px" }}>
+                  Reading is available now. Turn on tracking to mark items complete.
+                </p>
+              )}
+              {currentGroupTracks.map((track) => {
+                const done = groupProgressEnabled && isTrackDoneScoped(group.planTemplateId || "default", groupPlanDay.day, track, groupScopeId);
                 return (
                   <div className={`reading-row ${done ? "done" : ""}`} key={`group-${track}`}>
                     <button
@@ -802,21 +839,27 @@ function GroupDetailView({
                         <span className="reading-ref">{groupPlanDay[track]}</span>
                       </span>
                     </button>
-                    <button
-                      className={`check-btn ${done ? "done" : ""}`}
-                      onClick={() => toggleProgressScoped(group.planTemplateId || "default", groupPlanDay.day, track, groupScopeId)}
-                      aria-label={`Mark group ${TRACK_LABELS[track]} ${done ? "unread" : "read"}`}
-                      aria-pressed={done}
-                    >
-                      <CheckCircleIcon filled={done} />
-                    </button>
+                    {groupProgressEnabled ? (
+                      <button
+                        className={`check-btn ${done ? "done" : ""}`}
+                        onClick={() => toggleProgressScoped(group.planTemplateId || "default", groupPlanDay.day, track, groupScopeId)}
+                        aria-label={`Mark group ${TRACK_LABELS[track]} ${done ? "unread" : "read"}`}
+                        aria-pressed={done}
+                      >
+                        <CheckCircleIcon filled={done} />
+                      </button>
+                    ) : (
+                      <span className="small muted" style={{ whiteSpace: "nowrap", paddingRight: 4 }}>
+                        Tracking off
+                      </span>
+                    )}
                   </div>
                 );
               })}
             </>
           )}
 
-          {groupProgressEnabled && !groupPlanDay && (
+          {!groupPlanDay && (
             <p className="small muted" style={{ margin: "8px 0 0" }}>
               Group plan day is not available yet. Ask an admin to set the group plan start date.
             </p>
@@ -870,6 +913,16 @@ function GroupDetailView({
         <button className="group-action-btn" onClick={() => void copyCode()}>
           <CopyIcon className="q-icon" />
           <span>{copied ? "Copied!" : "Invite"}</span>
+        </button>
+        <button
+          className="group-action-btn"
+          onClick={() => {
+            setShowGroupPlanDetails(true);
+            openCurrentGroupReading();
+          }}
+        >
+          <BookOpenIcon className="q-icon" />
+          <span>Read Plan</span>
         </button>
         {isAdmin && (
           <button className="group-action-btn" onClick={() => setShowSettings(true)}>
