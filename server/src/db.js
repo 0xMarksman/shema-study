@@ -61,6 +61,7 @@ const SCHEMA_STATEMENTS = [
     created_by TEXT NOT NULL REFERENCES users(id),
     plan_start_date TEXT,
     plan_start_day INTEGER DEFAULT 1,
+    plan_template_id TEXT DEFAULT 'default',
     invite_code TEXT UNIQUE NOT NULL,
     created_at INTEGER NOT NULL
   )`,
@@ -148,6 +149,7 @@ const MIGRATIONS = [
   `ALTER TABLE users ADD COLUMN birth_date TEXT`,
   `ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0`,
   `ALTER TABLE groups_data ADD COLUMN icon TEXT`,
+  `ALTER TABLE groups_data ADD COLUMN plan_template_id TEXT DEFAULT 'default'`,
   `ALTER TABLE groups_data ADD COLUMN invite_expires_at INTEGER`,
   `ALTER TABLE groups_data ADD COLUMN invite_max_uses INTEGER`,
   `ALTER TABLE groups_data ADD COLUMN invite_use_count INTEGER DEFAULT 0`,
@@ -156,3 +158,5 @@ const MIGRATIONS = [
 for (const sql of MIGRATIONS) {
   await db.execute(sql).catch(() => {}); // ignore "duplicate column" errors
 }
+
+await db.execute("UPDATE groups_data SET plan_template_id = 'default' WHERE plan_template_id IS NULL").catch(() => {});

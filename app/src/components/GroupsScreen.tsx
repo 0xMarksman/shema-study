@@ -26,6 +26,16 @@ import { DayNumberInput } from "./DayNumberInput";
 import { ReaderOverlay, type ReaderRequest } from "./ReaderOverlay";
 import { TRACK_LABELS, TRACKS } from "../types";
 import { groupProgressScopeId, isGroupProgressOptedIn, setGroupProgressOptIn } from "../lib/groupPlanProgress";
+import { PLAN_TEMPLATES, generatePlan } from "../lib/planTemplates";
+import { generateParashaPlan } from "../lib/parashaPlan";
+
+const GROUP_PLAN_TEMPLATES = PLAN_TEMPLATES.filter((template) => template.id !== "custom");
+
+function groupTemplateMeta(templateId: string) {
+  return GROUP_PLAN_TEMPLATES.find((template) => template.id === templateId)
+    ?? GROUP_PLAN_TEMPLATES.find((template) => template.id === "default")
+    ?? GROUP_PLAN_TEMPLATES[0];
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -233,7 +243,9 @@ export default function GroupsScreen() {
               <div className="groups-row-avatar">{g.icon || g.name.charAt(0).toUpperCase()}</div>
               <div className="groups-row-info">
                 <span className="groups-row-name">{g.name}</span>
-                <span className="groups-row-sub">{g.role === "admin" ? "Admin" : "Member"}</span>
+                <span className="groups-row-sub">
+                  {g.role === "admin" ? "Admin" : "Member"} · {groupTemplateMeta(g.planTemplateId || "default").name}
+                </span>
               </div>
               <ChevronRightIcon className="groups-row-chevron" />
             </button>
@@ -306,6 +318,11 @@ function CreateGroupView({ onBack, onCreate }: { onBack: () => void; onCreate: (
   const [editingIcon, setEditingIcon] = useState(false);
   const [startDate, setStartDate] = useState(settings.startDate ?? "");
   const [startDay, setStartDay] = useState(settings.startDay);
+  const [planTemplateId, setPlanTemplateId] = useState(
+    GROUP_PLAN_TEMPLATES.some((template) => template.id === settings.planTemplateId)
+      ? settings.planTemplateId
+      : "default",
+  );
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -315,7 +332,14 @@ function CreateGroupView({ onBack, onCreate }: { onBack: () => void; onCreate: (
     setBusy(true);
     setErr(null);
     try {
-      const result = await createGroup(name.trim(), desc.trim(), startDate || undefined, startDay, icon);
+      const result = await createGroup(
+        name.trim(),
+        desc.trim(),
+        startDate || undefined,
+        startDay,
+        icon,
+        planTemplateId,
+      );
       // Provision group channel key for the creator
       try {
         const pair = await getOrCreateKeyPair();
@@ -372,8 +396,23 @@ function CreateGroupView({ onBack, onCreate }: { onBack: () => void; onCreate: (
           <input className="groups-input" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
         </label>
         <label className="groups-label">
+          Group reading plan
+          <select className="groups-input" value={planTemplateId} onChange={(e) => setPlanTemplateId(e.target.value)}>
+            {GROUP_PLAN_TEMPLATES.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="groups-label">
           Starting from day #{startDay}
-          <DayNumberInput className="groups-input" max={365} value={startDay} onCommit={setStartDay} />
+          <DayNumberInput
+            className="groups-input"
+            max={Math.max(1, groupTemplateMeta(planTemplateId)?.days || 365)}
+            value={startDay}
+            onCommit={setStartDay}
+          />
         </label>
         {err && <p className="groups-error">{err}</p>}
         <button className="btn-primary" type="submit" disabled={busy}>
@@ -470,7 +509,7 @@ function GroupDetailView({
   onChat: (channelId: string, title: string, isGroup?: boolean, chatGroupId?: string) => void;
   onChanged: () => void;
 }) {
-  const { user, isTrackDoneScoped, toggleProgressScoped } = useAppState();
+  const { user, isTrackDoneScoped, toggleProgressScoped, markProgressThroughDayScoped } = useAppState();
   const [group, setGroup] = useState<(Group & { members: GroupMember[] }) | null>(null);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [groupPlan, setGroupPlan] = useState<PlanDay[]>([]);
@@ -480,6 +519,8 @@ function GroupDetailView({
   const [copied, setCopied] = useState(false);
   const [reader, setReader] = useState<ReaderRequest | null>(null);
   const [groupProgressEnabled, setGroupProgressEnabled] = useState(false);
+  const [showGroupPlanDetails, setShowGroupPlanDetails] = useState(false);
+  const [catchUpNotice, setCatchUpNotice] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -492,11 +533,53 @@ function GroupDetailView({
   useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
-    fetch("/plan.json")
-      .then((res) => res.json())
-      .then((days: PlanDay[]) => setGroupPlan(days))
-      .catch(() => setGroupPlan([]));
-  }, []);
+    if (!group) return;
+    const templateId = group.planTemplateId || "default";
+    let cancelled = false;
+
+    const loadPlan = async () => {
+      if (templateId === "default") {
+        fetch("/plan.json")
+          .then((res) => res.json())
+          .then((days: PlanDay[]) => {
+            if (!cancelled) setGroupPlan(days);
+          })
+          .catch(() => {
+            if (!cancelled) setGroupPlan([]);
+          });
+        return;
+      }
+
+      if (templateId === "parasha") {
+        const anchor = group.planStartDate ? new Date(`${group.planStartDate}T00:00:00`) : new Date();
+        try {
+          const days = await generateParashaPlan(anchor, 371);
+          if (!cancelled) setGroupPlan(days);
+        } catch {
+          if (!cancelled) setGroupPlan([]);
+        }
+        return;
+      }
+
+      const generated = generatePlan(templateId);
+      if (generated) {
+        setGroupPlan(generated);
+        return;
+      }
+
+      fetch("/plan.json")
+        .then((res) => res.json())
+        .then((days: PlanDay[]) => {
+          if (!cancelled) setGroupPlan(days);
+        })
+        .catch(() => {
+          if (!cancelled) setGroupPlan([]);
+        });
+    };
+
+    void loadPlan();
+    return () => { cancelled = true; };
+  }, [group]);
 
   useEffect(() => {
     setGroupProgressEnabled(isGroupProgressOptedIn(groupId));
@@ -565,16 +648,43 @@ function GroupDetailView({
   if (!group) return <div className="groups-screen"><p className="groups-loading">Loading…</p></div>;
 
   const isAdmin = group.role === "admin";
+  const selectedTemplate = groupTemplateMeta(group.planTemplateId || "default");
   // Estimate current group plan day
   const groupDay = group.planStartDate
     ? Math.max(1, Math.floor((Date.now() - new Date(group.planStartDate).getTime()) / 86400000) + group.planStartDay)
     : null;
-  const groupScopeId = groupProgressScopeId(group.id);
-  const groupPlanDay = groupDay && groupPlan.length > 0 ? groupPlan[groupDay - 1] ?? null : null;
+  const effectiveGroupDay = groupDay && groupPlan.length > 0
+    ? Math.min(groupDay, groupPlan.length)
+    : groupDay;
+  const groupScopeId = groupProgressScopeId(group.id, user?.id);
+  const groupPlanDay = effectiveGroupDay && groupPlan.length > 0 ? groupPlan[effectiveGroupDay - 1] ?? null : null;
+
+  const groupTotalReadings = groupPlan.reduce(
+    (sum, day) => sum + TRACKS.filter((track) => Boolean(day[track])).length,
+    0,
+  );
+  const groupCompletedReadings = groupPlan.reduce(
+    (sum, day) => sum + TRACKS.filter((track) => day[track] && isTrackDoneScoped(group.planTemplateId || "default", day.day, track, groupScopeId)).length,
+    0,
+  );
+  const groupCompletedDays = groupPlan.reduce((sum, day) => {
+    const activeTracks = TRACKS.filter((track) => Boolean(day[track]));
+    if (activeTracks.length === 0) return sum;
+    const allDone = activeTracks.every((track) => isTrackDoneScoped(group.planTemplateId || "default", day.day, track, groupScopeId));
+    return sum + (allDone ? 1 : 0);
+  }, 0);
+  const groupProgressPercent = groupTotalReadings > 0 ? Math.round((groupCompletedReadings / groupTotalReadings) * 100) : 0;
 
   const setGroupProgressTracking = (enabled: boolean) => {
     setGroupProgressEnabled(enabled);
     setGroupProgressOptIn(group.id, enabled);
+  };
+
+  const catchMeUpToGroupDay = () => {
+    if (!effectiveGroupDay || effectiveGroupDay < 1) return;
+    markProgressThroughDayScoped(group.planTemplateId || "default", groupPlan, effectiveGroupDay, groupScopeId);
+    setCatchUpNotice(`You're synced to Group Day ${effectiveGroupDay}. This only updated your progress.`);
+    window.setTimeout(() => setCatchUpNotice(null), 2600);
   };
 
   return (
@@ -605,14 +715,75 @@ function GroupDetailView({
           <p className="small muted" style={{ margin: "0 0 8px" }}>
             Group progress is tracked separately. Your personal plan progress is unaffected.
           </p>
+          <div className="small muted" style={{ margin: "0 0 8px" }}>
+            Selected plan: <strong style={{ color: "var(--text-h)" }}>{selectedTemplate.name}</strong>
+          </div>
+          <p className="small muted" style={{ margin: "0 0 8px" }}>
+            Admins manage group timing (plan/day) in Group Settings. Catch-up applies only to your own profile progress.
+          </p>
+
+          {groupProgressEnabled && (
+            <>
+              <div className="progress-bar" style={{ marginBottom: 8 }}>
+                <div style={{ width: `${groupProgressPercent}%` }} />
+              </div>
+              <div className="small muted" style={{ margin: "0 0 8px" }}>
+                {groupCompletedReadings} of {groupTotalReadings} readings complete ({groupProgressPercent}%) · {groupCompletedDays} of {groupPlan.length} days complete
+              </div>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowGroupPlanDetails((value) => !value)}
+                type="button"
+              >
+                {showGroupPlanDetails ? "Hide Full Group Plan" : "View Full Group Plan"}
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={catchMeUpToGroupDay}
+                type="button"
+                disabled={!effectiveGroupDay || groupPlan.length === 0}
+                style={{ marginLeft: 8 }}
+              >
+                Catch Me Up to Group Day
+              </button>
+              {catchUpNotice && (
+                <p className="small" style={{ margin: "8px 0 0", color: "var(--success)" }}>
+                  {catchUpNotice}
+                </p>
+              )}
+            </>
+          )}
+
+          {groupProgressEnabled && showGroupPlanDetails && groupPlan.length > 0 && (
+            <div className="card" style={{ marginTop: 10, padding: "8px 12px", maxHeight: 320, overflowY: "auto" }}>
+              {groupPlan.map((day) => {
+                const activeTracks = TRACKS.filter((track) => Boolean(day[track]));
+                const doneCount = activeTracks.filter((track) =>
+                  isTrackDoneScoped(group.planTemplateId || "default", day.day, track, groupScopeId)).length;
+                const done = activeTracks.length > 0 && doneCount === activeTracks.length;
+                return (
+                  <div key={`group-plan-summary-${day.day}`} className={`reading-row ${done ? "done" : ""}`} style={{ margin: "0", padding: "8px 0" }}>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span className="reading-track">Day {day.day}</span>
+                      <br />
+                      <span className="small muted">{activeTracks.map((track) => TRACK_LABELS[track]).join(" · ")}</span>
+                    </span>
+                    <span className="small muted" style={{ whiteSpace: "nowrap" }}>
+                      {doneCount}/{activeTracks.length}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {groupProgressEnabled && groupPlanDay && (
             <>
               <div className="small muted" style={{ margin: "6px 0 8px" }}>
-                Group Day {groupDay} readings
+                Group Day {effectiveGroupDay} readings
               </div>
               {TRACKS.filter((track) => groupPlanDay[track]).map((track) => {
-                const done = isTrackDoneScoped("default", groupPlanDay.day, track, groupScopeId);
+                const done = isTrackDoneScoped(group.planTemplateId || "default", groupPlanDay.day, track, groupScopeId);
                 return (
                   <div className={`reading-row ${done ? "done" : ""}`} key={`group-${track}`}>
                     <button
@@ -633,7 +804,7 @@ function GroupDetailView({
                     </button>
                     <button
                       className={`check-btn ${done ? "done" : ""}`}
-                      onClick={() => toggleProgressScoped("default", groupPlanDay.day, track, groupScopeId)}
+                      onClick={() => toggleProgressScoped(group.planTemplateId || "default", groupPlanDay.day, track, groupScopeId)}
                       aria-label={`Mark group ${TRACK_LABELS[track]} ${done ? "unread" : "read"}`}
                       aria-pressed={done}
                     >
@@ -675,7 +846,7 @@ function GroupDetailView({
           <span className="group-stat-label">Threads</span>
         </div>
         <div className="group-stat">
-          <span className="group-stat-num">{groupDay ?? "—"}</span>
+          <span className="group-stat-num">{effectiveGroupDay ?? "—"}</span>
           <span className="group-stat-label">Plan Day</span>
         </div>
         <div className="group-stat" style={{ cursor: "pointer" }} onClick={() => void copyCode()}>
@@ -929,6 +1100,7 @@ function GroupSettingsSheet({
   const [desc, setDesc] = useState(group.description ?? "");
   const [startDate, setStartDate] = useState(group.planStartDate ?? "");
   const [startDay, setStartDay] = useState(group.planStartDay);
+  const [planTemplateId, setPlanTemplateId] = useState(group.planTemplateId || "default");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -951,6 +1123,7 @@ function GroupSettingsSheet({
         icon,
         planStartDate: startDate || undefined,
         planStartDay: startDay,
+        planTemplateId,
       });
       onSaved();
     } catch {
@@ -1024,10 +1197,27 @@ function GroupSettingsSheet({
             <textarea className="groups-input groups-textarea" value={desc} onChange={(e) => setDesc(e.target.value)} maxLength={300} rows={2} placeholder="What this group is about…" />
           </label>
           <div style={{ marginTop: 12 }}>
+            <label className="groups-label" style={{ marginBottom: 4 }}>Group reading plan</label>
+            <select className="groups-input" value={planTemplateId} onChange={(e) => setPlanTemplateId(e.target.value)}>
+              {GROUP_PLAN_TEMPLATES.map((template) => (
+                <option key={template.id} value={template.id}>
+                  {template.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div style={{ marginTop: 12 }}>
             <label className="groups-label" style={{ marginBottom: 4 }}>Plan start</label>
             <div style={{ display: "flex", gap: 8 }}>
               <input type="date" className="groups-input" style={{ flex: 1 }} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-              <DayNumberInput className="groups-input" style={{ width: 72 }} max={365} value={startDay} placeholder="Day" onCommit={setStartDay} />
+              <DayNumberInput
+                className="groups-input"
+                style={{ width: 72 }}
+                max={Math.max(1, groupTemplateMeta(planTemplateId)?.days || 365)}
+                value={startDay}
+                placeholder="Day"
+                onCommit={setStartDay}
+              />
             </div>
           </div>
           {err && <p className="groups-error">{err}</p>}

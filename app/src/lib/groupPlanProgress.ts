@@ -29,6 +29,6 @@ export function setGroupProgressOptIn(groupId: string, enabled: boolean) {
   saveOptIns(current);
 }
 
-export function groupProgressScopeId(groupId: string): string {
-  return `group:${groupId}`;
+export function groupProgressScopeId(groupId: string, userId?: string | null): string {
+  return `group:${groupId}:user:${userId ?? "anonymous"}`;
 }

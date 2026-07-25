@@ -173,6 +173,8 @@ export interface Group {
   planStartDate: string | null;
   /** Plan day number that corresponds to planStartDate. */
   planStartDay: number;
+  /** Selected reading plan template for this group. */
+  planTemplateId: string;
   inviteCode: string;
   /** Milliseconds-since-epoch the invite code stops working, or null for never. */
   inviteExpiresAt?: number | null;

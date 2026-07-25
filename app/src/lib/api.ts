@@ -105,10 +105,17 @@ export function searchUsers(q: string) {
 
 // ─── Groups ───────────────────────────────────────────────────────────────────
 
-export function createGroup(name: string, description: string, planStartDate?: string, planStartDay?: number, icon?: string) {
+export function createGroup(
+  name: string,
+  description: string,
+  planStartDate?: string,
+  planStartDay?: number,
+  icon?: string,
+  planTemplateId?: string,
+) {
   return request<{ id: string; name: string; inviteCode: string; channelId: string }>("/api/groups", {
     method: "POST",
-    body: JSON.stringify({ name, description, planStartDate, planStartDay, icon }),
+    body: JSON.stringify({ name, description, planStartDate, planStartDay, icon, planTemplateId }),
   });
 }
 
@@ -120,7 +127,10 @@ export function getGroup(id: string) {
   return request<Group & { members: GroupMember[] }>(`/api/groups/${encodeURIComponent(id)}`);
 }
 
-export function updateGroup(id: string, patch: Partial<Pick<Group, "name" | "description" | "planStartDate" | "planStartDay" | "icon">>) {
+export function updateGroup(
+  id: string,
+  patch: Partial<Pick<Group, "name" | "description" | "planStartDate" | "planStartDay" | "icon" | "planTemplateId">>,
+) {
   return request<{ ok: boolean }>(`/api/groups/${encodeURIComponent(id)}`, {
     method: "PUT",
     body: JSON.stringify(patch),

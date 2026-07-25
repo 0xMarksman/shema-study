@@ -214,15 +214,18 @@ function randomCode(len = 8) {
 
 app.post("/api/groups", requireAuth, async (req, res) => {
   try {
-    const { name, description = "", planStartDate, planStartDay = 1, icon } = req.body ?? {};
+    const { name, description = "", planStartDate, planStartDay = 1, icon, planTemplateId = "default" } = req.body ?? {};
     if (!name || typeof name !== "string") return res.status(400).json({ error: "name required" });
+    if (typeof planTemplateId !== "string" || planTemplateId.length > 40) {
+      return res.status(400).json({ error: "Invalid planTemplateId." });
+    }
     const id = crypto.randomUUID();
     const code = randomCode(8);
     const now = Date.now();
     await db.execute({
-      sql: `INSERT INTO groups_data (id, name, description, created_by, plan_start_date, plan_start_day, invite_code, icon, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [id, name.slice(0, 80), description.slice(0, 300), req.userId, planStartDate ?? null, planStartDay, code, icon ?? null, now],
+      sql: `INSERT INTO groups_data (id, name, description, created_by, plan_start_date, plan_start_day, plan_template_id, invite_code, icon, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [id, name.slice(0, 80), description.slice(0, 300), req.userId, planStartDate ?? null, planStartDay, planTemplateId, code, icon ?? null, now],
     });
     await db.execute({
       sql: "INSERT INTO group_members (group_id, user_id, role, joined_at) VALUES (?, ?, 'admin', ?)",
@@ -244,7 +247,7 @@ app.post("/api/groups", requireAuth, async (req, res) => {
 app.get("/api/groups", requireAuth, async (req, res) => {
   try {
     const { rows } = await db.execute({
-      sql: `SELECT g.id, g.name, g.description, g.plan_start_date, g.plan_start_day,
+      sql: `SELECT g.id, g.name, g.description, g.plan_start_date, g.plan_start_day, g.plan_template_id,
                    g.invite_code, g.icon, gm.role,
                    (SELECT id FROM channels WHERE group_id = g.id LIMIT 1) as channel_id
             FROM groups_data g
@@ -255,6 +258,7 @@ app.get("/api/groups", requireAuth, async (req, res) => {
     res.json({ groups: rows.map((r) => ({
       id: String(r.id), name: String(r.name), description: String(r.description),
       planStartDate: r.plan_start_date ? String(r.plan_start_date) : null,
+      planTemplateId: r.plan_template_id ? String(r.plan_template_id) : "default",
       planStartDay: Number(r.plan_start_day), inviteCode: String(r.invite_code),
       icon: r.icon ? String(r.icon) : null,
       role: String(r.role), channelId: r.channel_id ? String(r.channel_id) : null,
@@ -341,6 +345,7 @@ app.get("/api/groups/:id", requireAuth, async (req, res) => {
     res.json({
       id: String(g.id), name: String(g.name), description: String(g.description),
       planStartDate: g.plan_start_date ? String(g.plan_start_date) : null,
+      planTemplateId: g.plan_template_id ? String(g.plan_template_id) : "default",
       planStartDay: Number(g.plan_start_day), inviteCode: String(g.invite_code),
       icon: g.icon ? String(g.icon) : null,
       inviteExpiresAt: g.invite_expires_at != null ? Number(g.invite_expires_at) : null,
@@ -363,13 +368,16 @@ app.put("/api/groups/:id", requireAuth, async (req, res) => {
       args: [gid, req.userId],
     });
     if (String(role.rows[0]?.role) !== "admin") return res.status(403).json({ error: "Admin only." });
-    const { name, description, planStartDate, planStartDay, icon } = req.body ?? {};
+    const { name, description, planStartDate, planStartDay, icon, planTemplateId } = req.body ?? {};
+    if (planTemplateId != null && (typeof planTemplateId !== "string" || planTemplateId.length > 40)) {
+      return res.status(400).json({ error: "Invalid planTemplateId." });
+    }
     await db.execute({
       sql: `UPDATE groups_data SET name = COALESCE(?, name), description = COALESCE(?, description),
             plan_start_date = COALESCE(?, plan_start_date), plan_start_day = COALESCE(?, plan_start_day),
-            icon = COALESCE(?, icon)
+            icon = COALESCE(?, icon), plan_template_id = COALESCE(?, plan_template_id)
             WHERE id = ?`,
-      args: [name ?? null, description ?? null, planStartDate ?? null, planStartDay ?? null, icon ?? null, gid],
+      args: [name ?? null, description ?? null, planStartDate ?? null, planStartDay ?? null, icon ?? null, planTemplateId ?? null, gid],
     });
     // Notify members of plan update
     const { rows: members } = await db.execute({

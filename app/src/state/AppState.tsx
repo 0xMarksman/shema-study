@@ -22,6 +22,7 @@ import { PERSONAL_PROGRESS_SCOPE, progressKey, scopedProgressKey, dateForDay } f
 import { generateParashaPlan } from "../lib/parashaPlan";
 import {
   DEFAULT_SETTINGS,
+  TRACKS,
   type PlanDay,
   type PlanState,
   type Settings,
@@ -137,6 +138,7 @@ interface AppStateValue {
   updateSettings: (patch: Partial<Settings>) => void;
   toggleProgress: (day: number, track: Track) => void;
   toggleProgressScoped: (templateId: string, day: number, track: Track, scopeId: string) => void;
+  markProgressThroughDayScoped: (templateId: string, plan: PlanDay[], throughDay: number, scopeId: string) => void;
   isTrackDoneScoped: (templateId: string, day: number, track: Track, scopeId: string) => boolean;
   /** Update a study-question answer. key = `"day:questionIndex"`. */
   updateAnswer: (key: string, html: string) => void;
@@ -342,6 +344,25 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [mutate],
   );
 
+  const markProgressThroughDayScoped = useCallback(
+    (templateId: string, plan: PlanDay[], throughDay: number, scopeId: string) => {
+      if (throughDay < 1 || plan.length === 0) return;
+      const clampedThrough = Math.min(throughDay, plan.length);
+      mutate((prev) => {
+        const set = new Set(prev.progress);
+        for (const day of plan) {
+          if (day.day > clampedThrough) break;
+          for (const track of TRACKS) {
+            if (!day[track]) continue;
+            set.add(scopedProgressKey(templateId, day.day, track, scopeId));
+          }
+        }
+        return { ...prev, progress: [...set] };
+      });
+    },
+    [mutate],
+  );
+
   const isTrackDoneScoped = useCallback(
     (templateId: string, day: number, track: Track, scopeId: string) => {
       return progress.has(scopedProgressKey(templateId, day, track, scopeId));
@@ -481,6 +502,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     updateSettings,
     toggleProgress,
     toggleProgressScoped,
+    markProgressThroughDayScoped,
     isTrackDoneScoped,
     updateAnswer,
     addCustomQuestion,
