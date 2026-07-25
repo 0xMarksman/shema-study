@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { parseReference } from "../lib/passage";
 import { getHebrewDateInfo } from "../lib/hebrewCalendar";
 import { getCalendarEventsForDate, getCalendarEventsForYear, getUpcomingCalendarEvents, type CalendarEventEntry } from "../lib/eventGuides";
@@ -26,6 +26,7 @@ export function EventsScreen() {
   const [checklists, setChecklists] = useState<SavedChecklist>(loadSavedChecklist);
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
+  const guideRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     localStorage.setItem(EVENT_PROGRESS_KEY, JSON.stringify(checklists));
@@ -41,6 +42,14 @@ export function EventsScreen() {
   useEffect(() => {
     if (!selected && currentSelection) setSelected(currentSelection);
   }, [selected, currentSelection]);
+
+  useEffect(() => {
+    if (!selected) return;
+    const frame = window.requestAnimationFrame(() => {
+      guideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [selected?.key]);
 
   useEffect(() => {
     if (yearEvents.length === 0) {
@@ -255,7 +264,7 @@ export function EventsScreen() {
 
       <div className="section-label">Guided Experience</div>
       {currentSelection ? (
-        <div className="card">
+        <div className="card" ref={guideRef} tabIndex={-1}>
           <div className="day-theme">{currentSelection.guide.title}</div>
           <p className="small muted">{currentSelection.guide.meaning}</p>
 
