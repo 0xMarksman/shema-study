@@ -96,19 +96,19 @@ export function BibleAudioControls({
     if (autoPlaySignal === undefined) return;
     if (!canSpeak || status === "speaking") return;
     handlePlay();
-  }, [autoPlaySignal]);
+  }, [autoPlaySignal, canSpeak, status]);
 
   if (collapsed) {
+    const statusLabel = status === "speaking" ? "Playing" : status === "paused" ? "Paused" : "Ready";
     return (
       <button
         className="audio-mini-chip"
         onClick={() => setCollapsed(false)}
         aria-label="Show audio controls"
+        title={`Audio Bible: ${statusLabel}`}
       >
-        <span>Audio Bible</span>
-        <span className="audio-mini-chip__status">
-          {status === "speaking" ? "Playing" : status === "paused" ? "Paused" : "Ready"}
-        </span>
+        <span className="audio-mini-chip__label">Audio</span>
+        <span className={`audio-mini-chip__status audio-mini-chip__status--${status}`}>{statusLabel}</span>
       </button>
     );
   }

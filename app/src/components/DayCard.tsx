@@ -52,6 +52,7 @@ export function DayCard({ day }: { day: PlanDay }) {
     : null;
   const dayComplete = isDayComplete(progress, settings.planTemplateId, day.day);
   const customQKey = `${settings.planTemplateId}::${day.day}`;
+  const dayTracks = TRACKS.filter((track) => day[track]);
 
   const getNextUnreadTrack = (fromTrack: Track): Track | null => {
     const startIdx = TRACKS.indexOf(fromTrack);
@@ -68,7 +69,17 @@ export function DayCard({ day }: { day: PlanDay }) {
     reference: day[track],
     day: day.day,
     track,
+    dayReadingIndex: dayTracks.indexOf(track) + 1,
+    dayReadingCount: dayTracks.length,
   });
+
+  const getAdjacentTrack = (fromTrack: Track, delta: number): Track | null => {
+    const index = dayTracks.indexOf(fromTrack);
+    if (index < 0) return null;
+    const nextIndex = index + delta;
+    if (nextIndex < 0 || nextIndex >= dayTracks.length) return null;
+    return dayTracks[nextIndex];
+  };
 
   return (
     <>
@@ -258,6 +269,18 @@ export function DayCard({ day }: { day: PlanDay }) {
           onClose={() => setReader(null)}
           onAdvanceToNextReading={(currentTrack) => {
             const nextTrack = getNextUnreadTrack(currentTrack);
+            if (!nextTrack) return false;
+            setReader(buildTrackRequest(nextTrack));
+            return true;
+          }}
+          onGoToPreviousReading={(currentTrack) => {
+            const previousTrack = getAdjacentTrack(currentTrack, -1);
+            if (!previousTrack) return false;
+            setReader(buildTrackRequest(previousTrack));
+            return true;
+          }}
+          onGoToNextReading={(currentTrack) => {
+            const nextTrack = getAdjacentTrack(currentTrack, 1);
             if (!nextTrack) return false;
             setReader(buildTrackRequest(nextTrack));
             return true;

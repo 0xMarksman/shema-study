@@ -15,6 +15,8 @@ export interface ReaderRequest {
   /** When set, the reader offers "Mark as read" for this plan day/track. */
   day?: number;
   track?: Track;
+  dayReadingIndex?: number;
+  dayReadingCount?: number;
   /** Overrides the generic "Close" label — e.g. "Back to message" when opened from chat. */
   returnLabel?: string;
 }
@@ -23,10 +25,14 @@ export function ReaderOverlay({
   request,
   onClose,
   onAdvanceToNextReading,
+  onGoToPreviousReading,
+  onGoToNextReading,
 }: {
   request: ReaderRequest;
   onClose: () => void;
   onAdvanceToNextReading?: (track: Track) => boolean;
+  onGoToPreviousReading?: (track: Track) => boolean;
+  onGoToNextReading?: (track: Track) => boolean;
 }) {
   const { settings, progress, toggleProgress, updateSettings } = useAppState();
   const chapters = parseReference(request.reference);
@@ -77,6 +83,8 @@ export function ReaderOverlay({
 
   const markable = request.day !== undefined && request.track !== undefined;
   const done = markable && progress.has(progressKey(settings.planTemplateId, request.day!, request.track!));
+  const readingIndex = request.dayReadingIndex ?? null;
+  const readingCount = request.dayReadingCount ?? null;
 
   const handleVerseTap = (verse: number) => {
     setSelectedVerse(verse);
@@ -109,6 +117,18 @@ export function ReaderOverlay({
 
     setContinuousAudio(false);
     onClose();
+  };
+
+  const goToPreviousReading = () => {
+    if (!request.track || !onGoToPreviousReading) return;
+    const moved = onGoToPreviousReading(request.track);
+    if (moved) setAutoPlaySignal(Date.now());
+  };
+
+  const goToNextReading = () => {
+    if (!request.track || !onGoToNextReading) return;
+    const moved = onGoToNextReading(request.track);
+    if (moved) setAutoPlaySignal(Date.now());
   };
 
   return (
@@ -199,7 +219,32 @@ export function ReaderOverlay({
         )}
       </div>
 
-      <footer className="reader-footer">
+      <footer className="reader-footer reader-footer--stack">
+        {markable && request.track && (onGoToPreviousReading || onGoToNextReading) && (
+          <div className="reader-footer-nav">
+            <button
+              className="btn btn-secondary"
+              onClick={goToPreviousReading}
+              disabled={!onGoToPreviousReading || readingIndex === 1}
+              aria-label="Previous reading"
+            >
+              <ChevronIcon direction="left" className="q-icon" />
+            </button>
+            <span className="small muted reader-footer-nav__label">
+              {readingIndex && readingCount
+                ? `Day ${request.day} · ${readingIndex} of ${readingCount}`
+                : `Day ${request.day}`}
+            </span>
+            <button
+              className="btn btn-secondary"
+              onClick={goToNextReading}
+              disabled={!onGoToNextReading || (readingIndex !== null && readingCount !== null && readingIndex >= readingCount)}
+              aria-label="Next reading"
+            >
+              <ChevronIcon direction="right" className="q-icon" />
+            </button>
+          </div>
+        )}
         {markable ? (
           <button
             className={done ? "btn btn-secondary btn-block" : "btn btn-block"}
