@@ -595,6 +595,57 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   margin-left: -10px;
 }
 
+.event-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.event-step {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+.event-step.done {
+  background: color-mix(in srgb, var(--success) 10%, var(--card-bg));
+}
+
+.event-step__check {
+  display: flex;
+  align-items: flex-start;
+  color: var(--border);
+  flex-shrink: 0;
+}
+
+.event-step__check.done {
+  color: var(--success);
+}
+
+.event-step__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.event-step__title {
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.event-step__text {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
 /* Divider between app settings and bible reader settings */
 .setting-section-divider {
   font-size: 0.72rem;

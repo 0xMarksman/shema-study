@@ -329,6 +329,18 @@ export function BookOpenIcon({ className }: IconProps) {
   );
 }
 
+export function CalendarIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M8 3v4M16 3v4M3 10h18" />
+      <rect x="6" y="12" width="3" height="3" rx="0.6" fill="currentColor" stroke="none" />
+      <rect x="11" y="12" width="3" height="3" rx="0.6" fill="currentColor" stroke="none" />
+      <rect x="16" y="12" width="3" height="3" rx="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function UserCircleIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden>

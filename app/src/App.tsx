@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { AuthScreen } from "./components/AuthScreen";
 import { BibleScreen } from "./components/BibleScreen";
 import GroupsScreen from "./components/GroupsScreen";
-import { BookIcon, GearIcon, ListIcon, SunIcon, UsersIcon } from "./components/icons";
+import { BookIcon, CalendarIcon, GearIcon, ListIcon, SunIcon, UsersIcon } from "./components/icons";
+import { EventsScreen } from "./components/EventsScreen";
 import { PlanScreen } from "./components/PlanScreen";
 import { SettingsScreen } from "./components/SettingsScreen";
 import { TodayScreen } from "./components/TodayScreen";
@@ -11,7 +12,7 @@ import { getOrCreateKeyPair, exportPublicKey } from "./lib/encryption";
 import { realtime, buildWsUrl } from "./lib/realtime";
 import { useAppState } from "./state/AppState";
 
-type Tab = "today" | "plan" | "bible" | "community" | "settings";
+type Tab = "today" | "events" | "plan" | "bible" | "community" | "settings";
 
 export default function App() {
   const { settings, user, skippedAuth, skipAuth } = useAppState();
@@ -85,6 +86,7 @@ export default function App() {
   return (
     <div className="app-shell">
       {tab === "today" && <TodayScreen />}
+      {tab === "events" && <EventsScreen />}
       {tab === "plan" && <PlanScreen />}
       {tab === "bible" && <BibleScreen />}
       {tab === "community" && <GroupsScreen />}
@@ -94,6 +96,10 @@ export default function App() {
         <button className={tab === "today" ? "active" : ""} onClick={() => setTab("today")}>
           <SunIcon />
           Today
+        </button>
+        <button className={tab === "events" ? "active" : ""} onClick={() => setTab("events") }>
+          <CalendarIcon />
+          Events
         </button>
         <button className={tab === "plan" ? "active" : ""} onClick={() => setTab("plan")}>
           <ListIcon />
