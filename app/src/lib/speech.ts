@@ -14,6 +14,7 @@ export interface SpeechBlock {
 
 export interface SpeakOptions extends BibleSpeechSettings {
   onVerseStart?: (verse: number | null) => void;
+  onComplete?: () => void;
 }
 
 export type SpeechStatus = "idle" | "speaking" | "paused";
@@ -119,7 +120,10 @@ export function useBibleSpeech() {
       };
       utterance.onend = () => {
         if (runId.current !== localRun) return;
-        if (index === blocks.length - 1) setStatus("idle");
+        if (index === blocks.length - 1) {
+          setStatus("idle");
+          options.onComplete?.();
+        }
       };
       utterance.onerror = () => {
         if (runId.current === localRun) {

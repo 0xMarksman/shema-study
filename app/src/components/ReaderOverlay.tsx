@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { chapterTitle, parseReference } from "../lib/passage";
 import { progressKey } from "../lib/schedule";
 import { useChapterVerses } from "../lib/useChapterVerses";
+import { getChapterHighlights, toggleChapterHighlight } from "../lib/verseHighlights";
 import { useAppState } from "../state/AppState";
 import { TRANSLATIONS, type Track, type Translation } from "../types";
 import { AppearanceSheet } from "./AppearancePanel";
@@ -21,15 +22,22 @@ export interface ReaderRequest {
 export function ReaderOverlay({
   request,
   onClose,
+  onAdvanceToNextReading,
 }: {
   request: ReaderRequest;
   onClose: () => void;
+  onAdvanceToNextReading?: (track: Track) => boolean;
 }) {
   const { settings, progress, toggleProgress, updateSettings } = useAppState();
   const chapters = parseReference(request.reference);
   const [index, setIndex] = useState(0);
   const [showAppearance, setShowAppearance] = useState(false);
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
+  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+  const [jumpToVerse, setJumpToVerse] = useState<number | null>(null);
+  const [autoPlaySignal, setAutoPlaySignal] = useState<number | undefined>(undefined);
+  const [continuousAudio, setContinuousAudio] = useState(false);
+  const [highlightedVerses, setHighlightedVerses] = useState<Set<number>>(new Set());
   const bodyRef = useRef<HTMLDivElement>(null);
 
   const current = chapters[index] ?? null;
@@ -43,7 +51,21 @@ export function ReaderOverlay({
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: 0 });
     setActiveVerse(null);
+    setSelectedVerse(null);
+    setJumpToVerse(null);
+    if (current) {
+      setHighlightedVerses(getChapterHighlights(current.book.id, current.chapter));
+    } else {
+      setHighlightedVerses(new Set());
+    }
   }, [index]);
+
+  useEffect(() => {
+    setIndex(0);
+    if (continuousAudio) {
+      setAutoPlaySignal(Date.now());
+    }
+  }, [request.reference]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -55,6 +77,39 @@ export function ReaderOverlay({
 
   const markable = request.day !== undefined && request.track !== undefined;
   const done = markable && progress.has(progressKey(settings.planTemplateId, request.day!, request.track!));
+
+  const handleVerseTap = (verse: number) => {
+    setSelectedVerse(verse);
+    setJumpToVerse(verse);
+  };
+
+  const handleVerseDoubleTap = (verse: number) => {
+    if (!current) return;
+    setSelectedVerse(verse);
+    setHighlightedVerses(toggleChapterHighlight(current.book.id, current.chapter, verse));
+  };
+
+  const handleAudioCompleted = () => {
+    if (!continuousAudio) return;
+
+    if (index < chapters.length - 1) {
+      setIndex((value) => value + 1);
+      setAutoPlaySignal(Date.now());
+      return;
+    }
+
+    if (markable && !done) {
+      toggleProgress(request.day!, request.track!);
+    }
+
+    if (markable && request.track && onAdvanceToNextReading?.(request.track)) {
+      setAutoPlaySignal(Date.now());
+      return;
+    }
+
+    setContinuousAudio(false);
+    onClose();
+  };
 
   return (
     <div className="reader-overlay" role="dialog" aria-modal="true" aria-label={request.reference}>
@@ -96,6 +151,14 @@ export function ReaderOverlay({
               verses={currentVerses.verses}
               loading={currentVerses.loading}
               onVerseChange={setActiveVerse}
+              jumpToVerse={jumpToVerse}
+              onJumpHandled={() => setJumpToVerse(null)}
+              onPlaybackComplete={handleAudioCompleted}
+              onPlaybackControl={(action) => {
+                if (action === "play") setContinuousAudio(true);
+                if (action === "pause" || action === "stop") setContinuousAudio(false);
+              }}
+              autoPlaySignal={autoPlaySignal}
             />
             <ChapterView
               bookId={current.book.id}
@@ -104,6 +167,10 @@ export function ReaderOverlay({
               error={currentVerses.error}
               loading={currentVerses.loading}
               activeVerse={activeVerse}
+              selectedVerse={selectedVerse}
+              highlightedVerses={highlightedVerses}
+              onVerseTap={handleVerseTap}
+              onVerseDoubleTap={handleVerseDoubleTap}
             />
             {chapters.length > 1 && (
               <div className="chapter-nav">

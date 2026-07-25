@@ -8,11 +8,21 @@ export function BibleAudioControls({
   verses,
   loading,
   onVerseChange,
+  jumpToVerse,
+  onJumpHandled,
+  onPlaybackComplete,
+  onPlaybackControl,
+  autoPlaySignal,
 }: {
   reference: string;
   verses: BibleVerse[] | null;
   loading: boolean;
   onVerseChange?: (verse: number | null) => void;
+  jumpToVerse?: number | null;
+  onJumpHandled?: () => void;
+  onPlaybackComplete?: () => void;
+  onPlaybackControl?: (action: "play" | "pause" | "stop") => void;
+  autoPlaySignal?: number;
 }) {
   const { settings, updateSettings } = useAppState();
   const [collapsed, setCollapsed] = useState(false);
@@ -33,10 +43,43 @@ export function BibleAudioControls({
     onVerseChange?.(null);
   }, [reference, verses, stop]);
 
+  useEffect(() => {
+    if (jumpToVerse === null || jumpToVerse === undefined) return;
+    if (status !== "speaking" && status !== "paused") {
+      onJumpHandled?.();
+      return;
+    }
+    const startIndex = blocks.findIndex((block) => block.verse === jumpToVerse);
+    if (startIndex < 0) {
+      onJumpHandled?.();
+      return;
+    }
+    speak(blocks.slice(startIndex), {
+      voiceURI: settings.bibleVoiceURI,
+      rate: settings.bibleSpeechRate,
+      pitch: settings.bibleSpeechPitch,
+      onVerseStart: onVerseChange,
+      onComplete: onPlaybackComplete,
+    });
+    onJumpHandled?.();
+  }, [
+    blocks,
+    jumpToVerse,
+    onJumpHandled,
+    onPlaybackComplete,
+    onVerseChange,
+    settings.bibleSpeechPitch,
+    settings.bibleSpeechRate,
+    settings.bibleVoiceURI,
+    speak,
+    status,
+  ]);
+
   const canSpeak = supported && !loading && blocks.length > 0;
   const handlePlay = () => {
     if (status === "paused") {
       resume();
+      onPlaybackControl?.("play");
       return;
     }
     speak(blocks, {
@@ -44,8 +87,16 @@ export function BibleAudioControls({
       rate: settings.bibleSpeechRate,
       pitch: settings.bibleSpeechPitch,
       onVerseStart: onVerseChange,
+      onComplete: onPlaybackComplete,
     });
+    onPlaybackControl?.("play");
   };
+
+  useEffect(() => {
+    if (autoPlaySignal === undefined) return;
+    if (!canSpeak || status === "speaking") return;
+    handlePlay();
+  }, [autoPlaySignal]);
 
   if (collapsed) {
     return (
@@ -94,10 +145,24 @@ export function BibleAudioControls({
           <button className="btn btn-secondary" onClick={handlePlay} disabled={!canSpeak || status === "speaking"}>
             {status === "paused" ? "Resume" : "Play"}
           </button>
-          <button className="btn btn-secondary" onClick={pause} disabled={status !== "speaking"}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => {
+              pause();
+              onPlaybackControl?.("pause");
+            }}
+            disabled={status !== "speaking"}
+          >
             Pause
           </button>
-          <button className="btn btn-secondary" onClick={stop} disabled={status === "idle"}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => {
+              stop();
+              onPlaybackControl?.("stop");
+            }}
+            disabled={status === "idle"}
+          >
             Stop
           </button>
         </div>

@@ -11,6 +11,10 @@ export function ChapterView({
   error,
   loading,
   activeVerse,
+  selectedVerse,
+  highlightedVerses,
+  onVerseTap,
+  onVerseDoubleTap,
 }: {
   bookId: number;
   chapter: number;
@@ -18,6 +22,10 @@ export function ChapterView({
   error: string | null;
   loading: boolean;
   activeVerse?: number | null;
+  selectedVerse?: number | null;
+  highlightedVerses?: Set<number>;
+  onVerseTap?: (verse: number) => void;
+  onVerseDoubleTap?: (verse: number) => void;
 }) {
   const { settings } = useAppState();
   const [redReady, setRedReady] = useState(false);
@@ -34,8 +42,22 @@ export function ChapterView({
       {loading && !error && <div className="spinner" />}
       {verses?.map((v) => (
         <p
-          className={`verse ${red.has(v.verse) ? "red-letter" : ""} ${activeVerse === v.verse ? "verse--active" : ""}`}
+          className={`verse verse--interactive ${red.has(v.verse) ? "red-letter" : ""} ${activeVerse === v.verse ? "verse--active" : ""} ${selectedVerse === v.verse ? "verse--selected" : ""} ${highlightedVerses?.has(v.verse) ? "verse--saved" : ""}`}
           key={v.verse}
+          onClick={() => onVerseTap?.(v.verse)}
+          onDoubleClick={() => onVerseDoubleTap?.(v.verse)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onVerseTap?.(v.verse);
+            }
+            if ((event.key === "H" || event.key === "h") && onVerseDoubleTap) {
+              event.preventDefault();
+              onVerseDoubleTap(v.verse);
+            }
+          }}
         >
           <span className="verse-num">{v.verse}</span>
           {v.text}

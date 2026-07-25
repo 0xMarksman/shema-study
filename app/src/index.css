@@ -703,6 +703,12 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 .reader-body h3 { font-size: 1.3rem; margin: 18px 0 10px; }
 
 .verse { margin: 0 0 0.4em; }
+.verse--interactive {
+  cursor: pointer;
+  user-select: none;
+  border-radius: 10px;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
 .verse-num {
   font-size: 0.7em;
   font-weight: 700;
@@ -837,6 +843,18 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   border-left: 3px solid var(--accent);
   border-radius: 10px;
+  padding-left: 10px;
+  margin-left: -10px;
+}
+
+.verse--selected {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.verse--saved {
+  background: color-mix(in srgb, #f5b50a 14%, transparent);
+  border-left: 3px solid #d29a08;
   padding-left: 10px;
   margin-left: -10px;
 }

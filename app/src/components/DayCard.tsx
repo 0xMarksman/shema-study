@@ -53,6 +53,23 @@ export function DayCard({ day }: { day: PlanDay }) {
   const dayComplete = isDayComplete(progress, settings.planTemplateId, day.day);
   const customQKey = `${settings.planTemplateId}::${day.day}`;
 
+  const getNextUnreadTrack = (fromTrack: Track): Track | null => {
+    const startIdx = TRACKS.indexOf(fromTrack);
+    for (let idx = startIdx + 1; idx < TRACKS.length; idx++) {
+      const candidate = TRACKS[idx];
+      if (!day[candidate]) continue;
+      const isDone = progress.has(progressKey(settings.planTemplateId, day.day, candidate));
+      if (!isDone) return candidate;
+    }
+    return null;
+  };
+
+  const buildTrackRequest = (track: Track): ReaderRequest => ({
+    reference: day[track],
+    day: day.day,
+    track,
+  });
+
   return (
     <>
       <div className="card">
@@ -101,9 +118,7 @@ export function DayCard({ day }: { day: PlanDay }) {
             <div className={`reading-row ${done ? "done" : ""}`} key={track}>
               <button
                 className="reading-main"
-                onClick={() =>
-                  setReader({ reference: day[track], day: day.day, track })
-                }
+                onClick={() => setReader(buildTrackRequest(track))}
                 title={`Read ${day[track]}`}
               >
                 <Icon />
@@ -237,7 +252,18 @@ export function DayCard({ day }: { day: PlanDay }) {
         </div>
       )}
 
-      {reader && <ReaderOverlay request={reader} onClose={() => setReader(null)} />}
+      {reader && (
+        <ReaderOverlay
+          request={reader}
+          onClose={() => setReader(null)}
+          onAdvanceToNextReading={(currentTrack) => {
+            const nextTrack = getNextUnreadTrack(currentTrack);
+            if (!nextTrack) return false;
+            setReader(buildTrackRequest(nextTrack));
+            return true;
+          }}
+        />
+      )}
     </>
   );
 }

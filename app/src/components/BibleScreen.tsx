@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { BIBLE_BOOKS } from "../lib/bibleBooks";
 import { useChapterVerses } from "../lib/useChapterVerses";
+import { getChapterHighlights, toggleChapterHighlight } from "../lib/verseHighlights";
 import { useAppState } from "../state/AppState";
 import { TRANSLATIONS, type Translation } from "../types";
 import { AppearanceSheet } from "./AppearancePanel";
@@ -13,6 +14,9 @@ export function BibleScreen() {
   const { settings, updateSettings } = useAppState();
   const [showAppearance, setShowAppearance] = useState(false);
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
+  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+  const [jumpToVerse, setJumpToVerse] = useState<number | null>(null);
+  const [highlightedVerses, setHighlightedVerses] = useState<Set<number>>(new Set());
   const topRef = useRef<HTMLDivElement>(null);
 
   const book = BIBLE_BOOKS.find((b) => b.id === settings.lastBookId) ?? BIBLE_BOOKS[0];
@@ -26,7 +30,20 @@ export function BibleScreen() {
   useEffect(() => {
     topRef.current?.scrollIntoView();
     setActiveVerse(null);
+    setSelectedVerse(null);
+    setJumpToVerse(null);
+    setHighlightedVerses(getChapterHighlights(book.id, chapter));
   }, [settings.lastBookId, settings.lastChapter]);
+
+  const handleVerseTap = (verse: number) => {
+    setSelectedVerse(verse);
+    setJumpToVerse(verse);
+  };
+
+  const handleVerseDoubleTap = (verse: number) => {
+    setSelectedVerse(verse);
+    setHighlightedVerses(toggleChapterHighlight(book.id, chapter, verse));
+  };
 
   const prev = () => {
     if (chapter > 1) {
@@ -104,6 +121,8 @@ export function BibleScreen() {
         verses={verses}
         loading={loading}
         onVerseChange={setActiveVerse}
+        jumpToVerse={jumpToVerse}
+        onJumpHandled={() => setJumpToVerse(null)}
       />
 
       <div className="reader-body">
@@ -114,6 +133,10 @@ export function BibleScreen() {
           error={error}
           loading={loading}
           activeVerse={activeVerse}
+          selectedVerse={selectedVerse}
+          highlightedVerses={highlightedVerses}
+          onVerseTap={handleVerseTap}
+          onVerseDoubleTap={handleVerseDoubleTap}
         />
       </div>
 
