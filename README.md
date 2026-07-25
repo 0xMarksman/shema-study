@@ -42,7 +42,7 @@ npm run dev
 # Backend (separate terminal)
 cd server
 npm install
-cp .env.example .env                 # set JWT_SECRET, TURSO_URL, TURSO_AUTH_TOKEN
+cp .env.example .env                 # set JWT_SECRET, TURSO_DATABASE_URL, TURSO_AUTH_TOKEN
 npm run dev
 ```
 
@@ -61,7 +61,7 @@ npm run dev
 cd server
 fly auth login
 fly launch --name shema-study-server
-fly secrets set JWT_SECRET=... TURSO_URL=... TURSO_AUTH_TOKEN=...
+fly secrets set JWT_SECRET=... TURSO_DATABASE_URL=... TURSO_AUTH_TOKEN=... VAPID_PUBLIC_KEY=... VAPID_PRIVATE_KEY=... VAPID_SUBJECT=mailto:admin@example.com
 fly deploy
 ```
 

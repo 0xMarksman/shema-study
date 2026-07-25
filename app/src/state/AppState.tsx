@@ -10,12 +10,14 @@ import {
 } from "react";
 import {
   clearSession,
+  fetchPushPublicKey,
   fetchServerState,
   getStoredUser,
   getToken,
   login as apiLogin,
   pushServerState,
   register as apiRegister,
+  savePushSubscription,
   storeSession,
 } from "../lib/api";
 import { PERSONAL_PROGRESS_SCOPE, progressKey, scopedProgressKey, dateForDay } from "../lib/schedule";
@@ -34,6 +36,71 @@ import { generatePlan, generateCustomPlan } from "../lib/planTemplates";
 const LEGACY_STATE_KEY = "bible-planner:state";
 const STATE_KEY_PREFIX = "bible-planner:state:";
 const SKIP_AUTH_KEY = "bible-planner:skip-auth";
+const REMINDER_LAST_FIRED_KEY = "bible-planner:reminder:last-fired-at";
+
+function parseReminderTime(reminderTime: string | null | undefined): { hour: number; minute: number } {
+  const [rawHour, rawMinute] = (reminderTime ?? "08:00").split(":");
+  const hour = Number.isFinite(Number(rawHour)) ? Number(rawHour) : 8;
+  const minute = Number.isFinite(Number(rawMinute)) ? Number(rawMinute) : 0;
+  return {
+    hour: Math.min(23, Math.max(0, hour)),
+    minute: Math.min(59, Math.max(0, minute)),
+  };
+}
+
+function isReminderDay(date: Date, frequency: "daily" | "weekdays" | "weekends"): boolean {
+  if (frequency === "daily") return true;
+  const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
+  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+  return frequency === "weekdays" ? isWeekday : !isWeekday;
+}
+
+function getNextReminderDate(from: Date, reminderTime: string, frequency: "daily" | "weekdays" | "weekends"): Date {
+  const { hour, minute } = parseReminderTime(reminderTime);
+  const next = new Date(from);
+  next.setHours(hour, minute, 0, 0);
+  if (next <= from) next.setDate(next.getDate() + 1);
+  while (!isReminderDay(next, frequency)) next.setDate(next.getDate() + 1);
+  return next;
+}
+
+function getLatestScheduledReminderDate(now: Date, reminderTime: string, frequency: "daily" | "weekdays" | "weekends"): Date {
+  const { hour, minute } = parseReminderTime(reminderTime);
+  const slot = new Date(now);
+  slot.setHours(hour, minute, 0, 0);
+  if (slot > now) slot.setDate(slot.getDate() - 1);
+  while (!isReminderDay(slot, frequency)) slot.setDate(slot.getDate() - 1);
+  return slot;
+}
+
+function readLastReminderFiredAt(): number {
+  const raw = localStorage.getItem(REMINDER_LAST_FIRED_KEY);
+  const parsed = raw ? Number(raw) : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function writeLastReminderFiredAt(timestamp: number): void {
+  localStorage.setItem(REMINDER_LAST_FIRED_KEY, String(timestamp));
+}
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i += 1) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+function arrayBufferToBase64Url(input: ArrayBuffer | null): string | null {
+  if (!input) return null;
+  let binary = "";
+  const bytes = new Uint8Array(input);
+  for (let i = 0; i < bytes.byteLength; i += 1) binary += String.fromCharCode(bytes[i]);
+  return window.btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
 
 function stateKeyForUser(userId: string | null): string {
   return `${STATE_KEY_PREFIX}${userId ? `user:${userId}` : "guest"}`;
@@ -167,6 +234,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
   const pushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reminderTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [pushDeliveryReady, setPushDeliveryReady] = useState(false);
 
   useEffect(() => {
     const nextKey = stateKeyForUser(user?.id ?? null);
@@ -213,41 +281,135 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(currentStateKeyRef.current, JSON.stringify(state));
   }, [state]);
 
+  // Register Web Push subscription for signed-in users so reminders can fire while app is closed.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function setupPushSubscription() {
+      if (!user) {
+        setPushDeliveryReady(false);
+        return;
+      }
+      if (!state.settings.reminderEnabled) {
+        setPushDeliveryReady(false);
+        return;
+      }
+      if (!("Notification" in window) || Notification.permission !== "granted") {
+        setPushDeliveryReady(false);
+        return;
+      }
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setPushDeliveryReady(false);
+        return;
+      }
+
+      try {
+        const { publicKey } = await fetchPushPublicKey();
+        if (!publicKey) {
+          if (!cancelled) setPushDeliveryReady(false);
+          return;
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+        let sub = await registration.pushManager.getSubscription();
+        if (!sub) {
+          sub = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
+          });
+        }
+
+        const serialized = sub.toJSON();
+        const endpoint = serialized.endpoint ?? sub.endpoint;
+        const p256dh = serialized.keys?.p256dh ?? arrayBufferToBase64Url(sub.getKey("p256dh"));
+        const auth = serialized.keys?.auth ?? arrayBufferToBase64Url(sub.getKey("auth"));
+        if (!endpoint || !p256dh || !auth) throw new Error("Incomplete Push subscription keys.");
+
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+        await savePushSubscription({ endpoint, keys: { p256dh, auth } }, timezone);
+        if (!cancelled) setPushDeliveryReady(true);
+      } catch {
+        if (!cancelled) setPushDeliveryReady(false);
+      }
+    }
+
+    void setupPushSubscription();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, state.settings.reminderEnabled]);
+
   // Schedule/cancel browser notification reminders.
   useEffect(() => {
     if (reminderTimer.current) { clearTimeout(reminderTimer.current); reminderTimer.current = null; }
     const { reminderEnabled, reminderTime, reminderFrequency } = state.settings;
-    if (!reminderEnabled || !("Notification" in window) || Notification.permission !== "granted") return;
+    // When Web Push is active for a signed-in account, avoid duplicate local timer notifications.
+    if (!reminderEnabled || !("Notification" in window) || Notification.permission !== "granted" || (user && pushDeliveryReady)) return;
+    let cancelled = false;
+
+    async function showReminder(reason: "scheduled" | "catchup") {
+      const body =
+        reason === "catchup"
+          ? "Your reminder was missed while the app was inactive. Open your reading for today."
+          : "Your daily Bible reading is waiting for you.";
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          await registration.showNotification("Time to read! 📖", {
+            body,
+            icon: "/icons/icon-192.png",
+            badge: "/icons/icon-192.png",
+            tag: "daily-reading-reminder",
+            data: { url: "/" },
+          });
+        } else {
+          new Notification("Time to read! 📖", {
+            body,
+            icon: "/icons/icon-192.png",
+          });
+        }
+        writeLastReminderFiredAt(Date.now());
+      } catch {
+        // Ignore transient notification errors (e.g. registration race conditions).
+      }
+    }
 
     function scheduleNext() {
-      const [h, m] = (reminderTime ?? "08:00").split(":").map(Number);
-      const now = new Date();
-      const next = new Date(now);
-      next.setHours(h, m, 0, 0);
-      if (next <= now) next.setDate(next.getDate() + 1);
-
-      // Skip days not in the schedule
-      const dayOfWeek = next.getDay(); // 0=Sun, 6=Sat
-      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      if ((reminderFrequency === "weekdays" && !isWeekday) ||
-          (reminderFrequency === "weekends" && !isWeekend)) {
-        next.setDate(next.getDate() + 1);
-      }
-
-      const ms = next.getTime() - Date.now();
+      const next = getNextReminderDate(new Date(), reminderTime, reminderFrequency);
+      const ms = Math.max(1000, next.getTime() - Date.now());
       reminderTimer.current = setTimeout(() => {
-        new Notification("Time to read! 📖", {
-          body: "Your daily Bible reading is waiting for you.",
-          icon: "/icons/icon-192.png",
+        void showReminder("scheduled").finally(() => {
+          if (!cancelled) scheduleNext();
         });
-        scheduleNext(); // reschedule for next day
       }, ms);
     }
 
+    async function maybeCatchUpMissedReminder() {
+      const now = new Date();
+      const latestSlot = getLatestScheduledReminderDate(now, reminderTime, reminderFrequency);
+      const lastFiredAt = readLastReminderFiredAt();
+      if (lastFiredAt >= latestSlot.getTime()) return;
+      await showReminder("catchup");
+    }
+
+    const handleForegroundCheck = () => {
+      if (document.visibilityState !== "visible") return;
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+      void maybeCatchUpMissedReminder();
+    };
+
+    window.addEventListener("focus", handleForegroundCheck);
+    document.addEventListener("visibilitychange", handleForegroundCheck);
+    handleForegroundCheck();
     scheduleNext();
-    return () => { if (reminderTimer.current) clearTimeout(reminderTimer.current); };
-  }, [state.settings.reminderEnabled, state.settings.reminderTime, state.settings.reminderFrequency]);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", handleForegroundCheck);
+      document.removeEventListener("visibilitychange", handleForegroundCheck);
+      if (reminderTimer.current) clearTimeout(reminderTimer.current);
+    };
+  }, [state.settings.reminderEnabled, state.settings.reminderTime, state.settings.reminderFrequency, user, pushDeliveryReady]);
 
   // …and, when signed in, debounce-push it to the server.
   const schedulePush = useCallback((next: PlanState) => {

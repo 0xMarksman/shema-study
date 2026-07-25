@@ -125,6 +125,29 @@ const SCHEMA_STATEMENTS = [
     created_at INTEGER NOT NULL
   )`,
   `CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id, created_at DESC)`,
+  // Web Push subscriptions per user/device
+  `CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id           TEXT PRIMARY KEY,
+    user_id      TEXT NOT NULL REFERENCES users(id),
+    endpoint     TEXT NOT NULL UNIQUE,
+    p256dh       TEXT NOT NULL,
+    auth         TEXT NOT NULL,
+    timezone     TEXT,
+    user_agent   TEXT,
+    disabled     INTEGER NOT NULL DEFAULT 0,
+    last_error   TEXT,
+    last_success_at INTEGER,
+    created_at   INTEGER NOT NULL,
+    updated_at   INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_push_sub_user ON push_subscriptions(user_id, disabled, updated_at DESC)`,
+  // Deduplicate reminder sends by user and local-day slot key
+  `CREATE TABLE IF NOT EXISTS reminder_push_log (
+    user_id    TEXT NOT NULL REFERENCES users(id),
+    slot_key   TEXT NOT NULL,
+    sent_at    INTEGER NOT NULL,
+    PRIMARY KEY (user_id, slot_key)
+  )`,
   // Reports table
   `CREATE TABLE IF NOT EXISTS reports (
     id              TEXT PRIMARY KEY,

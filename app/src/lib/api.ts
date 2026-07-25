@@ -272,3 +272,37 @@ export function listNotifications() {
 export function markNotificationsRead() {
   return request<{ ok: boolean }>("/api/notifications/read-all", { method: "POST" });
 }
+
+// ─── Web Push ────────────────────────────────────────────────────────────────
+
+export interface PushSubscriptionPayload {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
+
+export function fetchPushPublicKey() {
+  return request<{ publicKey: string }>("/api/push/public-key");
+}
+
+export function savePushSubscription(subscription: PushSubscriptionPayload, timezone: string) {
+  return request<{ ok: boolean }>("/api/push/subscribe", {
+    method: "POST",
+    body: JSON.stringify({ subscription, timezone }),
+  });
+}
+
+export function removePushSubscription(endpoint: string) {
+  return request<{ ok: boolean }>("/api/push/subscribe", {
+    method: "DELETE",
+    body: JSON.stringify({ endpoint }),
+  });
+}
+
+export function sendPushTestNotification() {
+  return request<{ ok: boolean; attempted: number; sent: number }>("/api/push/test", {
+    method: "POST",
+  });
+}

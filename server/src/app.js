@@ -5,6 +5,13 @@ import express from "express";
 import { db, dbHost, dbMode } from "./db.js";
 import { hashPassword, requireAuth, signToken, verifyPassword } from "./auth.js";
 import { pushToUser, broadcastToChannel } from "./ws.js";
+import {
+  deletePushSubscriptionByEndpoint,
+  getPushConfig,
+  sendPushNow,
+  startPushReminderScheduler,
+  upsertPushSubscription,
+} from "./pushReminders.js";
 
 export const app = express();
 
@@ -15,12 +22,22 @@ app.use(express.json({ limit: "2mb" }));
 // deployment misconfiguration (silently falling back to a non-persistent local file, or a
 // different Turso database than expected) is directly checkable.
 app.get("/api/health", (_req, res) => {
+  const push = getPushConfig();
   res.json({
     ok: true,
     dbMode,
     dbHost,
+    pushEnabled: push.enabled,
     commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
   });
+});
+
+app.get("/api/push/public-key", (_req, res) => {
+  const push = getPushConfig();
+  if (!push.enabled || !push.publicKey) {
+    return res.status(503).json({ error: "Push notifications are not configured on this server." });
+  }
+  return res.json({ publicKey: push.publicKey });
 });
 
 const USERNAME_RE = /^[a-z0-9._-]{3,32}$/;
@@ -960,6 +977,74 @@ app.post("/api/notifications/read-all", requireAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: "Unable to mark read." }); }
 });
 
+// ─── Web Push ────────────────────────────────────────────────────────────────
+
+app.post("/api/push/subscribe", requireAuth, async (req, res) => {
+  try {
+    const push = getPushConfig();
+    if (!push.enabled) {
+      return res.status(503).json({ error: "Push notifications are not configured on this server." });
+    }
+
+    const subscription = req.body?.subscription ?? {};
+    const endpoint = String(subscription.endpoint ?? "").trim();
+    const p256dh = String(subscription.keys?.p256dh ?? "").trim();
+    const auth = String(subscription.keys?.auth ?? "").trim();
+    const timezone = req.body?.timezone ? String(req.body.timezone).slice(0, 120) : null;
+    const userAgent = req.get("user-agent")?.slice(0, 300) ?? null;
+
+    if (!endpoint || !p256dh || !auth) {
+      return res.status(400).json({ error: "Invalid Push subscription payload." });
+    }
+
+    await upsertPushSubscription({
+      userId: req.userId,
+      endpoint,
+      p256dh,
+      auth,
+      timezone,
+      userAgent,
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("[push:subscribe]", err);
+    res.status(500).json({ error: "Unable to save Push subscription." });
+  }
+});
+
+app.delete("/api/push/subscribe", requireAuth, async (req, res) => {
+  try {
+    const endpoint = String(req.body?.endpoint ?? "").trim();
+    if (!endpoint) return res.status(400).json({ error: "endpoint required" });
+    await deletePushSubscriptionByEndpoint(req.userId, endpoint);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("[push:unsubscribe]", err);
+    res.status(500).json({ error: "Unable to remove Push subscription." });
+  }
+});
+
+app.post("/api/push/test", requireAuth, async (req, res) => {
+  try {
+    const push = getPushConfig();
+    if (!push.enabled) {
+      return res.status(503).json({ error: "Push notifications are not configured on this server." });
+    }
+    const result = await sendPushNow(req.userId, {
+      title: "Shema Study reminder test",
+      body: "Push notifications are set up on this device.",
+      url: "/",
+      tag: `push-test:${Date.now()}`,
+      sentAt: Date.now(),
+    });
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error("[push:test]", err);
+    res.status(500).json({ error: "Unable to send test Push notification." });
+  }
+});
+
 // ─── User Profile ─────────────────────────────────────────────────────────────
 
 const VALID_AVATARS = [
@@ -1093,4 +1178,6 @@ app.post("/api/admin/grant", async (req, res) => {
     res.json({ ok: true, message: `${username} is now an admin.` });
   } catch (err) { res.status(500).json({ error: "Unable to grant admin." }); }
 });
+
+startPushReminderScheduler();
 

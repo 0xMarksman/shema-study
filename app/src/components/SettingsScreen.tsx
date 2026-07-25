@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { catchMeUp, currentDay, daysBehind, firstIncompleteDay, isDayComplete, todayIso } from "../lib/schedule";
 import { useAppState } from "../state/AppState";
 import { TRACKS, TRANSLATIONS, type Translation } from "../types";
@@ -7,7 +7,7 @@ import { AuthForm } from "./AuthScreen";
 import { BellIcon, ClockBackIcon, UserCircleIcon } from "./icons";
 import { AVATAR_PRESETS, getAvatar } from "../lib/avatars";
 import { AvatarDisplay, AvatarIcon } from "../lib/AvatarIcon";
-import { updateProfile } from "../lib/api";
+import { fetchPushPublicKey, sendPushTestNotification, updateProfile } from "../lib/api";
 import { PLAN_TEMPLATES } from "../lib/planTemplates";
 import { CustomPlanBuilderSheet } from "./CustomPlanBuilder";
 import { DayNumberInput } from "./DayNumberInput";
@@ -218,18 +218,133 @@ export function SettingsScreen() {
 }
 
 function RemindersCard() {
-  const { settings, updateSettings } = useAppState();
-  const [permDenied, setPermDenied] = useState(false);
+  const { settings, updateSettings, user } = useAppState();
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
+  const [testingPush, setTestingPush] = useState(false);
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const [pushStatus, setPushStatus] = useState<{ text: string; tone: "muted" | "success" | "danger" }>({
+    text: "Checking Push status...",
+    tone: "muted",
+  });
+  const supportsNotifications = typeof window !== "undefined" && "Notification" in window;
+  const isStandalone =
+    typeof window !== "undefined" &&
+    (window.matchMedia("(display-mode: standalone)").matches ||
+      (navigator as Navigator & { standalone?: boolean }).standalone === true);
+  const isIOS =
+    typeof navigator !== "undefined" &&
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+  const requiresHomeScreenInstall = isIOS && !isStandalone;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function refreshPushStatus() {
+      if (!user) {
+        if (!cancelled) {
+          setPushStatus({ text: "Sign in to enable server-delivered Push reminders.", tone: "muted" });
+        }
+        return;
+      }
+      if (!supportsNotifications) {
+        if (!cancelled) {
+          setPushStatus({ text: "This browser does not support notifications.", tone: "danger" });
+        }
+        return;
+      }
+      if (Notification.permission !== "granted") {
+        if (!cancelled) {
+          setPushStatus({ text: "Notifications permission is not granted yet.", tone: "danger" });
+        }
+        return;
+      }
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        if (!cancelled) {
+          setPushStatus({ text: "Push API is unavailable on this device/browser.", tone: "danger" });
+        }
+        return;
+      }
+
+      try {
+        await fetchPushPublicKey();
+      } catch {
+        if (!cancelled) {
+          setPushStatus({ text: "Server Push is not configured yet (missing VAPID keys).", tone: "danger" });
+        }
+        return;
+      }
+
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const sub = await registration.pushManager.getSubscription();
+        if (!sub) {
+          if (!cancelled) {
+            setPushStatus({ text: "Server is ready, but this device is not subscribed yet.", tone: "danger" });
+          }
+          return;
+        }
+        if (!cancelled) {
+          setPushStatus({ text: "Push ready: server configured and this device is subscribed.", tone: "success" });
+        }
+      } catch {
+        if (!cancelled) {
+          setPushStatus({ text: "Could not verify Push subscription on this device.", tone: "danger" });
+        }
+      }
+    }
+
+    void refreshPushStatus();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    user,
+    settings.reminderEnabled,
+    supportsNotifications,
+    isStandalone,
+    requiresHomeScreenInstall,
+    isIOS,
+    statusMsg,
+    testResult,
+  ]);
 
   async function handleToggle() {
     if (!settings.reminderEnabled) {
-      if ("Notification" in window) {
-        const perm = await Notification.requestPermission();
-        if (perm === "denied") { setPermDenied(true); return; }
+      if (!supportsNotifications) {
+        setStatusMsg("This browser does not support notifications.");
+        return;
+      }
+      if (requiresHomeScreenInstall) {
+        setStatusMsg("On iPhone, notifications work only after adding this app to your Home Screen and reopening it from there.");
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") {
+        setStatusMsg("Notifications are blocked. Enable them in Safari/iOS settings for Shema Study.");
+        return;
       }
     }
-    setPermDenied(false);
+    setStatusMsg(null);
+    setTestResult(null);
     updateSettings({ reminderEnabled: !settings.reminderEnabled });
+  }
+
+  async function handleTestPush() {
+    setTestingPush(true);
+    setTestResult(null);
+    try {
+      const result = await sendPushTestNotification();
+      if (result.sent > 0) {
+        setTestResult("Test sent. You should receive a notification shortly.");
+      } else {
+        setTestResult("No active Push subscription found yet. Keep this app installed and try toggling reminders off and on once.");
+      }
+    } catch {
+      setTestResult("Push test failed. Ensure you're signed in, notifications are allowed, and try again.");
+    } finally {
+      setTestingPush(false);
+    }
   }
 
   return (
@@ -273,14 +388,46 @@ function RemindersCard() {
             </div>
           </>
         )}
-        {permDenied && (
+        {statusMsg && (
           <p className="small muted" style={{ margin: "8px 0 0", color: "var(--danger, #e05)" }}>
-            Notifications are blocked. Enable them in your browser or device settings.
+            {statusMsg}
           </p>
         )}
         <p className="small muted" style={{ margin: "8px 0 0" }}>
-          You'll receive a notification to open your reading for the day.
+          You'll receive a reminder to open your reading for the day.
         </p>
+        <p className="small muted" style={{ margin: "8px 0 0" }}>
+          If your phone paused the app at reminder time, Shema Study now sends a catch-up reminder the next time you open it.
+        </p>
+        <p className="small muted" style={{ margin: "8px 0 0" }}>
+          For iPhone PWAs: enable Notifications for Shema Study in iOS Settings {">"} Notifications. Fully off-app delivery still requires Web Push from the server.
+        </p>
+        <p
+          className="small muted"
+          style={{
+            margin: "8px 0 0",
+            color:
+              pushStatus.tone === "success"
+                ? "var(--success)"
+                : pushStatus.tone === "danger"
+                  ? "var(--danger, #e05)"
+                  : "var(--text-m)",
+          }}
+        >
+          Push status: {pushStatus.text}
+        </p>
+        {settings.reminderEnabled && user && (
+          <div style={{ marginTop: 10 }}>
+            <button className="btn btn-secondary" onClick={() => void handleTestPush()} disabled={testingPush}>
+              {testingPush ? "Sending test…" : "Send Test Notification"}
+            </button>
+            {testResult && (
+              <p className="small muted" style={{ margin: "8px 0 0", color: testResult.startsWith("Test sent") ? "var(--success)" : "var(--danger, #e05)" }}>
+                {testResult}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </>
   );
