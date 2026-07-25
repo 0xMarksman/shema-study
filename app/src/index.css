@@ -346,6 +346,36 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   line-height: 1.45;
 }
 
+.event-year-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.event-year-controls input {
+  width: 120px;
+  text-align: center;
+}
+
+.calendar-year-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.calendar-month-group {
+  margin-bottom: 0;
+}
+
+.calendar-month-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-h);
+  margin-bottom: 10px;
+}
+
 
 /* ---------- tab bar ---------- */
 

@@ -332,6 +332,16 @@ export function getCalendarEventsForDate(date: Date): CalendarEventEntry[] {
   }));
 }
 
+export function getCalendarEventsForYear(year: number): CalendarEventEntry[] {
+  const events: CalendarEventEntry[] = [];
+  const date = new Date(year, 0, 1);
+  while (date.getFullYear() === year) {
+    events.push(...getCalendarEventsForDate(new Date(date)));
+    date.setDate(date.getDate() + 1);
+  }
+  return events;
+}
+
 export function getUpcomingCalendarEvents(startDate = new Date(), daysAhead = 14): CalendarEventEntry[] {
   const events: CalendarEventEntry[] = [];
   for (let offset = 0; offset <= daysAhead; offset++) {

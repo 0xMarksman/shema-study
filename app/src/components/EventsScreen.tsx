@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { parseReference } from "../lib/passage";
 import { getHebrewDateInfo } from "../lib/hebrewCalendar";
-import { getCalendarEventsForDate, getUpcomingCalendarEvents, type CalendarEventEntry } from "../lib/eventGuides";
+import { getCalendarEventsForDate, getCalendarEventsForYear, getUpcomingCalendarEvents, type CalendarEventEntry } from "../lib/eventGuides";
 import { useAppState } from "../state/AppState";
 import { CheckCircleIcon, CalendarIcon, BookOpenIcon } from "./icons";
 
@@ -24,6 +24,7 @@ export function EventsScreen() {
   const { openBibleRef } = useAppState();
   const [selected, setSelected] = useState<CalendarEventEntry | null>(null);
   const [checklists, setChecklists] = useState<SavedChecklist>(loadSavedChecklist);
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     localStorage.setItem(EVENT_PROGRESS_KEY, JSON.stringify(checklists));
@@ -32,6 +33,7 @@ export function EventsScreen() {
   const today = new Date();
   const todayEvents = useMemo(() => getCalendarEventsForDate(today), [today.getFullYear(), today.getMonth(), today.getDate()]);
   const upcoming = useMemo(() => getUpcomingCalendarEvents(today, 14), [today.getFullYear(), today.getMonth(), today.getDate()]);
+  const yearEvents = useMemo(() => getCalendarEventsForYear(calendarYear), [calendarYear]);
   const currentSelection = selected ?? todayEvents[0] ?? upcoming[0] ?? null;
   const currentHebrew = getHebrewDateInfo(today.getFullYear(), today.getMonth() + 1, today.getDate());
 
@@ -39,10 +41,29 @@ export function EventsScreen() {
     if (!selected && currentSelection) setSelected(currentSelection);
   }, [selected, currentSelection]);
 
+  useEffect(() => {
+    if (yearEvents.length === 0) {
+      return;
+    }
+    if (!selected || selected.date.getFullYear() !== calendarYear) {
+      setSelected(yearEvents[0]);
+    }
+  }, [calendarYear, selected, yearEvents]);
+
   const currentKey = currentSelection?.key ?? "";
   const steps = currentSelection?.guide.steps ?? [];
   const saved = checklists[currentKey] ?? steps.map(() => false);
   const readings = currentSelection?.guide.readings ?? [];
+  const monthGroups = useMemo(() => {
+    const groups = new Map<number, CalendarEventEntry[]>();
+    for (const event of yearEvents) {
+      const month = event.date.getMonth();
+      const list = groups.get(month) ?? [];
+      list.push(event);
+      groups.set(month, list);
+    }
+    return Array.from(groups.entries()).map(([month, events]) => ({ month, events }));
+  }, [yearEvents]);
 
   const openReading = (reference: string) => {
     const passages = parseReference(reference);
@@ -188,6 +209,49 @@ export function EventsScreen() {
         ) : (
           <p className="small muted" style={{ margin: 0 }}>No upcoming holidays were found in the next two weeks.</p>
         )}
+      </div>
+
+      <div className="section-label">Calendar Year</div>
+      <div className="card">
+        <div className="event-year-controls">
+          <label htmlFor="event-year" className="small muted" style={{ fontWeight: 700 }}>Browse year</label>
+          <input
+            id="event-year"
+            type="number"
+            min={2020}
+            max={2035}
+            value={calendarYear}
+            onChange={(e) => setCalendarYear(Math.min(2035, Math.max(2020, Number(e.target.value) || calendarYear)))}
+          />
+        </div>
+        <p className="small muted" style={{ marginBottom: 0 }}>
+          Scan the full calendar year, month by month, and tap any item to open its guide and readings.
+        </p>
+      </div>
+
+      <div className="calendar-year-list">
+        {monthGroups.map(({ month, events }) => (
+          <section key={`${calendarYear}-${month}`} className="card calendar-month-group">
+            <div className="calendar-month-title">
+              {new Date(calendarYear, month, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+            </div>
+            <div className="event-list">
+              {events.map((event) => (
+                <button
+                  key={event.key}
+                  className={`event-list-item ${currentSelection?.key === event.key ? "is-active" : ""}`}
+                  onClick={() => setSelected(event)}
+                >
+                  <span className="event-list-item__date">
+                    {event.date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+                  </span>
+                  <span className="event-list-item__title">{event.guide.title}</span>
+                  <span className="event-list-item__subtitle">{event.guide.subtitle}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
     </>
   );
