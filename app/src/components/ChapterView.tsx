@@ -16,6 +16,7 @@ export function ChapterView({
   activeVerse,
   selectedVerse,
   autoScrollActiveVerse = true,
+  followActiveVerse = true,
   highlightedVerses,
   onVerseTap,
   onVerseDoubleTap,
@@ -28,6 +29,7 @@ export function ChapterView({
   activeVerse?: number | null;
   selectedVerse?: number | null;
   autoScrollActiveVerse?: boolean;
+  followActiveVerse?: boolean;
   highlightedVerses?: ChapterHighlights;
   onVerseTap?: (verse: number) => void;
   onVerseDoubleTap?: (verse: number) => void;
@@ -38,12 +40,14 @@ export function ChapterView({
   const verseRefs = useRef<Map<number, HTMLParagraphElement>>(new Map());
   const activeVerseRef = useRef<number | null>(activeVerse ?? null);
   const autoScrollEnabledRef = useRef<boolean>(autoScrollActiveVerse);
+  const followActiveVerseRef = useRef<boolean>(followActiveVerse);
   const manualScrollOverrideRef = useRef(false);
   const programmaticScrollUntilRef = useRef(0);
   const manualScrollTimerRef = useRef<number | null>(null);
 
   const scrollToActiveVerse = (behavior: ScrollBehavior = "smooth") => {
     if (!autoScrollEnabledRef.current) return;
+    if (!followActiveVerseRef.current) return;
     if (manualScrollOverrideRef.current) return;
     const verse = activeVerseRef.current;
     if (!verse) return;
@@ -87,6 +91,13 @@ export function ChapterView({
   }, [autoScrollActiveVerse]);
 
   useEffect(() => {
+    followActiveVerseRef.current = followActiveVerse;
+    if (followActiveVerse && autoScrollEnabledRef.current && !manualScrollOverrideRef.current) {
+      scrollToActiveVerse("auto");
+    }
+  }, [followActiveVerse]);
+
+  useEffect(() => {
     const firstVerse = verses?.[0]?.verse;
     if (!firstVerse) return;
     const firstEl = verseRefs.current.get(firstVerse);
@@ -94,12 +105,12 @@ export function ChapterView({
     if (!scroller) return;
 
     const onManualInput = () => {
-      if (!autoScrollEnabledRef.current) return;
+      if (!autoScrollEnabledRef.current || !followActiveVerseRef.current) return;
       markManualScrollActivity();
     };
 
     const onScroll = () => {
-      if (!autoScrollEnabledRef.current) return;
+      if (!autoScrollEnabledRef.current || !followActiveVerseRef.current) return;
       if (Date.now() < programmaticScrollUntilRef.current) return;
       markManualScrollActivity();
     };
@@ -127,7 +138,7 @@ export function ChapterView({
 
   useEffect(() => {
     scrollToActiveVerse("smooth");
-  }, [activeVerse, autoScrollActiveVerse]);
+  }, [activeVerse, autoScrollActiveVerse, followActiveVerse]);
 
   const red = settings.redLetters && redReady ? redVersesFor(bookId, chapter) : new Set<number>();
 

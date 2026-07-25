@@ -44,6 +44,7 @@ export function ReaderOverlay({
   const [jumpToVerse, setJumpToVerse] = useState<number | null>(null);
   const [autoPlaySignal, setAutoPlaySignal] = useState<number | undefined>(undefined);
   const [continuousAudio, setContinuousAudio] = useState(false);
+  const [audioIsPlaying, setAudioIsPlaying] = useState(false);
   const [highlightedVerses, setHighlightedVerses] = useState<ChapterHighlights>({});
   const [editingHighlightVerse, setEditingHighlightVerse] = useState<number | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -61,6 +62,7 @@ export function ReaderOverlay({
     setActiveVerse(null);
     setSelectedVerse(null);
     setJumpToVerse(null);
+    setAudioIsPlaying(false);
     if (current) {
       setHighlightedVerses(getChapterHighlightsDetailed(current.book.id, current.chapter));
     } else {
@@ -100,6 +102,7 @@ export function ReaderOverlay({
   };
 
   const handleAudioCompleted = () => {
+    setAudioIsPlaying(false);
     if (!continuousAudio) return;
     if (!settings.bibleAutoAdvance) {
       setContinuousAudio(false);
@@ -182,10 +185,14 @@ export function ReaderOverlay({
               onPlaybackComplete={handleAudioCompleted}
               onPlaybackControl={(action) => {
                 if (action === "play") {
+                  setAudioIsPlaying(true);
                   setSelectedVerse(null);
                   setContinuousAudio(settings.bibleAutoAdvance);
                 }
-                if (action === "pause" || action === "stop") setContinuousAudio(false);
+                if (action === "pause" || action === "stop") {
+                  setAudioIsPlaying(false);
+                  setContinuousAudio(false);
+                }
               }}
               autoPlaySignal={autoPlaySignal}
             />
@@ -198,6 +205,7 @@ export function ReaderOverlay({
               activeVerse={activeVerse}
               selectedVerse={selectedVerse}
               autoScrollActiveVerse={settings.bibleAutoScroll}
+              followActiveVerse={audioIsPlaying}
               highlightedVerses={highlightedVerses}
               onVerseTap={handleVerseTap}
               onVerseDoubleTap={handleVerseDoubleTap}

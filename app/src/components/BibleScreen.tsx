@@ -15,6 +15,7 @@ export function BibleScreen() {
   const { settings, updateSettings } = useAppState();
   const [showAppearance, setShowAppearance] = useState(false);
   const [activeVerse, setActiveVerse] = useState<number | null>(null);
+  const [audioIsPlaying, setAudioIsPlaying] = useState(false);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [jumpToVerse, setJumpToVerse] = useState<number | null>(null);
   const [highlightedVerses, setHighlightedVerses] = useState<ChapterHighlights>({});
@@ -32,6 +33,7 @@ export function BibleScreen() {
   useEffect(() => {
     topRef.current?.scrollIntoView();
     setActiveVerse(null);
+    setAudioIsPlaying(false);
     setSelectedVerse(null);
     setJumpToVerse(null);
     setHighlightedVerses(getChapterHighlightsDetailed(book.id, chapter));
@@ -126,6 +128,14 @@ export function BibleScreen() {
         onVerseChange={setActiveVerse}
         jumpToVerse={jumpToVerse}
         onJumpHandled={() => setJumpToVerse(null)}
+        onPlaybackComplete={() => setAudioIsPlaying(false)}
+        onPlaybackControl={(action) => {
+          if (action === "play") {
+            setAudioIsPlaying(true);
+            setSelectedVerse(null);
+          }
+          if (action === "pause" || action === "stop") setAudioIsPlaying(false);
+        }}
       />
 
       <div className="reader-body">
@@ -137,6 +147,7 @@ export function BibleScreen() {
           loading={loading}
           activeVerse={activeVerse}
           selectedVerse={selectedVerse}
+          followActiveVerse={audioIsPlaying}
           highlightedVerses={highlightedVerses}
           onVerseTap={handleVerseTap}
           onVerseDoubleTap={handleVerseDoubleTap}
