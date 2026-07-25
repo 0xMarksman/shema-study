@@ -25,6 +25,7 @@ export function EventsScreen() {
   const [selected, setSelected] = useState<CalendarEventEntry | null>(null);
   const [checklists, setChecklists] = useState<SavedChecklist>(loadSavedChecklist);
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
+  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
 
   useEffect(() => {
     localStorage.setItem(EVENT_PROGRESS_KEY, JSON.stringify(checklists));
@@ -33,7 +34,7 @@ export function EventsScreen() {
   const today = new Date();
   const todayEvents = useMemo(() => getCalendarEventsForDate(today), [today.getFullYear(), today.getMonth(), today.getDate()]);
   const upcoming = useMemo(() => getUpcomingCalendarEvents(today, 14), [today.getFullYear(), today.getMonth(), today.getDate()]);
-  const yearEvents = useMemo(() => getCalendarEventsForYear(calendarYear), [calendarYear]);
+  const yearEvents = useMemo(() => getCalendarEventsForYear(calendarYear).filter((event) => event.holiday.type !== "shabbat"), [calendarYear]);
   const currentSelection = selected ?? todayEvents[0] ?? upcoming[0] ?? null;
   const currentHebrew = getHebrewDateInfo(today.getFullYear(), today.getMonth() + 1, today.getDate());
 
@@ -54,6 +55,27 @@ export function EventsScreen() {
   const steps = currentSelection?.guide.steps ?? [];
   const saved = checklists[currentKey] ?? steps.map(() => false);
   const readings = currentSelection?.guide.readings ?? [];
+  const calendarMonthDate = new Date(calendarYear, calendarMonth, 1);
+  const calendarMonthEvents = useMemo(
+    () => yearEvents.filter((event) => event.date.getMonth() === calendarMonth),
+    [calendarMonth, yearEvents],
+  );
+  const calendarCells = useMemo(() => {
+    const cells: Array<{ date: Date | null; events: CalendarEventEntry[] }> = [];
+    const firstDay = calendarMonthDate.getDay();
+    for (let empty = 0; empty < firstDay; empty++) {
+      cells.push({ date: null, events: [] });
+    }
+    const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(calendarYear, calendarMonth, day);
+      cells.push({
+        date,
+        events: getCalendarEventsForDate(date).filter((event) => event.holiday.type !== "shabbat"),
+      });
+    }
+    return cells;
+  }, [calendarMonthDate, calendarMonth, calendarYear]);
   const monthGroups = useMemo(() => {
     const groups = new Map<number, CalendarEventEntry[]>();
     for (const event of yearEvents) {
@@ -86,6 +108,38 @@ export function EventsScreen() {
     setChecklists((prev) => ({ ...prev, [currentSelection.key]: steps.map(() => false) }));
   };
 
+  const goToPreviousMonth = () => {
+    setCalendarMonth((prev) => {
+      if (prev === 0) {
+        setCalendarYear((year) => year - 1);
+        return 11;
+      }
+      return prev - 1;
+    });
+  };
+
+  const goToNextMonth = () => {
+    setCalendarMonth((prev) => {
+      if (prev === 11) {
+        setCalendarYear((year) => year + 1);
+        return 0;
+      }
+      return prev + 1;
+    });
+  };
+
+  const jumpToTodayMonth = () => {
+    setCalendarYear(today.getFullYear());
+    setCalendarMonth(today.getMonth());
+  };
+
+  const openDayEvent = (date: Date | null, events: CalendarEventEntry[]) => {
+    if (!date || events.length === 0) return;
+    setCalendarYear(date.getFullYear());
+    setCalendarMonth(date.getMonth());
+    setSelected(events[0]);
+  };
+
   return (
     <>
       <div className="screen-title">Events</div>
@@ -105,6 +159,77 @@ export function EventsScreen() {
         <p className="small muted" style={{ marginBottom: 0 }}>
           Follow along with Shabbat, Rosh Chodesh, and the Hebrew-calendar holidays for the day.
         </p>
+      </div>
+
+      <div className="section-label">Calendar</div>
+      <div className="card event-calendar-card">
+        <div className="event-calendar-header">
+          <button className="btn btn-secondary event-calendar-nav" onClick={goToPreviousMonth} aria-label="Previous month">
+            <span aria-hidden>‹</span>
+          </button>
+          <div className="event-calendar-header__title">
+            <CalendarIcon className="q-icon" />
+            <div>
+              <div className="event-calendar-header__month">{calendarMonthDate.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</div>
+              <div className="small muted">Dots mark holidays and holy days, excluding weekly Shabbat.</div>
+            </div>
+          </div>
+          <button className="btn btn-secondary event-calendar-nav" onClick={goToNextMonth} aria-label="Next month">
+            <span aria-hidden>›</span>
+          </button>
+        </div>
+
+        <div className="event-calendar-weekdays">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((label) => (
+            <span key={label}>{label}</span>
+          ))}
+        </div>
+
+        <div className="event-calendar-grid">
+          {calendarCells.map((cell, idx) => {
+            const active = cell.date && currentSelection?.date.toDateString() === cell.date.toDateString();
+            const hasEvents = cell.events.length > 0;
+            return (
+              <button
+                key={`${calendarYear}-${calendarMonth}-${idx}`}
+                className={`event-calendar-day ${!cell.date ? "is-empty" : ""} ${active ? "is-active" : ""} ${hasEvents ? "has-event" : ""}`}
+                onClick={() => openDayEvent(cell.date, cell.events)}
+                disabled={!cell.date}
+                aria-label={cell.date ? cell.date.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : "Empty calendar cell"}
+              >
+                {cell.date && <span className="event-calendar-day__num">{cell.date.getDate()}</span>}
+                {hasEvents && <span className="event-calendar-dot" aria-hidden />}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="event-calendar-actions">
+          <button className="btn btn-secondary" onClick={jumpToTodayMonth}>Today</button>
+          <button className="btn btn-secondary" onClick={() => setSelected(calendarMonthEvents[0] ?? currentSelection)}>Open first event</button>
+        </div>
+
+        <div className="event-calendar-month-list">
+          {calendarMonthEvents.length > 0 ? (
+            calendarMonthEvents.map((event) => (
+              <button
+                key={event.key}
+                className={`event-list-item ${currentSelection?.key === event.key ? "is-active" : ""}`}
+                onClick={() => setSelected(event)}
+              >
+                <span className="event-list-item__date">
+                  {event.date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                </span>
+                <span className="event-list-item__title">{event.guide.title}</span>
+                <span className="event-list-item__subtitle">{event.guide.subtitle}</span>
+              </button>
+            ))
+          ) : (
+            <p className="small muted" style={{ margin: 0 }}>
+              No non-Shabbat holidays were found for this month.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="section-label">Today</div>

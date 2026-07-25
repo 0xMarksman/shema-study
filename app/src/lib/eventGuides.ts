@@ -90,7 +90,7 @@ function shabbatGuide(): EventGuide {
     "shabbat",
     "Shabbat",
     "A guided home service for Friday night / Shabbat dinner",
-    "Shabbat is the weekly covenant sign of rest, delight, and remembrance. This guide follows a family-friendly Messianic home rhythm.",
+    "Shabbat is the seventh-day covenant sign in which God calls His people to stop ordinary work, delight in His presence, and remember creation and redemption.",
     [
       candleLightingStep(),
       genericOpening("Shabbat"),
@@ -124,7 +124,7 @@ function pesachGuide(): EventGuide {
     "pesach",
     "Passover / Pesach",
     "A guided seder-style family experience",
-    "Pesach remembers redemption from Egypt and points to God's deliverance and faithfulness.",
+    "Pesach remembers Israel's deliverance from Egypt, the blood of the lamb, and the birth of the covenant people through God's rescue.",
     [
       { title: "Clean out chametz", note: "Make space for the holiday by removing leaven and preparing the table." },
       { ...candleLightingStep(), title: "Light the festival candles" },
@@ -147,7 +147,7 @@ function shavuotGuide(): EventGuide {
     "shavuot",
     "Shavuot",
     "A guided celebration of Torah and the Spirit",
-    "Shavuot celebrates the giving of Torah and the firstfruits harvest, and in the B'rit Chadashah it remembers the outpouring of the Ruach.",
+    "Shavuot is the firstfruits feast that remembers Sinai, the giving of Torah, and the harvest moment when the Ruach was poured out in Jerusalem.",
     [
       { title: "Thank God for His word", note: "Begin by thanking God for Torah, Scripture, and teaching." },
       { title: "Read a short passage", note: "Many families read Exodus 19-20, Ruth, or Acts 2." },
@@ -168,7 +168,7 @@ function roshHashanahGuide(): EventGuide {
     "rosh-hashanah",
     "Rosh Hashanah",
     "A guided family new-year observance",
-    "Rosh Hashanah marks the head of the year, a time of repentance, remembrance, and hope.",
+    "Rosh Hashanah is the biblical new year and trumpet feast that calls the community to wake up, repent, and enter the year with reverence.",
     [
       candleLightingStep(),
       { title: "Hear the shofar", note: "Listen, reflect, and wake up spiritually for the new year." },
@@ -190,7 +190,7 @@ function yomKippurGuide(): EventGuide {
     "yom-kippur",
     "Yom Kippur",
     "A guided fast-day liturgy at home",
-    "Yom Kippur is the day of atonement, humbling the heart and seeking God's mercy.",
+    "Yom Kippur is the day when Israel humbles itself before God to seek atonement, cleansing, and mercy through confession and sacrifice.",
     [
       { title: "Prepare for the fast", note: "Set aside the day with humility and prayer." },
       { title: "Confess and repent", note: "Use Psalms 51 or a confession litany before God." },
@@ -210,7 +210,7 @@ function sukkotGuide(): EventGuide {
     "sukkot",
     "Sukkot",
     "A guided home celebration in the sukkah",
-    "Sukkot remembers God's sheltering presence and the joy of dwelling with Him.",
+    "Sukkot is the harvest feast of temporary shelters, remembering God's protection in the wilderness and His future dwelling with His people.",
     [
       { title: "Decorate the sukkah", note: "Invite the family into a joyful, temporary dwelling." },
       { title: "Wave the lulav and etrog", note: "Give thanks for God's provision and presence." },
@@ -230,7 +230,7 @@ function hanukkahGuide(): EventGuide {
     "hanukkah",
     "Hanukkah",
     "A guided menorah lighting for the home",
-    "Hanukkah celebrates rededication, faithful witness, and light shining in darkness.",
+    "Hanukkah remembers the rededication of the temple after oppression, the miracle of light, and the call to remain faithful in a dark time.",
     [
       { title: "Light the menorah", transliteration: "Baruch atah Adonai... lehadlik ner shel Hanukkah.", hebrew: "בָּרוּךְ אַתָּה... לְהַדְלִיק נֵר שֶׁל חֲנֻכָּה.", translation: "Blessed are You... who commanded us to kindle the Hanukkah light." },
       { title: "Sing and tell the story", note: "Remember the rededication of the temple and God's faithfulness." },
@@ -250,7 +250,7 @@ function purimGuide(): EventGuide {
     "purim",
     "Purim",
     "A guided family celebration of rescue",
-    "Purim remembers God's hidden providence and joyful deliverance.",
+    "Purim remembers Esther's story, where God preserved His people from destruction through hidden providence, courage, and joyful reversal.",
     [
       { title: "Read the Megillah", note: "Read or retell the story of Esther with energy." },
       { title: "Give gifts to others", note: "Share food or small gifts with neighbors and friends." },
@@ -269,7 +269,7 @@ function roshChodeshGuide(monthName: string): EventGuide {
     "rosh-chodesh",
     `Rosh Chodesh ${monthName}`,
     "A guided new-moon observance",
-    "Rosh Chodesh is a time to pause, reset, and dedicate the coming month to God.",
+    `Rosh Chodesh ${monthName} marks the start of the Hebrew month, a biblical reset point for prayer, gratitude, and setting the month apart to God.`,
     [
       { title: "Light a candle or set aside time", note: "Mark the beginning of the month with gratitude." },
       { title: "Read a psalm", note: "Psalm 104, 81, or 121 are common choices." },
@@ -283,15 +283,44 @@ function roshChodeshGuide(monthName: string): EventGuide {
 }
 
 function modernGuide(name: string): EventGuide {
+  const lower = name.toLowerCase();
+  const meaning =
+    lower.includes("yom hashoah")
+      ? "Yom HaShoah is Holocaust Remembrance Day, set aside to remember the six million Jews murdered and to honor survivor testimony and memory."
+      : lower.includes("yom hazikaron")
+        ? "Yom HaZikaron is Israel's Memorial Day, a solemn time to remember soldiers and civilians who died in the defense of the people and the land."
+        : lower.includes("yom ha'atzmaut") || lower.includes("yom haatzmaut")
+          ? "Yom Ha'Atzmaut is Israel's Independence Day, celebrating the rebirth of Jewish self-rule in the modern state of Israel."
+          : lower.includes("yom yerushalayim")
+            ? "Yom Yerushalayim celebrates Jerusalem's reunification and the city's place in God's covenant story."
+            : lower.includes("lag b'omer") || lower.includes("lag bomer")
+              ? "Lag B'Omer marks the 33rd day of the Omer count, a day of joy between Pesach and Shavuot often associated with survival, study, and celebration."
+              : lower.includes("tu b'av")
+                ? "Tu B'Av is a day of joy and restoration in the Hebrew calendar, traditionally associated with love, reconciliation, and renewed hope."
+                : lower.includes("tu bishvat")
+                  ? "Tu BiShvat is the new year for trees, a season for thanking God for fruitfulness, the land, and the life hidden in the soil."
+                  : lower.includes("shushan purim")
+                    ? "Shushan Purim extends the Purim deliverance into the next day, especially in walled cities, as a continuation of celebration."
+                    : lower.includes("purim katan")
+                      ? "Purim Katan is the small Purim in a leap year, a minor celebration that anticipates the fuller Purim in Adar II."
+                      : lower.includes("tisha b'av")
+                        ? "Tisha B'Av is a national day of mourning for the destruction of the temples and other disasters in Jewish history."
+                        : lower.includes("fast of gedaliah")
+                          ? "The Fast of Gedaliah remembers the assassination after the First Temple's fall and the collapse that followed."
+                          : lower.includes("fast of 10 tevet")
+                            ? "The Fast of 10 Tevet remembers the beginning of Jerusalem's siege and the tightening noose around the city."
+                            : lower.includes("ta'anit esther") || lower.includes("taanit esther")
+                              ? "Ta'anit Esther is the fast before Purim, remembering Esther's courage and the community's prayer before deliverance."
+                              : `Observe ${name} with prayer, remembrance, and gratitude in light of its place in the Hebrew calendar.`;
   return makeGuide(
     name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     name,
     "A guided remembrance and prayer time",
-    `This day invites remembrance, gratitude, and prayer around ${name}.`,
+    meaning,
     [
-      { title: "Pause and remember", note: `Take a few moments to reflect on the meaning of ${name}.` },
+      { title: "Pause and remember", note: `Take a few moments to reflect on why ${name} is observed in the Hebrew calendar.` },
       { title: "Read or pray a psalm", note: "A short psalm helps keep the time centered and reverent." },
-      { title: "Pray for peace and hope", note: "Ask God to strengthen His people and your household." },
+      { title: "Pray for peace and hope", note: `Ask God to meet your household through the themes of ${name}.` },
     ],
   );
 }
@@ -311,11 +340,19 @@ export function getEventGuideForHoliday(holiday: HebrewHoliday): EventGuide {
     "fast-day",
     holiday.name,
     "A guided fast-day prayer time",
-    `This is a day of humility, repentance, and prayer: ${holiday.name}.`,
+    holiday.name.includes("Gedaliah")
+      ? "The Fast of Gedaliah mourns the assassination after the First Temple's destruction and the collapse that followed for the remaining Jewish community."
+      : holiday.name.includes("10 Tevet")
+        ? "The Fast of 10 Tevet marks the beginning of Jerusalem's siege and the growing pressure that led to the city's fall."
+        : holiday.name.includes("Tisha B'Av") || holiday.name.includes("Tisha B’Av")
+          ? "Tisha B'Av is the national fast of grief for the destructions of the temples and other tragedies remembered in Jewish history."
+          : holiday.name.includes("Esther")
+            ? "Ta'anit Esther is the fast before Purim, recalling Esther's prayer and the community's dependence on God before deliverance."
+            : `This fast day, ${holiday.name}, is a set-apart time for humility, repentance, and prayer before God.`,
     [
-      { title: "Set aside the day", note: "If you are fasting, keep the day simple and prayerful." },
+      { title: "Set aside the day", note: `Keep ${holiday.name} simple and prayerful, especially if you are fasting.` },
       { title: "Read a psalm of repentance", note: "Psalm 51 or 130 are common choices." },
-      { title: "Pray for mercy and renewal", note: "Ask God to restore your heart and community." },
+      { title: "Pray for mercy and renewal", note: `Ask God to restore your heart and the people remembered on ${holiday.name}.` },
     ],
   );
   return modernGuide(holiday.name);

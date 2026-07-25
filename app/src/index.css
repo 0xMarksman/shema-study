@@ -359,6 +359,116 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   text-align: center;
 }
 
+.event-calendar-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.event-calendar-header__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.event-calendar-header__month {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-h);
+}
+
+.event-calendar-nav {
+  min-width: 42px;
+  padding: 10px 12px;
+}
+
+.event-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.event-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.event-calendar-day {
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  position: relative;
+  min-height: 42px;
+}
+
+.event-calendar-day.is-empty {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.event-calendar-day.has-event {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.event-calendar-day.is-active {
+  background: color-mix(in srgb, var(--accent) 11%, var(--card-bg));
+  border-color: var(--accent);
+}
+
+.event-calendar-day__num {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-h);
+  line-height: 1;
+}
+
+.event-calendar-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.event-calendar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.event-calendar-month-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.event-calendar-month-list .event-list-item {
+  margin: 0;
+}
+
 .calendar-year-list {
   display: flex;
   flex-direction: column;
