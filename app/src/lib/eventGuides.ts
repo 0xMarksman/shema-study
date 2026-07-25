@@ -14,6 +14,13 @@ export interface EventGuide {
   subtitle: string;
   meaning: string;
   steps: GuideStep[];
+  readings: ReadingPortion[];
+}
+
+export interface ReadingPortion {
+  label: string;
+  reference: string;
+  note?: string;
 }
 
 export interface CalendarEventEntry {
@@ -67,8 +74,15 @@ function genericOpening(eventName: string): GuideStep {
   };
 }
 
-function makeGuide(id: string, title: string, subtitle: string, meaning: string, steps: GuideStep[]): EventGuide {
-  return { id, title, subtitle, meaning, steps };
+function makeGuide(
+  id: string,
+  title: string,
+  subtitle: string,
+  meaning: string,
+  steps: GuideStep[],
+  readings: ReadingPortion[] = [],
+): EventGuide {
+  return { id, title, subtitle, meaning, steps, readings };
 }
 
 function shabbatGuide(): EventGuide {
@@ -95,6 +109,13 @@ function shabbatGuide(): EventGuide {
         note: "Share a short portion, a psalm, or a Messiah-centered reflection, then enjoy the meal in peace.",
       },
     ],
+    [
+      { label: "Creation rest", reference: "Genesis 2", note: "God rests and blesses the seventh day." },
+      { label: "Shabbat command", reference: "Exodus 20", note: "Remember the Sabbath and keep it holy." },
+      { label: "Delight in the day", reference: "Isaiah 58", note: "A call to honor Shabbat as a delight." },
+      { label: "Shabbat psalm", reference: "Psalm 92", note: "A psalm for the Sabbath day." },
+      { label: "Rest in Messiah", reference: "Hebrews 4", note: "A New Covenant reflection on entering God's rest." },
+    ],
   );
 }
 
@@ -112,6 +133,12 @@ function pesachGuide(): EventGuide {
       { title: "Eat matzah and the meal", note: "Use the meal to remember haste, humility, and redemption." },
       { title: "Share hope in Messiah", note: "Connect the story of deliverance to Yeshua as the Lamb of God." },
     ],
+    [
+      { label: "Passover institution", reference: "Exodus 12", note: "The original Pesach instructions and lamb imagery." },
+      { label: "Remember redemption", reference: "Exodus 13", note: "Set apart the firstborn and remember the exodus." },
+      { label: "Passover in the Gospels", reference: "Luke 22", note: "Yeshua shares the meal with His disciples." },
+      { label: "Messiah our Passover", reference: "1 Corinthians 5", note: "Paul's teaching on Messiah as our Passover." },
+    ],
   );
 }
 
@@ -126,6 +153,12 @@ function shavuotGuide(): EventGuide {
       { title: "Read a short passage", note: "Many families read Exodus 19-20, Ruth, or Acts 2." },
       { title: "Eat a festive meal", note: "Traditionally dairy foods are common, but any celebratory meal works." },
       { title: "Pray for the Spirit's filling", note: "Ask for fresh obedience, wisdom, and power to live the word." },
+    ],
+    [
+      { label: "Sinai and covenant", reference: "Exodus 19-20", note: "The mountain moment and the giving of Torah." },
+      { label: "Harvest and loyalty", reference: "Ruth 1-4", note: "A harvest story read on Shavuot in many traditions." },
+      { label: "The Spirit outpoured", reference: "Acts 2", note: "The Ruach comes at Shavuot in Jerusalem." },
+      { label: "Harvest of the word", reference: "James 1", note: "Be doers of the word, not only hearers." },
     ],
   );
 }
@@ -143,6 +176,12 @@ function roshHashanahGuide(): EventGuide {
       { title: "Eat something sweet", note: "Apples and honey are a simple way to symbolize a sweet year." },
       { title: "Pray for teshuvah", note: "Ask God for returning, cleansing, and a faithful year ahead." },
     ],
+    [
+      { label: "Remember the appointed times", reference: "Leviticus 23", note: "The biblical calendar and the moedim." },
+      { label: "Trumpet day", reference: "Numbers 29", note: "The offerings associated with the day." },
+      { label: "Wake up the soul", reference: "Psalm 81", note: "Blow the shofar and hear God's voice." },
+      { label: "Watch and be ready", reference: "Matthew 24", note: "A New Covenant call to vigilance." },
+    ],
   );
 }
 
@@ -157,6 +196,11 @@ function yomKippurGuide(): EventGuide {
       { title: "Confess and repent", note: "Use Psalms 51 or a confession litany before God." },
       { title: "Read about atonement", note: "Many families read Leviticus 16 and Hebrews 9-10." },
       { title: "Break the fast with gratitude", note: "End the day with thanksgiving and peace." },
+    ],
+    [
+      { label: "Day of atonement", reference: "Leviticus 16", note: "The high priest, sacrifice, and cleansing." },
+      { label: "A contrite heart", reference: "Psalm 51", note: "A prayer of repentance and renewal." },
+      { label: "The greater priesthood", reference: "Hebrews 9-10", note: "Messiah's once-for-all atonement." },
     ],
   );
 }
@@ -173,6 +217,11 @@ function sukkotGuide(): EventGuide {
       { title: "Eat together outside", note: "Share meals in the sukkah whenever possible." },
       { title: "Rejoice and sing", note: "Make room for joy, hospitality, and praise." },
     ],
+    [
+      { label: "The appointed festival", reference: "Leviticus 23", note: "Instructions for the feast of booths." },
+      { label: "Water and praise", reference: "John 7", note: "Yeshua's words during Sukkot." },
+      { label: "Nations coming up", reference: "Zechariah 14", note: "A prophetic view of the feast and the King." },
+    ],
   );
 }
 
@@ -187,6 +236,11 @@ function hanukkahGuide(): EventGuide {
       { title: "Sing and tell the story", note: "Remember the rededication of the temple and God's faithfulness." },
       { title: "Enjoy festive food", note: "Traditional foods often include oil-related dishes like latkes or sufganiyot." },
       { title: "Pray for light", note: "Ask God to renew your home and testimony." },
+    ],
+    [
+      { label: "Dedication and cleansing", reference: "John 10", note: "Yeshua at the Feast of Dedication." },
+      { label: "Light in the darkness", reference: "John 1", note: "The Light shines in the darkness." },
+      { label: "Faithful witness", reference: "Daniel 1", note: "A model of consecration in exile." },
     ],
   );
 }
@@ -203,6 +257,10 @@ function purimGuide(): EventGuide {
       { title: "Celebrate with joy", note: "Eat, sing, and rejoice in God's deliverance." },
       { title: "Remember the hidden hand of God", note: "Notice how God works even when His name is not obvious in the story." },
     ],
+    [
+      { label: "The story of Esther", reference: "Esther 1-10", note: "Read the whole Megillah, or sections of it, for the holiday." },
+      { label: "Joy after sorrow", reference: "Psalm 30", note: "A prayer of praise for deliverance." },
+    ],
   );
 }
 
@@ -216,6 +274,10 @@ function roshChodeshGuide(monthName: string): EventGuide {
       { title: "Light a candle or set aside time", note: "Mark the beginning of the month with gratitude." },
       { title: "Read a psalm", note: "Psalm 104, 81, or 121 are common choices." },
       { title: "Pray for the month ahead", note: "Ask for wisdom, provision, and peace." },
+    ],
+    [
+      { label: "The new moon", reference: "Numbers 28", note: "Offerings for the start of the month." },
+      { label: "Celebrate the new month", reference: "Psalm 81", note: "A psalm tied to the festival calendar." },
     ],
   );
 }

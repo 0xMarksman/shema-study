@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { parseReference } from "../lib/passage";
 import { getHebrewDateInfo } from "../lib/hebrewCalendar";
 import { getCalendarEventsForDate, getUpcomingCalendarEvents, type CalendarEventEntry } from "../lib/eventGuides";
 import { useAppState } from "../state/AppState";
-import { BookOpenIcon, CheckCircleIcon, CalendarIcon } from "./icons";
+import { CheckCircleIcon, CalendarIcon, BookOpenIcon } from "./icons";
 
 const EVENT_PROGRESS_KEY = "shema-study:event-progress";
 
@@ -20,7 +21,7 @@ function loadSavedChecklist(): SavedChecklist {
 }
 
 export function EventsScreen() {
-  useAppState();
+  const { openBibleRef } = useAppState();
   const [selected, setSelected] = useState<CalendarEventEntry | null>(null);
   const [checklists, setChecklists] = useState<SavedChecklist>(loadSavedChecklist);
 
@@ -41,6 +42,14 @@ export function EventsScreen() {
   const currentKey = currentSelection?.key ?? "";
   const steps = currentSelection?.guide.steps ?? [];
   const saved = checklists[currentKey] ?? steps.map(() => false);
+  const readings = currentSelection?.guide.readings ?? [];
+
+  const openReading = (reference: string) => {
+    const passages = parseReference(reference);
+    const first = passages[0];
+    if (!first) return;
+    openBibleRef(first.book.id, first.chapter);
+  };
 
   const toggleStep = (idx: number) => {
     if (!currentSelection) return;
@@ -78,17 +87,17 @@ export function EventsScreen() {
       </div>
 
       <div className="section-label">Today</div>
-      <div className="card">
+      <div className="card event-list">
         {todayEvents.length > 0 ? (
           todayEvents.map((event) => (
             <button
               key={event.key}
-              className={`plan-template-option ${currentSelection?.key === event.key ? "selected" : ""}`}
-              data-active={currentSelection?.key === event.key}
+              className={`event-list-item ${currentSelection?.key === event.key ? "is-active" : ""}`}
               onClick={() => setSelected(event)}
             >
-              <span style={{ fontWeight: 700 }}>{event.guide.title}</span>
-              <span className="small muted">{event.guide.subtitle}</span>
+              <span className="event-list-item__date">Today</span>
+              <span className="event-list-item__title">{event.guide.title}</span>
+              <span className="event-list-item__subtitle">{event.guide.subtitle}</span>
             </button>
           ))
         ) : (
@@ -103,6 +112,28 @@ export function EventsScreen() {
         <div className="card">
           <div className="day-theme">{currentSelection.guide.title}</div>
           <p className="small muted">{currentSelection.guide.meaning}</p>
+
+          {readings.length > 0 && (
+            <>
+              <div className="section-label" style={{ marginTop: 14 }}>Recommended Readings</div>
+              <div className="event-readings">
+                {readings.map((reading) => (
+                  <button
+                    key={`${currentSelection.key}::${reading.reference}`}
+                    className="event-reading"
+                    onClick={() => openReading(reading.reference)}
+                  >
+                    <span className="event-reading__icon"><BookOpenIcon className="q-icon" /></span>
+                    <span className="event-reading__body">
+                      <span className="event-reading__title">{reading.label}</span>
+                      <span className="event-reading__ref">{reading.reference}</span>
+                      {reading.note && <span className="event-reading__note">{reading.note}</span>}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           <div className="event-steps">
             {steps.map((step, idx) => (
@@ -139,22 +170,19 @@ export function EventsScreen() {
       )}
 
       <div className="section-label">Upcoming</div>
-      <div className="card">
+      <div className="card event-list">
         {upcoming.length > 0 ? (
           upcoming.slice(0, 10).map((event) => (
             <button
               key={event.key}
-              className={`reading-row ${currentSelection?.key === event.key ? "done" : ""}`}
+              className={`event-list-item ${currentSelection?.key === event.key ? "is-active" : ""}`}
               onClick={() => setSelected(event)}
             >
-              <span className="reading-main" style={{ paddingLeft: 0 }}>
-                <BookOpenIcon />
-                <span style={{ minWidth: 0 }}>
-                  <span className="reading-track">{event.date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}</span>
-                  <br />
-                  <span className="reading-ref">{event.guide.title}</span>
-                </span>
+              <span className="event-list-item__date">
+                {event.date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
               </span>
+              <span className="event-list-item__title">{event.guide.title}</span>
+              <span className="event-list-item__subtitle">{event.guide.subtitle}</span>
             </button>
           ))
         ) : (

@@ -149,7 +149,7 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 .app-shell {
   max-width: 680px;
   margin: 0 auto;
-  padding: 0 16px calc(76px + env(safe-area-inset-bottom));
+  padding: 0 16px calc(var(--tab-bar-h) + 18px + env(safe-area-inset-bottom));
 }
 
 .screen-title {
@@ -247,6 +247,105 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 }
 .plan-template-option:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.event-list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+.event-list-item.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--card-bg));
+}
+
+.event-list-item__date {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.event-list-item__title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.event-list-item__subtitle {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.event-readings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+
+.event-reading {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent-bg) 35%, var(--card-bg));
+  box-shadow: var(--shadow);
+}
+
+.event-reading:hover {
+  background: color-mix(in srgb, var(--accent-bg) 55%, var(--card-bg));
+}
+
+.event-reading__icon {
+  display: flex;
+  align-items: flex-start;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.event-reading__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.event-reading__title {
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.event-reading__ref {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.event-reading__note {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
 
 /* ---------- tab bar ---------- */
 
@@ -256,8 +355,12 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: stretch;
   gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   background: color-mix(in srgb, var(--card-bg) 88%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -267,15 +370,18 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 }
 
 .tab-bar button {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 6px 22px;
+  min-width: 72px;
+  padding: 6px 12px;
   border-radius: 12px;
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .tab-bar button.active { color: var(--accent); background: var(--accent-bg); }
