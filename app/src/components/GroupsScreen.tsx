@@ -21,6 +21,7 @@ import {
 } from "./icons";
 import { DayNumberInput } from "./DayNumberInput";
 import { ReaderOverlay, type ReaderRequest } from "./ReaderOverlay";
+import ChatView from "./ChatView";
 import { TRACK_LABELS, TRACKS } from "../types";
 import { groupProgressScopeId, isGroupProgressOptedIn, setGroupProgressOptIn } from "../lib/groupPlanProgress";
 import { PLAN_TEMPLATES, generatePlan } from "../lib/planTemplates";
@@ -40,7 +41,8 @@ type View =
   | { kind: "list" }
   | { kind: "create" }
   | { kind: "join" }
-  | { kind: "detail"; groupId: string };
+  | { kind: "detail"; groupId: string }
+  | { kind: "thread_chat"; channelId: string; title: string; groupId: string };
 
 // ─── GroupsScreen ─────────────────────────────────────────────────────────────
 
@@ -82,6 +84,18 @@ export default function GroupsScreen() {
   );
 
   // Sub-view routing
+  if (view.kind === "thread_chat") {
+    return (
+      <ChatView
+        channelId={view.channelId}
+        title={view.title}
+        isGroup
+        groupId={view.groupId}
+        isGroupAdmin={groups.find((group) => group.id === view.groupId)?.role === "admin"}
+        onBack={() => setView({ kind: "detail", groupId: view.groupId })}
+      />
+    );
+  }
   if (view.kind === "create") {
     return <CreateGroupView onBack={() => setView({ kind: "list" })} onCreate={reload} />;
   }
@@ -93,6 +107,7 @@ export default function GroupsScreen() {
       <GroupDetailView
         groupId={view.groupId}
         onBack={() => setView({ kind: "list" })}
+        onThreadChat={(channelId, title) => setView({ kind: "thread_chat", channelId, title, groupId: view.groupId })}
         onChanged={reload}
       />
     );
@@ -360,10 +375,11 @@ function JoinGroupView({ onBack, onJoin }: { onBack: () => void; onJoin: () => v
 // ─── Group Detail ─────────────────────────────────────────────────────────────
 
 function GroupDetailView({
-  groupId, onBack, onChanged,
+  groupId, onBack, onThreadChat, onChanged,
 }: {
   groupId: string;
   onBack: () => void;
+  onThreadChat: (channelId: string, title: string) => void;
   onChanged: () => void;
 }) {
   const { user, isTrackDoneScoped, toggleProgressScoped, markProgressThroughDayScoped } = useAppState();
@@ -500,6 +516,27 @@ function GroupDetailView({
     await navigator.clipboard.writeText(group.inviteCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function shareInviteLink() {
+    if (!group) return;
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.hash = "";
+    url.searchParams.set("invite", group.inviteCode);
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `Join ${group.name} on Shema Study`,
+          text: "Join our study group on Shema Study.",
+          url: url.toString(),
+        });
+      } else {
+        await navigator.clipboard.writeText(url.toString());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch { /* cancelled share or unavailable clipboard */ }
   }
 
   if (!group) return <div className="groups-screen"><p className="groups-loading">Loading…</p></div>;
@@ -831,9 +868,9 @@ function GroupDetailView({
           <PencilIcon className="q-icon" />
           <span>New Thread</span>
         </button>
-        <button className="group-action-btn" onClick={() => void copyCode()}>
+        <button className="group-action-btn" onClick={() => void shareInviteLink()}>
           <CopyIcon className="q-icon" />
-          <span>{copied ? "Copied!" : "Invite"}</span>
+          <span>{copied ? "Link Copied!" : "Share Invite"}</span>
         </button>
         <button
           className="group-action-btn"
@@ -864,13 +901,14 @@ function GroupDetailView({
         )}
         {threads.map((t) => (
           <div key={t.id} className="groups-row thread-row">
-            <div className="thread-row-main">
+            <button className="thread-row-main" onClick={() => onThreadChat(t.channelId, `${t.emoji} ${t.name}`)}>
               <div className="thread-emoji-badge">{t.emoji}</div>
               <div className="groups-row-info">
                 <span className="groups-row-name">{t.name}</span>
                 {t.lastMessageAt && <span className="groups-row-sub">{formatRelativeTime(t.lastMessageAt)}</span>}
               </div>
-            </div>
+              <ChevronRightIcon className="groups-row-chevron" />
+            </button>
             <button className="thread-edit-btn" onClick={() => setEditingThread(t)} aria-label={`Edit ${t.name}`} title="Rename or change icon">
               <PencilIcon className="q-icon" />
             </button>
@@ -1147,6 +1185,21 @@ function GroupSettingsSheet({
     setInviteBusy(false);
   }
 
+  async function handleShareInvite() {
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.hash = "";
+    url.searchParams.set("invite", inviteCode);
+    const shareData = { title: `Join ${group.name} on Shema Study`, text: `Join our study group on Shema Study.`, url: url.toString() };
+    try {
+      if (navigator.share) await navigator.share(shareData);
+      else {
+        await navigator.clipboard.writeText(url.toString());
+        setInviteMsg("Invite link copied.");
+      }
+    } catch { /* cancelled share or clipboard unavailable */ }
+  }
+
   async function handleInviteSettingsChange(expiresInMs: number | null, maxUses: number | null) {
     setInviteBusy(true); setInviteMsg(null);
     try {
@@ -1234,6 +1287,9 @@ function GroupSettingsSheet({
         <h4 style={{ margin: "0 0 8px", fontWeight: 700, color: "var(--text-h)", fontSize: "0.9rem" }}>Invite Link</h4>
         <div className="groups-invite-code-row">
           <span className="groups-invite-code">{inviteCode}</span>
+          <button type="button" className="groups-text-btn" disabled={inviteBusy} onClick={() => void handleShareInvite()}>
+            <CopyIcon className="q-icon" /> Share Link
+          </button>
           <button type="button" className="groups-text-btn" disabled={inviteBusy} onClick={() => void handleRegenerate()}>
             Regenerate
           </button>

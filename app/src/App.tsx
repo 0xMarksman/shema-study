@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AuthScreen } from "./components/AuthScreen";
 import AlertsCenter from "./components/AlertsCenter";
 import { BibleScreen } from "./components/BibleScreen";
@@ -9,7 +9,7 @@ import { EventsScreen } from "./components/EventsScreen";
 import { PlanScreen } from "./components/PlanScreen";
 import { SettingsScreen } from "./components/SettingsScreen";
 import { TodayScreen } from "./components/TodayScreen";
-import { getToken, uploadPublicKey } from "./lib/api";
+import { getToken, joinGroup, uploadPublicKey } from "./lib/api";
 import { getOrCreateKeyPair, exportPublicKey } from "./lib/encryption";
 import { realtime, buildWsUrl } from "./lib/realtime";
 import { useAppState } from "./state/AppState";
@@ -20,6 +20,11 @@ export default function App() {
   const { settings, user, skippedAuth, skipAuth, isAuthTransitioning } = useAppState();
   const [tab, setTab] = useState<Tab>("today");
   const [readerOpen, setReaderOpen] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string | null>(() => {
+    const code = new URLSearchParams(window.location.search).get("invite")?.trim().toUpperCase();
+    return code && /^[A-Z0-9_-]{3,64}$/.test(code) ? code : null;
+  });
+  const inviteHandled = useRef(false);
 
   // Apply appearance settings as root data-attributes driving the CSS variables.
   useEffect(() => {
@@ -75,6 +80,23 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!user || !inviteCode || inviteHandled.current) return;
+    inviteHandled.current = true;
+    void joinGroup(inviteCode)
+      .then(() => {
+        setTab("groups");
+        setInviteCode(null);
+        const url = new URL(window.location.href);
+        url.searchParams.delete("invite");
+        window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+      })
+      .catch(() => {
+        // Keep the link in the URL if the invite is expired or invalid so the user can retry or use the code manually.
+        inviteHandled.current = false;
+      });
+  }, [inviteCode, user]);
+
+  useEffect(() => {
     const handler = () => setTab("groups");
     window.addEventListener("navigate-groups", handler);
     return () => window.removeEventListener("navigate-groups", handler);
@@ -126,7 +148,7 @@ export default function App() {
   }
 
   if (!user && !skippedAuth) {
-    return <AuthScreen onSkip={skipAuth} />;
+    return <AuthScreen onSkip={skipAuth} inviteCode={inviteCode} />;
   }
 
   return (

@@ -121,11 +121,16 @@ export function AuthForm({ onDone }: { onDone?: () => void }) {
 }
 
 /** Full-page landing shown until the user signs in (or explicitly skips). */
-export function AuthScreen({ onSkip }: { onSkip: () => void }) {
+export function AuthScreen({ onSkip, inviteCode }: { onSkip: () => void; inviteCode?: string | null }) {
   return (
     <div className="auth-screen">
       <BookIcon />
       <h1 style={{ fontSize: "1.5rem" }}>Shema Study</h1>
+      {inviteCode && (
+        <p className="auth-invite-notice">
+          You have been invited to join a study group. Create an account or sign in to join automatically.
+        </p>
+      )}
       <p className="muted" style={{ maxWidth: 420, margin: 0 }}>
         A 365-day journey through the whole Bible — Tanakh, Psalms, Proverbs, and
         B'rit Chadashah — with an in-app reader and daily study questions.
