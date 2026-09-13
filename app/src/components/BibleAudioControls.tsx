@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { type BibleVerse } from "../lib/bibleApi";
-import { buildBibleSpeechBlocks, getBestAvailableVoice, getVoiceLabel, sortVoicesByNaturalness, useBibleSpeech, useSpeechVoices } from "../lib/speech";
+import { buildBibleSpeechBlocks, KOKORO_VOICES, useBibleSpeech } from "../lib/speech";
 import { CloseIcon, GearIcon, PauseIcon, PlayIcon } from "./icons";
 import { useAppState } from "../state/AppState";
 
@@ -31,16 +31,10 @@ export function BibleAudioControls({
   const [collapsed, setCollapsed] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
   const pendingAutoPlaySignal = useRef<number | undefined>(undefined);
-  const { voices, ready } = useSpeechVoices();
   const { status, speak, pause, resume, stop, supported } = useBibleSpeech();
 
   const blocks = useMemo(() => (verses ? buildBibleSpeechBlocks(reference, verses) : []), [reference, verses]);
-  const sortedVoices = useMemo(() => sortVoicesByNaturalness(voices, settings.translation), [voices, settings.translation]);
-  const selectedVoice = useMemo(
-    () => sortedVoices.find((voice) => voice.voiceURI === settings.bibleVoiceURI) ?? null,
-    [sortedVoices, settings.bibleVoiceURI],
-  );
-  const recommendedVoice = useMemo(() => getBestAvailableVoice(sortedVoices, settings.translation), [sortedVoices, settings.translation]);
+  const selectedVoice = KOKORO_VOICES.find((voice) => `kokoro:${voice.id}` === settings.bibleVoiceURI) ?? KOKORO_VOICES[0];
 
   useEffect(() => {
     stop();
@@ -131,15 +125,25 @@ export function BibleAudioControls({
 
   if (collapsed) {
     return (
-      <button
-        className="audio-mini-chip"
-        onClick={() => setCollapsed(false)}
-        aria-label="Show audio controls"
-        title={`Audio Bible: ${statusLabel}`}
-      >
-        <span className="audio-mini-chip__label">Audio</span>
-        <span className={`audio-mini-chip__status audio-mini-chip__status--${status}`}>{statusLabel}</span>
-      </button>
+      <div className="audio-mini-dock" role="group" aria-label="Compact audio controls">
+        <button
+          className="audio-mini-dock__play"
+          onClick={handleTogglePlayback}
+          disabled={!canTogglePlayback}
+          aria-label={status === "speaking" ? "Pause audio" : "Play audio"}
+          title={`Audio Bible: ${statusLabel}`}
+        >
+          {status === "speaking" ? <PauseIcon /> : <PlayIcon />}
+        </button>
+        <button
+          className="audio-mini-dock__settings"
+          onClick={() => setCollapsed(false)}
+          aria-label="Show audio settings"
+          title="Audio settings"
+        >
+          <GearIcon />
+        </button>
+      </div>
     );
   }
 
@@ -158,7 +162,7 @@ export function BibleAudioControls({
 
         <div className="audio-dock__meta">
           <span className={`audio-dock__status audio-dock__status--${status}`}>{statusLabel}</span>
-          <span className="audio-dock__detail">{ready ? getVoiceLabel(selectedVoice) : "Voices"}</span>
+          <span className="audio-dock__detail">{selectedVoice.name} · {selectedVoice.gender}</span>
         </div>
 
         <div className="audio-dock__actions">
@@ -189,26 +193,13 @@ export function BibleAudioControls({
 
             <div className="small muted" style={{ marginBottom: 8 }}>
               {supported
-                ? ready
-                  ? `Voice: ${getVoiceLabel(selectedVoice)} · ${settings.bibleSpeechRate.toFixed(2)}x · pitch ${settings.bibleSpeechPitch.toFixed(2)}`
-                  : "Loading browser voices..."
+                ? `Kokoro voice: ${selectedVoice.name} (${selectedVoice.gender}) · ${settings.bibleSpeechRate.toFixed(2)}x`
                 : "Audio playback is not supported in this browser."}
             </div>
 
-            {recommendedVoice && recommendedVoice.voiceURI !== settings.bibleVoiceURI && (
-              <button
-                className="btn btn-secondary"
-                onClick={() => updateSettings({ bibleVoiceURI: recommendedVoice.voiceURI })}
-                disabled={!supported || !ready}
-                style={{ marginBottom: 10 }}
-              >
-                Try recommended
-              </button>
-            )}
-
-            {supported && ready && sortedVoices.length > 0 && (
+            {supported && (
               <div className="setting-row" style={{ paddingTop: 0 }}>
-                <label htmlFor="player-voice-select">Voice</label>
+                <label htmlFor="player-voice-select">Kokoro voice</label>
                 <div className="audio-voice-picker">
                   <select
                     id="player-voice-select"
@@ -216,10 +207,9 @@ export function BibleAudioControls({
                     value={settings.bibleVoiceURI}
                     onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
                   >
-                    <option value="">Browser default</option>
-                    {sortedVoices.map((voice) => (
-                      <option key={voice.voiceURI} value={voice.voiceURI}>
-                        {voice.name} ({voice.lang}){voice.localService ? " · local" : ""}
+                    {KOKORO_VOICES.map((voice) => (
+                      <option key={voice.id} value={`kokoro:${voice.id}`}>
+                        {voice.name} · {voice.gender} · {voice.language}
                       </option>
                     ))}
                   </select>

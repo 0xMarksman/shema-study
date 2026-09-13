@@ -1068,6 +1068,43 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   color: var(--accent);
 }
 
+.audio-mini-dock {
+  position: sticky;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  z-index: 6;
+  width: fit-content;
+  margin-left: auto;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.audio-mini-dock__play,
+.audio-mini-dock__settings {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.audio-mini-dock__play { background: var(--accent); color: var(--accent-contrast); }
+.audio-mini-dock__settings { background: transparent; color: var(--text-muted); }
+.audio-mini-dock__settings:hover { color: var(--accent); background: var(--accent-bg); }
+.audio-mini-dock__play:disabled { opacity: 0.5; cursor: default; }
+.audio-mini-dock svg { width: 15px; height: 15px; }
+
 .verse--active {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   border-left: 3px solid var(--accent);
@@ -2355,6 +2392,16 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 .gif-url-form { display: flex; gap: 8px; }
 
 /* ─── Notification bell ───────────────────────────────────────────────────── */
+.alerts-center { position: fixed; top: 14px; right: 16px; z-index: 120; }
+.alerts-trigger {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px; border: 1px solid var(--border); border-radius: 50%;
+  background: color-mix(in srgb, var(--card-bg) 92%, transparent); color: var(--text-muted);
+  box-shadow: var(--shadow); cursor: pointer; backdrop-filter: blur(10px);
+}
+.alerts-trigger:hover, .alerts-trigger:focus-visible { color: var(--accent); background: var(--accent-bg); }
+.alerts-trigger svg { width: 21px; height: 21px; }
+.alerts-panel { right: 0; top: calc(100% + 8px); }
 .notif-bell-wrap { position: relative; }
 .notif-badge {
   position: absolute; top: -4px; right: -4px; background: var(--danger); color: #fff;

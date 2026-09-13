@@ -12,7 +12,7 @@ import { PLAN_TEMPLATES } from "../lib/planTemplates";
 import { CustomPlanBuilderSheet } from "./CustomPlanBuilder";
 import { DayNumberInput } from "./DayNumberInput";
 import { buildAnswersExport, downloadTextFile } from "../lib/exportAnswers";
-import { getBestAvailableVoice, getVoiceLabel, sortVoicesByNaturalness, useSpeechVoices } from "../lib/speech";
+import { KOKORO_VOICES } from "../lib/speech";
 
 export function SettingsScreen() {
   const { plan, settings, progress, updateSettings, resetProgress } = useAppState();
@@ -435,42 +435,29 @@ function RemindersCard() {
 
 function AudioBibleCard() {
   const { settings, updateSettings } = useAppState();
-  const { voices, ready } = useSpeechVoices();
-  const sortedVoices = sortVoicesByNaturalness(voices, settings.translation);
-  const selectedVoice = sortedVoices.find((voice) => voice.voiceURI === settings.bibleVoiceURI) ?? null;
-  const recommendedVoice = getBestAvailableVoice(sortedVoices, settings.translation);
-  const supported = typeof window !== "undefined" && "speechSynthesis" in window;
+  const selectedVoice = KOKORO_VOICES.find((voice) => `kokoro:${voice.id}` === settings.bibleVoiceURI) ?? KOKORO_VOICES[0];
+  const supported = typeof window !== "undefined";
 
   return (
     <>
       <div className="section-label">Audio Bible</div>
       <div className="card">
         <div className="setting-row">
-          <label htmlFor="bible-voice-select">Voice</label>
+          <label htmlFor="bible-voice-select">Kokoro voice</label>
           <div className="audio-voice-picker">
             <select
               id="bible-voice-select"
               className="settings-voice-select"
               value={settings.bibleVoiceURI}
               onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
-              disabled={!supported || !ready}
+              disabled={!supported}
             >
-              <option value="">Browser default</option>
-              {sortedVoices.map((voice) => (
-                <option key={voice.voiceURI} value={voice.voiceURI}>
-                  {voice.name} ({voice.lang}){voice.localService ? " · local" : ""}
+              {KOKORO_VOICES.map((voice) => (
+                <option key={voice.id} value={`kokoro:${voice.id}`}>
+                  {voice.name} · {voice.gender} · {voice.language}
                 </option>
               ))}
             </select>
-            {recommendedVoice && recommendedVoice.voiceURI !== settings.bibleVoiceURI && (
-              <button
-                className="btn btn-secondary"
-                onClick={() => updateSettings({ bibleVoiceURI: recommendedVoice.voiceURI })}
-                disabled={!supported || !ready}
-              >
-                Try recommended
-              </button>
-            )}
           </div>
         </div>
         <div className="setting-row">
@@ -520,9 +507,7 @@ function AudioBibleCard() {
         </div>
         <p className="small muted" style={{ margin: "8px 0 0" }}>
           {supported
-            ? ready
-              ? `Current voice: ${getVoiceLabel(selectedVoice)}${recommendedVoice ? ` · recommended: ${getVoiceLabel(recommendedVoice)}` : ""}`
-              : "Loading browser voices..."
+            ? `Current voice: ${selectedVoice.name} (${selectedVoice.gender}) · Kokoro on-device voice`
             : "Audio Bible playback is not supported in this browser."}
         </p>
       </div>

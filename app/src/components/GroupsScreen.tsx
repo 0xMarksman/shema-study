@@ -1,14 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
-import type { Group, GroupMember, DmChannel, Thread, AppNotification, PlanDay } from "../types";
+import type { Group, GroupMember, Thread, PlanDay } from "../types";
 import {
   listGroups, getGroup, createGroup, joinGroup, lookupInviteCode,
   updateGroup, deleteGroup, leaveGroup, removeGroupMember, setGroupMemberRole,
   setInviteSettings, regenerateInviteCode,
-  searchUsers, getOrCreateDM, listDMs,
   uploadPublicKey as _uploadPublicKey, fetchPublicKey,
-  uploadChannelKey, uploadGroupKey,
+  uploadGroupKey,
   listThreads, createThread, updateThread, deleteThread,
-  listNotifications, markNotificationsRead,
 } from "../lib/api";
 import {
   getOrCreateKeyPair, exportPublicKey, generateChannelKey,
@@ -17,11 +15,10 @@ import {
 import { realtime } from "../lib/realtime";
 import { useAppState } from "../state/AppState";
 import {
-  UsersIcon, PersonAddIcon, MessageCircleIcon,
-  ChevronRightIcon, CopyIcon, BellIcon, PencilIcon, GearIcon,
+  UsersIcon, PersonAddIcon,
+  ChevronRightIcon, CopyIcon, PencilIcon, GearIcon,
   TrashIcon, LogOutIcon, CheckCircleIcon, BookOpenIcon,
 } from "./icons";
-import ChatView from "./ChatView";
 import { DayNumberInput } from "./DayNumberInput";
 import { ReaderOverlay, type ReaderRequest } from "./ReaderOverlay";
 import { TRACK_LABELS, TRACKS } from "../types";
@@ -43,10 +40,7 @@ type View =
   | { kind: "list" }
   | { kind: "create" }
   | { kind: "join" }
-  | { kind: "detail"; groupId: string }
-  | { kind: "chat"; channelId: string; title: string; isGroup?: boolean; groupId?: string }
-  | { kind: "dm_list" }
-  | { kind: "dm_new" };
+  | { kind: "detail"; groupId: string };
 
 // ─── GroupsScreen ─────────────────────────────────────────────────────────────
 
@@ -54,41 +48,19 @@ export default function GroupsScreen() {
   const { user } = useAppState();
   const [view, setView] = useState<View>({ kind: "list" });
   const [groups, setGroups] = useState<Group[]>([]);
-  const [dms, setDms] = useState<DmChannel[]>([]);
   const [loading, setLoading] = useState(false);
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [showNotifs, setShowNotifs] = useState(false);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
-  const visibleNotifications = [
-    ...notifications.filter((n) => !n.read),
-    ...notifications.filter((n) => n.read).slice(0, 5),
-  ];
 
   const reload = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const [gRes, dRes] = await Promise.all([listGroups(), listDMs()]);
+      const gRes = await listGroups();
       setGroups(gRes.groups);
-      setDms(dRes.dms);
     } catch { /* ignore */ }
     setLoading(false);
   }, [user]);
 
-  const reloadNotifs = useCallback(async () => {
-    if (!user) return;
-    try { setNotifications((await listNotifications()).notifications); } catch { /* ignore */ }
-  }, [user]);
-
   useEffect(() => { void reload(); }, [reload]);
-  useEffect(() => { void reloadNotifs(); }, [reloadNotifs]);
-
-  // WS: new notification
-  useEffect(() => {
-    const unsub = realtime.on("notification:new", () => { void reloadNotifs(); });
-    return unsub;
-  }, [reloadNotifs]);
 
   // WS: new thread
   useEffect(() => {
@@ -105,23 +77,11 @@ export default function GroupsScreen() {
 
   if (!user) return (
     <div className="groups-empty">
-      <p>Sign in to access the community features.</p>
+      <p>Sign in to access your groups.</p>
     </div>
   );
 
   // Sub-view routing
-  if (view.kind === "chat") {
-    return (
-      <ChatView
-        channelId={view.channelId}
-        title={view.title}
-        isGroup={view.isGroup}
-        groupId={view.groupId}
-        isGroupAdmin={groups.find((g) => g.id === view.groupId)?.role === "admin"}
-        onBack={() => setView(view.groupId ? { kind: "detail", groupId: view.groupId } : { kind: "list" })}
-      />
-    );
-  }
   if (view.kind === "create") {
     return <CreateGroupView onBack={() => setView({ kind: "list" })} onCreate={reload} />;
   }
@@ -133,16 +93,7 @@ export default function GroupsScreen() {
       <GroupDetailView
         groupId={view.groupId}
         onBack={() => setView({ kind: "list" })}
-        onChat={(channelId, title, isGroup, chatGroupId) => setView({ kind: "chat", channelId, title, isGroup, groupId: chatGroupId })}
         onChanged={reload}
-      />
-    );
-  }
-  if (view.kind === "dm_new") {
-    return (
-      <NewDMView
-        onBack={() => setView({ kind: "list" })}
-        onOpen={(channelId, username) => setView({ kind: "chat", channelId, title: `@${username}` })}
       />
     );
   }
@@ -151,81 +102,8 @@ export default function GroupsScreen() {
   return (
     <div className="groups-screen">
       <div className="groups-header">
-        <h2 className="groups-title">Community</h2>
+        <h2 className="groups-title">Groups</h2>
         <div className="groups-header-actions">
-          {/* Notifications bell */}
-          <div className="notif-bell-wrap">
-            <button
-              className="groups-header-btn"
-              title="Notifications"
-              onClick={async () => {
-                setShowNotifs((v) => !v);
-              }}
-            >
-              <BellIcon />
-              <span>Alerts</span>
-              {unreadCount > 0 && <span className="notif-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
-            </button>
-            {showNotifs && (
-              <div className="notif-panel">
-                <div className="notif-panel-header">
-                  <span>Notifications</span>
-                  <div className="notif-panel-actions">
-                    {unreadCount > 0 && (
-                      <button className="link-btn small" onClick={async () => {
-                        await markNotificationsRead().catch(() => {});
-                        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-                      }}>Mark all read</button>
-                    )}
-                    <button className="link-btn small" onClick={() => setShowNotifs(false)}>Close</button>
-                  </div>
-                </div>
-                {visibleNotifications.length === 0 && <p className="notif-empty">No notifications yet.</p>}
-                {visibleNotifications.map((n) => {
-                  const canNav = !!(n.channelId && (n.type === "message" || n.type === "reaction"));
-                  const channelTitle = n.data.channelTitle
-                    ? String(n.data.channelTitle)
-                    : `@${String(n.data.fromUsername ?? "")}`;
-                  return (
-                    <div
-                      key={n.id}
-                      className={`notif-item ${n.read ? "" : "notif-unread"}${canNav ? " notif-item-nav" : ""}`}
-                      role={canNav ? "button" : undefined}
-                      tabIndex={canNav ? 0 : undefined}
-                      onClick={() => {
-                        if (!canNav) return;
-                        setShowNotifs(false);
-                        setNotifications((prev) => prev.map((x) => x.id === n.id ? { ...x, read: true } : x));
-                        markNotificationsRead().catch(() => {});
-                        setView({
-                          kind: "chat",
-                          channelId: n.channelId!,
-                          title: channelTitle,
-                          isGroup: Boolean(n.data.isGroup),
-                        });
-                      }}
-                    >
-                      <span className="notif-icon">{n.type === "reaction" ? "❤️" : n.type === "message" ? "💬" : "👥"}</span>
-                      <div className="notif-body">
-                        {n.type === "reaction" && (
-                          <span><b>{n.data.fromUsername as string}</b> reacted {n.data.emoji as string} to your message</span>
-                        )}
-                        {n.type === "message" && (
-                          <span>
-                            <b>{n.data.fromUsername as string}</b>
-                            {n.data.channelTitle ? <> in <b>{n.data.channelTitle as string}</b></> : ""}
-                            {n.data.preview ? <>: <span className="notif-preview">{String(n.data.preview).slice(0, 60)}</span></> : " sent a message"}
-                          </span>
-                        )}
-                        {n.type === "group_join" && <span>Someone joined your group</span>}
-                        <span className="notif-time">{formatRelativeTime(n.createdAt)}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
           <button className="groups-header-btn" title="Join a group" onClick={() => setView({ kind: "join" })}>
             <PersonAddIcon />
             <span>Join</span>
@@ -260,34 +138,6 @@ export default function GroupsScreen() {
           ))}
         </section>
       )}
-
-      <section className="groups-section">
-        <div className="groups-section-header">
-          <h3 className="groups-section-title">Direct Messages</h3>
-          <button className="groups-text-btn" onClick={() => setView({ kind: "dm_new" })}>
-            + New DM
-          </button>
-        </div>
-        {dms.length === 0 && !loading && (
-          <p className="groups-empty-text">No direct messages yet.</p>
-        )}
-        {dms.map((dm) => (
-          <button
-            key={dm.channelId}
-            className="groups-row"
-            onClick={() => setView({ kind: "chat", channelId: dm.channelId, title: `@${dm.otherUser.username}` })}
-          >
-            <div className="groups-row-avatar">{dm.otherUser.username.charAt(0).toUpperCase()}</div>
-            <div className="groups-row-info">
-              <span className="groups-row-name">@{dm.otherUser.username}</span>
-              {dm.lastMessageAt && (
-                <span className="groups-row-sub">{formatRelativeTime(dm.lastMessageAt)}</span>
-              )}
-            </div>
-            <ChevronRightIcon className="groups-row-chevron" />
-          </button>
-        ))}
-      </section>
 
       {groups.length === 0 && !loading && (
         <div className="groups-onboarding">
@@ -510,11 +360,10 @@ function JoinGroupView({ onBack, onJoin }: { onBack: () => void; onJoin: () => v
 // ─── Group Detail ─────────────────────────────────────────────────────────────
 
 function GroupDetailView({
-  groupId, onBack, onChat, onChanged,
+  groupId, onBack, onChanged,
 }: {
   groupId: string;
   onBack: () => void;
-  onChat: (channelId: string, title: string, isGroup?: boolean, chatGroupId?: string) => void;
   onChanged: () => void;
 }) {
   const { user, isTrackDoneScoped, toggleProgressScoped, markProgressThroughDayScoped } = useAppState();
@@ -978,12 +827,6 @@ function GroupDetailView({
 
       {/* Quick actions */}
       <div className="group-actions-grid">
-        {group.channelId && (
-          <button className="group-action-btn" onClick={() => onChat(group.channelId!, group.name, true, group.id)}>
-            <MessageCircleIcon className="q-icon" />
-            <span>Group Chat</span>
-          </button>
-        )}
         <button className="group-action-btn" onClick={() => setShowNewThread(true)}>
           <PencilIcon className="q-icon" />
           <span>New Thread</span>
@@ -1021,14 +864,13 @@ function GroupDetailView({
         )}
         {threads.map((t) => (
           <div key={t.id} className="groups-row thread-row">
-            <button className="thread-row-main" onClick={() => onChat(t.channelId, `${t.emoji} ${t.name}`, true, groupId)}>
+            <div className="thread-row-main">
               <div className="thread-emoji-badge">{t.emoji}</div>
               <div className="groups-row-info">
                 <span className="groups-row-name">{t.name}</span>
                 {t.lastMessageAt && <span className="groups-row-sub">{formatRelativeTime(t.lastMessageAt)}</span>}
               </div>
-              <ChevronRightIcon className="groups-row-chevron" />
-            </button>
+            </div>
             <button className="thread-edit-btn" onClick={() => setEditingThread(t)} aria-label={`Edit ${t.name}`} title="Rename or change icon">
               <PencilIcon className="q-icon" />
             </button>
@@ -1582,88 +1424,6 @@ function ThreadModal({ groupId, thread, onClose, onSaved, onDeleted }: {
               <TrashIcon className="q-icon" /> Delete Thread
             </button>
           )
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── New DM ───────────────────────────────────────────────────────────────────
-
-function NewDMView({
-  onBack,
-  onOpen,
-}: {
-  onBack: () => void;
-  onOpen: (channelId: string, username: string) => void;
-}) {
-  const { user } = useAppState();
-  const [q, setQ] = useState("");
-  const [results, setResults] = useState<{ id: string; username: string }[]>([]);
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (q.trim().length < 2) { setResults([]); return; }
-    const timer = setTimeout(async () => {
-      setBusy(true);
-      try { setResults((await searchUsers(q.trim())).users); } catch { /* ignore */ }
-      setBusy(false);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [q]);
-
-  async function startDM(userId: string, username: string) {
-    try {
-      const { channelId, created } = await getOrCreateDM(userId);
-      // Provision E2E channel key when channel is newly created
-      if (created) {
-        try {
-          const myPair = await getOrCreateKeyPair();
-          const myJwk = await exportPublicKey(myPair.publicKey);
-          // Fetch other user's public key
-          const { publicKeyJwk: otherJwk } = await fetchPublicKey(userId);
-          const myPubKey = await importPublicKey(myJwk);
-          const otherPubKey = await importPublicKey(otherJwk);
-          const channelKey = await generateChannelKey();
-          const [myEncKey, otherEncKey] = await Promise.all([
-            encryptChannelKey(channelKey, myPubKey),
-            encryptChannelKey(channelKey, otherPubKey),
-          ]);
-          const myId = user!.id;
-          await Promise.all([
-            uploadChannelKey(channelId, myId, myEncKey),
-            uploadChannelKey(channelId, userId, otherEncKey),
-          ]);
-          cacheChannelKey(channelId, channelKey);
-        } catch { /* non-fatal — will chat unencrypted */ }
-      }
-      onOpen(channelId, username);
-    } catch { /* ignore */ }
-  }
-
-  return (
-    <div className="groups-screen">
-      <div className="groups-header">
-        <button className="groups-back-btn" onClick={onBack}>&larr; Back</button>
-        <h2 className="groups-title">New Message</h2>
-      </div>
-      <div className="groups-form">
-        <input
-          className="groups-input"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search username…"
-          autoFocus
-        />
-        {busy && <p className="groups-loading">Searching…</p>}
-        {results.map((u) => (
-          <button key={u.id} className="groups-row" onClick={() => void startDM(u.id, u.username)}>
-            <div className="groups-row-avatar">{u.username.charAt(0).toUpperCase()}</div>
-            <span className="groups-row-name">@{u.username}</span>
-          </button>
-        ))}
-        {!busy && q.trim().length >= 2 && results.length === 0 && (
-          <p className="groups-empty-text">No users found.</p>
         )}
       </div>
     </div>

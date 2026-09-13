@@ -89,9 +89,9 @@ export interface Settings {
   /** Last position in the standalone Bible tab. */
   lastBookId: number;
   lastChapter: number;
-  /** Saved browser TTS voice URI for the audio Bible. */
+  /** Saved Kokoro voice id, or a browser voice URI for fallback speech. */
   bibleVoiceURI: string;
-  /** Speech rate for browser TTS. */
+  /** Speech rate for audio Bible playback. */
   bibleSpeechRate: number;
   /** Speech pitch for browser TTS. */
   bibleSpeechPitch: number;
@@ -142,7 +142,7 @@ export const DEFAULT_SETTINGS: Settings = {
   redLetters: true,
   lastBookId: 40,
   lastChapter: 1,
-  bibleVoiceURI: "",
+  bibleVoiceURI: "kokoro:af_heart",
   bibleSpeechRate: 1,
   bibleSpeechPitch: 1,
   bibleAutoScroll: true,

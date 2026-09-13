@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AuthScreen } from "./components/AuthScreen";
+import AlertsCenter from "./components/AlertsCenter";
 import { BibleScreen } from "./components/BibleScreen";
 import GroupsScreen from "./components/GroupsScreen";
 import MessagesScreen from "./components/MessagesScreen";
@@ -78,6 +79,12 @@ export default function App() {
     return () => window.removeEventListener("navigate-community", handler);
   }, []);
 
+  useEffect(() => {
+    const handler = () => setTab("messages");
+    window.addEventListener("navigate-messages", handler);
+    return () => window.removeEventListener("navigate-messages", handler);
+  }, []);
+
   // Connect WebSocket when signed in
   useEffect(() => {
     const token = getToken();
@@ -115,6 +122,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      <AlertsCenter />
       {tab === "today" && <TodayScreen />}
       {tab === "events" && <EventsScreen />}
       {tab === "plan" && <PlanScreen />}

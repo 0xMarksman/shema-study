@@ -117,6 +117,11 @@ function stateKeyForUser(userId: string | null): string {
  */
 function migrateState(raw: PlanState): PlanState {
   const templateId = raw.settings?.planTemplateId ?? DEFAULT_SETTINGS.planTemplateId;
+  const settings = {
+    ...DEFAULT_SETTINGS,
+    ...raw.settings,
+    bibleVoiceURI: raw.settings?.bibleVoiceURI || DEFAULT_SETTINGS.bibleVoiceURI,
+  };
   const progress = Array.isArray(raw.progress) ? raw.progress : [];
   const answers = raw.answers && typeof raw.answers === "object" ? raw.answers : {};
   const customQuestions = raw.customQuestions && typeof raw.customQuestions === "object" ? raw.customQuestions : {};
@@ -132,6 +137,7 @@ function migrateState(raw: PlanState): PlanState {
 
   return {
     ...raw,
+    settings,
     progress: progress.map((key) => {
       if (typeof key !== "string") return key;
       if (!key.includes("::")) return `${PERSONAL_PROGRESS_SCOPE}::${templateId}::${key}`;
