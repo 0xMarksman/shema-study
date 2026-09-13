@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { AuthScreen } from "./components/AuthScreen";
 import { BibleScreen } from "./components/BibleScreen";
 import GroupsScreen from "./components/GroupsScreen";
-import { BookIcon, CalendarIcon, GearIcon, ListIcon, SunIcon, UsersIcon } from "./components/icons";
+import MessagesScreen from "./components/MessagesScreen";
+import { BookIcon, CalendarIcon, GearIcon, ListIcon, MessagesIcon, SunIcon, UsersIcon } from "./components/icons";
 import { EventsScreen } from "./components/EventsScreen";
 import { PlanScreen } from "./components/PlanScreen";
 import { SettingsScreen } from "./components/SettingsScreen";
@@ -12,7 +13,7 @@ import { getOrCreateKeyPair, exportPublicKey } from "./lib/encryption";
 import { realtime, buildWsUrl } from "./lib/realtime";
 import { useAppState } from "./state/AppState";
 
-type Tab = "today" | "events" | "plan" | "bible" | "community" | "settings";
+type Tab = "today" | "events" | "plan" | "bible" | "messages" | "community" | "settings";
 
 export default function App() {
   const { settings, user, skippedAuth, skipAuth, isAuthTransitioning } = useAppState();
@@ -71,6 +72,12 @@ export default function App() {
     return () => window.removeEventListener("navigate-bible", handler);
   }, []);
 
+  useEffect(() => {
+    const handler = () => setTab("community");
+    window.addEventListener("navigate-community", handler);
+    return () => window.removeEventListener("navigate-community", handler);
+  }, []);
+
   // Connect WebSocket when signed in
   useEffect(() => {
     const token = getToken();
@@ -112,6 +119,7 @@ export default function App() {
       {tab === "events" && <EventsScreen />}
       {tab === "plan" && <PlanScreen />}
       {tab === "bible" && <BibleScreen />}
+      {tab === "messages" && <MessagesScreen />}
       {tab === "community" && <GroupsScreen />}
       {tab === "settings" && <SettingsScreen />}
 
@@ -131,6 +139,10 @@ export default function App() {
         <button className={tab === "bible" ? "active" : ""} onClick={() => setTab("bible")}>
           <BookIcon />
           Bible
+        </button>
+        <button className={tab === "messages" ? "active" : ""} onClick={() => setTab("messages")}>
+          <MessagesIcon />
+          Messages
         </button>
         <button className={tab === "community" ? "active" : ""} onClick={() => setTab("community")}>
           <UsersIcon />

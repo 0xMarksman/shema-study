@@ -159,6 +159,15 @@ export function ChatIcon({ className }: IconProps) {
   );
 }
 
+export function MessagesIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-2 2 .7-4.2A7.5 7.5 0 1 1 20 11.5Z" />
+      <path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" strokeWidth="2.5" />
+    </svg>
+  );
+}
+
 export function SearchIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden>

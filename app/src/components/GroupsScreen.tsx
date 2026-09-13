@@ -60,6 +60,10 @@ export default function GroupsScreen() {
   const [showNotifs, setShowNotifs] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const visibleNotifications = [
+    ...notifications.filter((n) => !n.read),
+    ...notifications.filter((n) => n.read).slice(0, 5),
+  ];
 
   const reload = useCallback(async () => {
     if (!user) return;
@@ -156,10 +160,6 @@ export default function GroupsScreen() {
               title="Notifications"
               onClick={async () => {
                 setShowNotifs((v) => !v);
-                if (!showNotifs && unreadCount > 0) {
-                  await markNotificationsRead().catch(() => {});
-                  setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-                }
               }}
             >
               <BellIcon />
@@ -170,10 +170,18 @@ export default function GroupsScreen() {
               <div className="notif-panel">
                 <div className="notif-panel-header">
                   <span>Notifications</span>
-                  <button className="link-btn small" onClick={() => setShowNotifs(false)}>Close</button>
+                  <div className="notif-panel-actions">
+                    {unreadCount > 0 && (
+                      <button className="link-btn small" onClick={async () => {
+                        await markNotificationsRead().catch(() => {});
+                        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+                      }}>Mark all read</button>
+                    )}
+                    <button className="link-btn small" onClick={() => setShowNotifs(false)}>Close</button>
+                  </div>
                 </div>
-                {notifications.length === 0 && <p className="notif-empty">No notifications yet.</p>}
-                {notifications.slice(0, 20).map((n) => {
+                {visibleNotifications.length === 0 && <p className="notif-empty">No notifications yet.</p>}
+                {visibleNotifications.map((n) => {
                   const canNav = !!(n.channelId && (n.type === "message" || n.type === "reaction"));
                   const channelTitle = n.data.channelTitle
                     ? String(n.data.channelTitle)
