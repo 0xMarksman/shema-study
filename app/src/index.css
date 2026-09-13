@@ -1069,12 +1069,12 @@ input:focus-visible, select:focus-visible, button:focus-visible {
 }
 
 .audio-mini-dock {
-  position: sticky;
-  bottom: calc(8px + env(safe-area-inset-bottom));
+  position: fixed;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: calc(var(--tab-bar-h) + 14px + env(safe-area-inset-bottom));
   z-index: 6;
   width: fit-content;
-  margin-left: auto;
-  margin-bottom: 12px;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 4px;

@@ -41,11 +41,17 @@ function isKokoroVoice(voiceURI: string): boolean {
 
 async function loadKokoro(): Promise<KokoroTTS> {
   if (!kokoroPromise) {
-    kokoroPromise = import("kokoro-js").then(({ KokoroTTS: TTS }) =>
-      TTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
-        dtype: "q8",
-      }),
-    );
+    kokoroPromise = import("kokoro-js").then(async ({ KokoroTTS: TTS }) => {
+      const model = "onnx-community/Kokoro-82M-v1.0-ONNX";
+      if (typeof navigator !== "undefined" && "gpu" in navigator) {
+        try {
+          return await TTS.from_pretrained(model, { dtype: "q8", device: "webgpu" });
+        } catch {
+          // Fall through to WASM on browsers whose WebGPU implementation cannot load the model.
+        }
+      }
+      return TTS.from_pretrained(model, { dtype: "q8", device: "wasm" });
+    });
   }
   return kokoroPromise;
 }
@@ -173,12 +179,20 @@ export function useBibleSpeech() {
         try {
           const tts = await loadKokoro();
           const voice = (options.voiceURI.slice(KOKORO_PREFIX.length) || "af_heart") as NonNullable<Parameters<KokoroTTS["generate"]>[1]>["voice"];
-          for (const block of blocks) {
+          const chunks: SpeechBlock[][] = [];
+          for (let index = 0; index < blocks.length; index += 4) {
+            chunks.push(blocks.slice(index, index + 4));
+          }
+          let nextGenerated = await tts.generate(chunks[0].map((block) => block.text).join(" "), { voice, speed: options.rate });
+          for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex += 1) {
             if (runId.current !== localRun) return;
-            options.onVerseStart?.(block.verse ?? null);
-            const generated = await tts.generate(block.text, { voice, speed: options.rate });
-            if (runId.current !== localRun) return;
-            const url = URL.createObjectURL(generated.toBlob());
+            const chunk = chunks[chunkIndex];
+            options.onVerseStart?.(chunk[0]?.verse ?? null);
+            const followingChunk = chunks[chunkIndex + 1];
+            const followingGenerated = followingChunk
+              ? tts.generate(followingChunk.map((block) => block.text).join(" "), { voice, speed: options.rate })
+              : null;
+            const url = URL.createObjectURL(nextGenerated.toBlob());
             objectUrlRef.current = url;
             audio.src = url;
             await new Promise<void>((resolve, reject) => {
@@ -188,6 +202,7 @@ export function useBibleSpeech() {
             });
             URL.revokeObjectURL(url);
             objectUrlRef.current = null;
+            if (followingGenerated) nextGenerated = await followingGenerated;
           }
           if (runId.current === localRun) {
             setStatus("idle");

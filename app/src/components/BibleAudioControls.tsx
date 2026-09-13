@@ -28,7 +28,7 @@ export function BibleAudioControls({
   pauseSignal?: number;
 }) {
   const { settings, updateSettings } = useAppState();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [showPanel, setShowPanel] = useState(false);
   const pendingAutoPlaySignal = useRef<number | undefined>(undefined);
   const { status, speak, pause, resume, stop, supported } = useBibleSpeech();
