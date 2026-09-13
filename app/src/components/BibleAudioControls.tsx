@@ -34,7 +34,7 @@ export function BibleAudioControls({
   const { status, speak, pause, resume, stop, supported } = useBibleSpeech();
 
   const blocks = useMemo(() => (verses ? buildBibleSpeechBlocks(reference, verses) : []), [reference, verses]);
-  const selectedVoice = KOKORO_VOICES.find((voice) => `kokoro:${voice.id}` === settings.bibleVoiceURI) ?? KOKORO_VOICES[0];
+  const selectedVoice = KOKORO_VOICES.find((voice) => `kokoro:${voice.id}` === settings.bibleVoiceURI) ?? null;
 
   useEffect(() => {
     stop();
@@ -162,7 +162,7 @@ export function BibleAudioControls({
 
         <div className="audio-dock__meta">
           <span className={`audio-dock__status audio-dock__status--${status}`}>{statusLabel}</span>
-          <span className="audio-dock__detail">{selectedVoice.name} · {selectedVoice.gender}</span>
+          <span className="audio-dock__detail">{selectedVoice ? `${selectedVoice.name} · ${selectedVoice.gender}` : "Fast browser voice"}</span>
         </div>
 
         <div className="audio-dock__actions">
@@ -193,7 +193,7 @@ export function BibleAudioControls({
 
             <div className="small muted" style={{ marginBottom: 8 }}>
               {supported
-                ? `Kokoro voice: ${selectedVoice.name} (${selectedVoice.gender}) · ${settings.bibleSpeechRate.toFixed(2)}x`
+                ? `${selectedVoice ? `Kokoro voice: ${selectedVoice.name} (${selectedVoice.gender})` : "Fast browser voice"} · ${settings.bibleSpeechRate.toFixed(2)}x`
                 : "Audio playback is not supported in this browser."}
             </div>
 
@@ -207,9 +207,10 @@ export function BibleAudioControls({
                     value={settings.bibleVoiceURI}
                     onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
                   >
+                    <option value="">Fast browser voice (recommended)</option>
                     {KOKORO_VOICES.map((voice) => (
                       <option key={voice.id} value={`kokoro:${voice.id}`}>
-                        {voice.name} · {voice.gender} · {voice.language}
+                        High quality: {voice.name} · {voice.gender} · {voice.language}
                       </option>
                     ))}
                   </select>

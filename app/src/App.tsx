@@ -14,11 +14,12 @@ import { getOrCreateKeyPair, exportPublicKey } from "./lib/encryption";
 import { realtime, buildWsUrl } from "./lib/realtime";
 import { useAppState } from "./state/AppState";
 
-type Tab = "today" | "events" | "plan" | "bible" | "messages" | "community" | "settings";
+type Tab = "today" | "events" | "plan" | "bible" | "messages" | "groups" | "settings";
 
 export default function App() {
   const { settings, user, skippedAuth, skipAuth, isAuthTransitioning } = useAppState();
   const [tab, setTab] = useState<Tab>("today");
+  const [readerOpen, setReaderOpen] = useState(false);
 
   // Apply appearance settings as root data-attributes driving the CSS variables.
   useEffect(() => {
@@ -74,9 +75,17 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const handler = () => setTab("community");
-    window.addEventListener("navigate-community", handler);
-    return () => window.removeEventListener("navigate-community", handler);
+    const handler = () => setTab("groups");
+    window.addEventListener("navigate-groups", handler);
+    return () => window.removeEventListener("navigate-groups", handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      setReaderOpen((event as CustomEvent<boolean>).detail);
+    };
+    window.addEventListener("reader-visibility", handler);
+    return () => window.removeEventListener("reader-visibility", handler);
   }, []);
 
   useEffect(() => {
@@ -122,13 +131,13 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <AlertsCenter />
+      {tab !== "bible" && !readerOpen && <AlertsCenter />}
       {tab === "today" && <TodayScreen />}
       {tab === "events" && <EventsScreen />}
       {tab === "plan" && <PlanScreen />}
       {tab === "bible" && <BibleScreen />}
       {tab === "messages" && <MessagesScreen />}
-      {tab === "community" && <GroupsScreen />}
+      {tab === "groups" && <GroupsScreen />}
       {tab === "settings" && <SettingsScreen />}
 
       <nav className="tab-bar" aria-label="Main">
@@ -152,9 +161,9 @@ export default function App() {
           <MessagesIcon />
           Messages
         </button>
-        <button className={tab === "community" ? "active" : ""} onClick={() => setTab("community")}>
+        <button className={tab === "groups" ? "active" : ""} onClick={() => setTab("groups")}>
           <UsersIcon />
-          Community
+          Groups
         </button>
         <button
           className={tab === "settings" ? "active" : ""}

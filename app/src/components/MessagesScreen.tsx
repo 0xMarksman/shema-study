@@ -103,7 +103,7 @@ export default function MessagesScreen() {
         <div className="groups-onboarding">
           <ChatIcon className="groups-onboarding-icon" />
           <p>Your conversations will appear here.</p>
-          <button className="btn-secondary" onClick={() => window.dispatchEvent(new Event("navigate-community"))}><UsersIcon /> Browse Community</button>
+          <button className="btn-secondary" onClick={() => window.dispatchEvent(new Event("navigate-groups"))}><UsersIcon /> Browse Groups</button>
         </div>
       )}
     </div>

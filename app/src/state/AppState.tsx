@@ -120,7 +120,12 @@ function migrateState(raw: PlanState): PlanState {
   const settings = {
     ...DEFAULT_SETTINGS,
     ...raw.settings,
-    bibleVoiceURI: raw.settings?.bibleVoiceURI || DEFAULT_SETTINGS.bibleVoiceURI,
+    // The previous default ran Kokoro inference on the UI thread. Keep it opt-in
+    // so existing users return to the responsive browser speech path.
+    bibleVoiceURI:
+      !raw.settings?.bibleVoiceURI || raw.settings.bibleVoiceURI === "kokoro:af_heart"
+        ? DEFAULT_SETTINGS.bibleVoiceURI
+        : raw.settings.bibleVoiceURI,
   };
   const progress = Array.isArray(raw.progress) ? raw.progress : [];
   const answers = raw.answers && typeof raw.answers === "object" ? raw.answers : {};

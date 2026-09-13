@@ -435,7 +435,7 @@ function RemindersCard() {
 
 function AudioBibleCard() {
   const { settings, updateSettings } = useAppState();
-  const selectedVoice = KOKORO_VOICES.find((voice) => `kokoro:${voice.id}` === settings.bibleVoiceURI) ?? KOKORO_VOICES[0];
+  const selectedVoice = KOKORO_VOICES.find((voice) => `kokoro:${voice.id}` === settings.bibleVoiceURI) ?? null;
   const supported = typeof window !== "undefined";
 
   return (
@@ -452,9 +452,10 @@ function AudioBibleCard() {
               onChange={(e) => updateSettings({ bibleVoiceURI: e.target.value })}
               disabled={!supported}
             >
+              <option value="">Fast browser voice (recommended)</option>
               {KOKORO_VOICES.map((voice) => (
                 <option key={voice.id} value={`kokoro:${voice.id}`}>
-                  {voice.name} · {voice.gender} · {voice.language}
+                  High quality: {voice.name} · {voice.gender} · {voice.language}
                 </option>
               ))}
             </select>
@@ -507,7 +508,9 @@ function AudioBibleCard() {
         </div>
         <p className="small muted" style={{ margin: "8px 0 0" }}>
           {supported
-            ? `Current voice: ${selectedVoice.name} (${selectedVoice.gender}) · Kokoro on-device voice`
+            ? selectedVoice
+              ? `Current voice: ${selectedVoice.name} (${selectedVoice.gender}) · Kokoro on-device voice`
+              : "Current voice: Fast browser voice · recommended for smooth scrolling"
             : "Audio Bible playback is not supported in this browser."}
         </p>
       </div>

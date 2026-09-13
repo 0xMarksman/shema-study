@@ -60,6 +60,13 @@ export function ReaderOverlay({
   );
 
   useEffect(() => {
+    window.dispatchEvent(new CustomEvent("reader-visibility", { detail: true }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("reader-visibility", { detail: false }));
+    };
+  }, []);
+
+  useEffect(() => {
     bodyRef.current?.scrollTo({ top: 0 });
     setActiveVerse(null);
     setSelectedVerse(null);

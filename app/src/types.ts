@@ -142,7 +142,7 @@ export const DEFAULT_SETTINGS: Settings = {
   redLetters: true,
   lastBookId: 40,
   lastChapter: 1,
-  bibleVoiceURI: "kokoro:af_heart",
+  bibleVoiceURI: "",
   bibleSpeechRate: 1,
   bibleSpeechPitch: 1,
   bibleAutoScroll: true,
